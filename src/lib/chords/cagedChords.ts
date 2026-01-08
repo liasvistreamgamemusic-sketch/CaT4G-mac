@@ -1932,6 +1932,7 @@ function parseChordForCAGED(chordName: string): { root: string; quality: string 
 
 /**
  * CAGEDシステムに基づいてコードのフィンガリングを取得
+ * 全5フォーム（C, A, G, E, D）を含む
  */
 export function getCAGEDChordFingerings(chordName: string): ChordFingering[] {
   const parsed = parseChordForCAGED(chordName);
@@ -1942,23 +1943,68 @@ export function getCAGEDChordFingerings(chordName: string): ChordFingering[] {
 
   switch (quality) {
     case '':
-      return generateMajorCAGED(root);
+      return [
+        ...generateMajorCAGED(root),      // E and A forms
+        ...generateMajorCForm(root),       // C form
+        ...generateMajorGForm(root),       // G form
+        ...generateMajorDForm(root),       // D form
+      ];
     case 'm':
-      return generateMinorCAGED(root);
+      return [
+        ...generateMinorCAGED(root),       // E and A forms
+        ...generateMinorCForm(root),       // C form
+        ...generateMinorGForm(root),       // G form
+        ...generateMinorDForm(root),       // D form
+      ];
     case '7':
-      return generate7thCAGED(root);
+      return [
+        ...generate7thCAGED(root),         // E and A forms
+        ...generate7thCForm(root),         // C form
+        ...generate7thGForm(root),         // G form
+        ...generate7thDForm(root),         // D form
+      ];
     case 'm7':
-      return generateMinor7thCAGED(root);
+      return [
+        ...generateMinor7thCAGED(root),    // E and A forms
+        ...generateMinor7thCForm(root),    // C form
+        ...generateMinor7thGForm(root),    // G form
+        ...generateMinor7thDForm(root),    // D form
+      ];
     case 'M7':
-      return generateMajor7thCAGED(root);
+      return [
+        ...generateMajor7thCAGED(root),    // E and A forms
+        ...generateMajor7thCForm(root),    // C form
+        ...generateMajor7thGForm(root),    // G form
+        ...generateMajor7thDForm(root),    // D form
+      ];
     case 'm6':
-      return generateMinor6thCAGED(root);
+      return [
+        ...generateMinor6thCAGED(root),    // E and A forms
+        ...generateMinor6thCForm(root),    // C form
+        ...generateMinor6thGForm(root),    // G form
+        ...generateMinor6thDForm(root),    // D form
+      ];
     case '6':
-      return generateMajor6thCAGED(root);
+      return [
+        ...generateMajor6thCAGED(root),    // E and A forms
+        ...generateMajor6thCForm(root),    // C form
+        ...generateMajor6thGForm(root),    // G form
+        ...generateMajor6thDForm(root),    // D form
+      ];
     case 'mM7':
-      return generateMinorMajor7thCAGED(root);
+      return [
+        ...generateMinorMajor7thCAGED(root),   // E and A forms
+        ...generateMinorMajor7thCForm(root),   // C form
+        ...generateMinorMajor7thGForm(root),   // G form
+        ...generateMinorMajor7thDForm(root),   // D form
+      ];
     case 'sus4':
-      return generateSus4CAGED(root);
+      return [
+        ...generateSus4CAGED(root),        // E and A forms
+        ...generateSus4CForm(root),        // C form
+        ...generateSus4GForm(root),        // G form
+        ...generateSus4DForm(root),        // D form
+      ];
     default:
       return [];
   }
