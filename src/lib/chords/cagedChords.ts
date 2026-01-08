@@ -789,6 +789,182 @@ export function generateMinorCForm(root: string): ChordFingering[] {
 }
 
 /**
+ * セブンスコード(7)のCフォームを生成（5弦ルート）
+ * C7フォーム: 開放C7コードの形をフレット移動
+ * 開放C7: x32310 (6弦から1弦)
+ */
+export function generate7thCForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret5 = ROOT_TO_FRET_5STRING[root];
+
+  if (fret5 !== undefined) {
+    if (fret5 === 3) {
+      // 開放弦C7コード（ルートがCの場合）
+      fingerings.push({
+        id: `${root}7-C7-open`,
+        frets: [0, 1, 3, 2, 3, null],
+        fingers: [null, 1, 3, 2, 4, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'medium',
+      });
+    } else {
+      // C7フォームバレー
+      const offset = fret5 - 3;
+      const baseFret = Math.max(1, fret5 - 2);
+      fingerings.push({
+        id: `${root}7-C7-barre`,
+        frets: [offset, 1 + offset, fret5, 2 + offset, fret5, null],
+        fingers: [1, 2, 4, 3, 4, null],
+        barreAt: offset > 0 ? offset : null,
+        barreStrings: offset > 0 ? [0, 1] : null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナーセブンスコード(m7)のCフォームを生成（5弦ルート）
+ * Cm7フォーム: 開放Cm7コードの形をフレット移動
+ * 開放Cm7: x31313 (6弦から1弦)
+ */
+export function generateMinor7thCForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret5 = ROOT_TO_FRET_5STRING[root];
+
+  if (fret5 !== undefined) {
+    if (fret5 === 3) {
+      // 開放弦Cm7コード（ルートがCの場合）
+      fingerings.push({
+        id: `${root}m7-Cm7-open`,
+        frets: [3, 1, 3, 1, 3, null],
+        fingers: [3, 1, 4, 2, 4, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'hard',
+      });
+    } else {
+      // Cm7フォームバレー
+      const offset = fret5 - 3;
+      const baseFret = Math.max(1, fret5 - 2);
+      fingerings.push({
+        id: `${root}m7-Cm7-barre`,
+        frets: [fret5, 1 + offset, fret5, 1 + offset, fret5, null],
+        fingers: [3, 1, 4, 2, 4, null],
+        barreAt: 1 + offset > 0 ? 1 + offset : null,
+        barreStrings: 1 + offset > 0 ? [1, 3] : null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * メジャーセブンスコード(M7)のCフォームを生成（5弦ルート）
+ * CM7フォーム: 開放Cmaj7コードの形をフレット移動
+ * 開放Cmaj7: x32000 (6弦から1弦)
+ */
+export function generateMajor7thCForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret5 = ROOT_TO_FRET_5STRING[root];
+
+  if (fret5 !== undefined) {
+    if (fret5 === 3) {
+      // 開放弦Cmaj7コード（ルートがCの場合）
+      fingerings.push({
+        id: `${root}M7-CM7-open`,
+        frets: [0, 0, 0, 2, 3, null],
+        fingers: [null, null, null, 2, 3, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // CM7フォームバレー
+      const offset = fret5 - 3;
+      const baseFret = Math.max(1, fret5 - 2);
+      fingerings.push({
+        id: `${root}M7-CM7-barre`,
+        frets: [offset, offset, offset, 2 + offset, fret5, null],
+        fingers: [1, 1, 1, 3, 4, null],
+        barreAt: offset > 0 ? offset : null,
+        barreStrings: offset > 0 ? [0, 2] : null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナーメジャーセブンスコード(mM7)のCフォームを生成（5弦ルート）
+ * CmM7フォーム: 開放CmM7コードの形をフレット移動
+ * 開放CmM7: x31003 (6弦から1弦)
+ */
+export function generateMinorMajor7thCForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret5 = ROOT_TO_FRET_5STRING[root];
+
+  if (fret5 !== undefined) {
+    if (fret5 === 3) {
+      // 開放弦CmM7コード（ルートがCの場合）
+      fingerings.push({
+        id: `${root}mM7-CmM7-open`,
+        frets: [3, 0, 0, 1, 3, null],
+        fingers: [3, null, null, 1, 4, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'medium',
+      });
+    } else {
+      // CmM7フォームバレー
+      const offset = fret5 - 3;
+      const baseFret = Math.max(1, fret5 - 2);
+      fingerings.push({
+        id: `${root}mM7-CmM7-barre`,
+        frets: [fret5, offset, offset, 1 + offset, fret5, null],
+        fingers: [4, 1, 1, 2, 4, null],
+        barreAt: offset > 0 ? offset : null,
+        barreStrings: offset > 0 ? [1, 2] : null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
  * コード名からルート音と品質を分離
  */
 function parseChordForCAGED(chordName: string): { root: string; quality: string } | null {
