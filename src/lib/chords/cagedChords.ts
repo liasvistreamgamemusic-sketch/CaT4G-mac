@@ -1506,6 +1506,98 @@ export function generateSus4GForm(root: string): ChordFingering[] {
 }
 
 /**
+ * メジャーコードのDフォームを生成（4弦ルート）
+ * Dフォーム: 開放Dコードの形をフレット移動
+ * 開放D: xx0232 (6弦から1弦) = [2, 3, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateMajorDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦Dコード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}-D-open`,
+        frets: [2, 3, 2, 0, null, null],
+        fingers: [2, 3, 1, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // Dフォームバレー
+      // Dフォームの基準：Dコードの4弦0フレットからのオフセット
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}-D-barre`,
+        frets: [fret4 + 2, fret4 + 3, fret4 + 2, fret4, null, null],
+        fingers: [2, 4, 3, 1, null, null],
+        barreAt: null, // Dフォームは通常バレーなし（各弦を個別に押さえる）
+        barreStrings: null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'hard' : 'hard', // Dフォームバレーは常に難しい
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナーコードのDフォームを生成（4弦ルート）
+ * Dmフォーム: 開放Dmコードの形をフレット移動
+ * 開放Dm: xx0231 (6弦から1弦) = [1, 3, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateMinorDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦Dmコード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}m-Dm-open`,
+        frets: [1, 3, 2, 0, null, null],
+        fingers: [1, 3, 2, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // Dmフォームバレー
+      // マイナーはメジャーから3度を半音下げる（1弦: fret4+2 → fret4+1）
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}m-Dm-barre`,
+        frets: [fret4 + 1, fret4 + 3, fret4 + 2, fret4, null, null],
+        fingers: [1, 4, 3, 1, null, null],
+        barreAt: fret4, // 1弦と4弦でバレー可能
+        barreStrings: [0, 3],
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'hard' : 'hard', // Dmフォームバレーは常に難しい
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
  * コード名からルート音と品質を分離
  */
 function parseChordForCAGED(chordName: string): { root: string; quality: string } | null {
