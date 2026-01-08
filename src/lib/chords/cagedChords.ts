@@ -1598,6 +1598,328 @@ export function generateMinorDForm(root: string): ChordFingering[] {
 }
 
 /**
+ * セブンスコード(7)のDフォームを生成（4弦ルート）
+ * D7フォーム: 開放D7コードの形をフレット移動
+ * 開放D7: xx0212 (6弦から1弦) = [2, 1, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generate7thDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦D7コード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}7-D7-open`,
+        frets: [2, 1, 2, 0, null, null],
+        fingers: [2, 1, 3, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // D7フォームバレー
+      // 7thはメジャーから7度を半音下げる（2弦: fret4+3 → fret4+1）
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}7-D7-barre`,
+        frets: [fret4 + 2, fret4 + 1, fret4 + 2, fret4, null, null],
+        fingers: [2, 1, 3, 1, null, null],
+        barreAt: fret4, // 2弦と4弦でバレー可能
+        barreStrings: [1, 3],
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'medium' : 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナーセブンスコード(m7)のDフォームを生成（4弦ルート）
+ * Dm7フォーム: 開放Dm7コードの形をフレット移動
+ * 開放Dm7: xx0211 (6弦から1弦) = [1, 1, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateMinor7thDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦Dm7コード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}m7-Dm7-open`,
+        frets: [1, 1, 2, 0, null, null],
+        fingers: [1, 2, 3, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // Dm7フォームバレー
+      // m7はマイナーから7度を半音下げる
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}m7-Dm7-barre`,
+        frets: [fret4 + 1, fret4 + 1, fret4 + 2, fret4, null, null],
+        fingers: [1, 1, 3, 1, null, null],
+        barreAt: fret4, // 1-4弦でバレー
+        barreStrings: [0, 3],
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'medium' : 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * メジャーセブンスコード(M7)のDフォームを生成（4弦ルート）
+ * DM7フォーム: 開放DM7コードの形をフレット移動
+ * 開放DM7: xx0222 (6弦から1弦) = [2, 2, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateMajor7thDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦DM7コード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}M7-DM7-open`,
+        frets: [2, 2, 2, 0, null, null],
+        fingers: [1, 2, 3, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // DM7フォームバレー
+      // M7はメジャーから7度を全音下げる（導音）
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}M7-DM7-barre`,
+        frets: [fret4 + 2, fret4 + 2, fret4 + 2, fret4, null, null],
+        fingers: [2, 3, 4, 1, null, null],
+        barreAt: null, // 各弦を個別に押さえる
+        barreStrings: null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'hard' : 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナーメジャーセブンスコード(mM7)のDフォームを生成（4弦ルート）
+ * DmM7フォーム: 開放DmM7コードの形をフレット移動
+ * 開放DmM7: xx0221 (6弦から1弦) = [1, 2, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateMinorMajor7thDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦DmM7コード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}mM7-DmM7-open`,
+        frets: [1, 2, 2, 0, null, null],
+        fingers: [1, 2, 3, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // DmM7フォームバレー
+      // mM7はマイナーにメジャー7度を加える
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}mM7-DmM7-barre`,
+        frets: [fret4 + 1, fret4 + 2, fret4 + 2, fret4, null, null],
+        fingers: [1, 2, 3, 1, null, null],
+        barreAt: fret4, // 1弦と4弦でバレー
+        barreStrings: [0, 3],
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'hard' : 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * メジャー6thコード(6)のDフォームを生成（4弦ルート）
+ * D6フォーム: 開放D6コードの形をフレット移動
+ * 開放D6: xx0202 (6弦から1弦) = [2, 0, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateMajor6thDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦D6コード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}6-D6-open`,
+        frets: [2, 0, 2, 0, null, null],
+        fingers: [1, null, 2, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // D6フォームバレー
+      // 6thはメジャー5度の上に長6度を加える
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}6-D6-barre`,
+        frets: [fret4 + 2, fret4, fret4 + 2, fret4, null, null],
+        fingers: [2, 1, 3, 1, null, null],
+        barreAt: fret4, // 2弦と4弦でバレー
+        barreStrings: [1, 3],
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'medium' : 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナー6thコード(m6)のDフォームを生成（4弦ルート）
+ * Dm6フォーム: 開放Dm6コードの形をフレット移動
+ * 開放Dm6: xx0201 (6弦から1弦) = [1, 0, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateMinor6thDForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦Dm6コード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}m6-Dm6-open`,
+        frets: [1, 0, 2, 0, null, null],
+        fingers: [1, null, 2, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // Dm6フォームバレー
+      // m6はマイナーに長6度を加える
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}m6-Dm6-barre`,
+        frets: [fret4 + 1, fret4, fret4 + 2, fret4, null, null],
+        fingers: [2, 1, 3, 1, null, null],
+        barreAt: fret4, // 2弦と4弦でバレー
+        barreStrings: [1, 3],
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'medium' : 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * sus4コードのDフォームを生成（4弦ルート）
+ * Dsus4フォーム: 開放Dsus4コードの形をフレット移動
+ * 開放Dsus4: xx0233 (6弦から1弦) = [3, 3, 2, 0, null, null] (1弦から6弦の配列)
+ * ルート: 4弦開放（D=0）
+ * 4弦コードボイシング（1-4弦のみ使用、5-6弦はミュート）
+ */
+export function generateSus4DForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret4 = ROOT_TO_FRET_4STRING[root];
+
+  if (fret4 !== undefined) {
+    if (fret4 === 0) {
+      // 開放弦Dsus4コード（ルートがDの場合）
+      fingerings.push({
+        id: `${root}sus4-Dsus4-open`,
+        frets: [3, 3, 2, 0, null, null],
+        fingers: [3, 4, 2, null, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // Dsus4フォームバレー
+      // sus4は3度の代わりに4度を使う
+      const baseFret = fret4;
+      fingerings.push({
+        id: `${root}sus4-Dsus4-barre`,
+        frets: [fret4 + 3, fret4 + 3, fret4 + 2, fret4, null, null],
+        fingers: [3, 4, 2, 1, null, null],
+        barreAt: null, // 各弦を個別に押さえる
+        barreStrings: null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, true, true],
+        isDefault: false,
+        difficulty: fret4 <= 7 ? 'hard' : 'hard',
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
  * コード名からルート音と品質を分離
  */
 function parseChordForCAGED(chordName: string): { root: string; quality: string } | null {
