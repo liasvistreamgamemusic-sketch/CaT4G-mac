@@ -53,3 +53,6 @@ export {
 
 // Dynamic chord generator
 export { generateChordFingering, generateChordFingerings } from './generator';
+
+// Shared utilities
+export { normalizeQuality } from './utils';

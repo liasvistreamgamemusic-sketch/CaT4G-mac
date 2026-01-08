@@ -11,6 +11,7 @@
  */
 
 import type { ChordFingering } from './types';
+import { normalizeQuality } from './utils';
 
 // ルート音からフレット位置へのマッピング
 // 6弦でのフレット位置（E=0, F=1, F#=2, G=3, ...）
@@ -702,29 +703,6 @@ function parseChordForCAGED(chordName: string): { root: string; quality: string 
   return { root: match[1], quality: match[2] || '' };
 }
 
-/**
- * 品質を正規化
- */
-function normalizeQualityForCAGED(quality: string): string {
-  const aliases: Record<string, string> = {
-    'maj7': 'M7',
-    'Maj7': 'M7',
-    'maj': '',
-    'min': 'm',
-    'mi': 'm',
-    '-': 'm',
-    'min7': 'm7',
-    '-7': 'm7',
-    'minMaj7': 'mM7',
-    'min/maj7': 'mM7',
-    'mMaj7': 'mM7',
-    'm(M7)': 'mM7',
-    'm/M7': 'mM7',
-    '-6': 'm6',
-    'min6': 'm6',
-  };
-  return aliases[quality] || quality;
-}
 
 /**
  * CAGEDシステムに基づいてコードのフィンガリングを取得
@@ -734,7 +712,7 @@ export function getCAGEDChordFingerings(chordName: string): ChordFingering[] {
   if (!parsed) return [];
 
   const { root } = parsed;
-  const quality = normalizeQualityForCAGED(parsed.quality);
+  const quality = normalizeQuality(parsed.quality);
 
   switch (quality) {
     case '':
@@ -767,7 +745,7 @@ export function isCAGEDSupported(chordName: string): boolean {
   const parsed = parseChordForCAGED(chordName);
   if (!parsed) return false;
 
-  const quality = normalizeQualityForCAGED(parsed.quality);
+  const quality = normalizeQuality(parsed.quality);
   const supportedQualities = ['', 'm', '7', 'm7', 'M7', 'm6', '6', 'mM7', 'sus4'];
   return supportedQualities.includes(quality);
 }
