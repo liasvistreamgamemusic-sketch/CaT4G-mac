@@ -28,12 +28,12 @@ const ROOT_TO_FRET_5STRING: Record<string, number> = {
 };
 
 // 4弦でのフレット位置（D=0, D#=1, E=2, F=3, ...）
-// 将来のDフォーム拡張用に保持
-// const ROOT_TO_FRET_4STRING: Record<string, number> = {
-//   'D': 0, 'D#': 1, 'Eb': 1, 'E': 2, 'F': 3, 'F#': 4, 'Gb': 4,
-//   'G': 5, 'G#': 6, 'Ab': 6, 'A': 7, 'A#': 8, 'Bb': 8,
-//   'B': 9, 'C': 10, 'C#': 11, 'Db': 11,
-// };
+// Dフォームサポート用
+const ROOT_TO_FRET_4STRING: Record<string, number> = {
+  'D': 0, 'D#': 1, 'Eb': 1, 'E': 2, 'F': 3, 'F#': 4, 'Gb': 4,
+  'G': 5, 'G#': 6, 'Ab': 6, 'A': 7, 'A#': 8, 'Bb': 8,
+  'B': 9, 'C': 10, 'C#': 11, 'Db': 11,
+};
 
 /**
  * メジャーコードのCAGEDフォームを生成
