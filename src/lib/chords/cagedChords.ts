@@ -694,6 +694,101 @@ export function generateSus4CAGED(root: string): ChordFingering[] {
 }
 
 /**
+ * メジャーコードのCフォームを生成（5弦ルート）
+ * Cフォーム: 開放Cコードの形をフレット移動
+ * 開放C: x32010 (6弦から1弦)
+ */
+export function generateMajorCForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret5 = ROOT_TO_FRET_5STRING[root];
+
+  if (fret5 !== undefined) {
+    if (fret5 === 3) {
+      // 開放弦Cコード（ルートがCの場合）
+      fingerings.push({
+        id: `${root}-C-open`,
+        frets: [0, 1, 0, 2, 3, null],
+        fingers: [null, 1, null, 2, 3, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // Cフォームバレー
+      // Cフォームの基準：Cコードの5弦3フレットからのオフセット
+      // fret5が示すフレットがルート位置
+      const offset = fret5 - 3;
+      // 開放Cコード: frets [0, 1, 0, 2, 3] に offset を加える
+      // ただし、すべての弦をバレーで押さえる必要がある
+      const baseFret = Math.max(1, fret5 - 2); // 最低フレット位置
+      fingerings.push({
+        id: `${root}-C-barre`,
+        frets: [offset, 1 + offset, offset, 2 + offset, fret5, null],
+        fingers: [1, 2, 1, 3, 4, null],
+        barreAt: offset > 0 ? offset : null,
+        barreStrings: offset > 0 ? [0, 2] : null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: fret5 <= 7 ? 'hard' : 'hard', // Cフォームバレーは常に難しい
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナーコードのCフォームを生成（5弦ルート）
+ * Cmフォーム: 開放Cmコードの形をフレット移動
+ * 開放Cm: x31010 (6弦から1弦) または x35543 バレー
+ */
+export function generateMinorCForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret5 = ROOT_TO_FRET_5STRING[root];
+
+  if (fret5 !== undefined) {
+    if (fret5 === 3) {
+      // 開放弦Cmコード（ルートがCの場合）
+      // Cm: x31010 または x35543 (よく使われるバレーフォーム)
+      // 簡易版のx31010を使用
+      fingerings.push({
+        id: `${root}m-Cm-open`,
+        frets: [0, 1, 0, 1, 3, null],
+        fingers: [null, 1, null, 2, 3, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: 'medium',
+      });
+    } else {
+      // Cmフォームバレー
+      // マイナーはメジャーから3度を半音下げる
+      const offset = fret5 - 3;
+      const baseFret = Math.max(1, fret5 - 2);
+      fingerings.push({
+        id: `${root}m-Cm-barre`,
+        frets: [offset, 1 + offset, offset, 1 + offset, fret5, null],
+        fingers: [1, 2, 1, 3, 4, null],
+        barreAt: offset > 0 ? offset : null,
+        barreStrings: offset > 0 ? [0, 2] : null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, true],
+        isDefault: false,
+        difficulty: fret5 <= 7 ? 'hard' : 'hard', // Cmフォームバレーは常に難しい
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
  * コード名からルート音と品質を分離
  */
 function parseChordForCAGED(chordName: string): { root: string; quality: string } | null {
