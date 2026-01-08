@@ -50,3 +50,6 @@ Cargo.lock
 # Tauri
 src-tauri/Cargo.lock
 src-tauri/.cargo/
+
+# Auto Claude data directory
+.auto-claude/
