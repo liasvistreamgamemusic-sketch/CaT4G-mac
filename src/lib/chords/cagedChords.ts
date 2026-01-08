@@ -1097,6 +1097,102 @@ export function generateSus4CForm(root: string): ChordFingering[] {
 }
 
 /**
+ * メジャーコードのGフォームを生成（6弦ルート）
+ * Gフォーム: 開放Gコードの形をフレット移動
+ * 開放G: 320003 (6弦から1弦) = [3, 0, 0, 0, 2, 3] (1弦から6弦の配列)
+ * ルート: 6弦3フレット
+ */
+export function generateMajorGForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret6 = ROOT_TO_FRET_6STRING[root];
+
+  if (fret6 !== undefined) {
+    if (fret6 === 3) {
+      // 開放弦Gコード（ルートがGの場合）
+      fingerings.push({
+        id: `${root}-G-open`,
+        frets: [3, 0, 0, 0, 2, 3],
+        fingers: [3, null, null, null, 1, 2],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, false],
+        isDefault: false,
+        difficulty: 'easy',
+      });
+    } else {
+      // Gフォームバレー
+      // Gフォームの基準：Gコードの6弦3フレットからのオフセット
+      const offset = fret6 - 3;
+      // 開放Gコード: [3, 0, 0, 0, 2, 3] に offset を加える
+      const baseFret = Math.max(1, fret6 - 2);
+      fingerings.push({
+        id: `${root}-G-barre`,
+        frets: [3 + offset, offset, offset, offset, 2 + offset, fret6],
+        fingers: [4, 1, 1, 1, 3, 2],
+        barreAt: offset > 0 ? offset : null,
+        barreStrings: offset > 0 ? [1, 3] : null,
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, false],
+        isDefault: false,
+        difficulty: 'hard', // Gフォームバレーは常に難しい（指を大きく広げる）
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
+ * マイナーコードのGフォームを生成（6弦ルート）
+ * Gmフォーム: 開放Gmコードの形をフレット移動
+ * 開放Gm: 310033 (6弦から1弦) = [3, 3, 0, 0, 1, 3] (1弦から6弦の配列)
+ * または一般的なバレーフォーム: 355333
+ * ルート: 6弦3フレット
+ */
+export function generateMinorGForm(root: string): ChordFingering[] {
+  const fingerings: ChordFingering[] = [];
+  const fret6 = ROOT_TO_FRET_6STRING[root];
+
+  if (fret6 !== undefined) {
+    if (fret6 === 3) {
+      // 開放弦Gmコード（ルートがGの場合）
+      // より実用的な355333フォームを使用
+      fingerings.push({
+        id: `${root}m-Gm-open`,
+        frets: [3, 3, 3, 5, 5, 3],
+        fingers: [1, 1, 1, 3, 4, 1],
+        barreAt: 3,
+        barreStrings: [0, 5],
+        baseFret: 3,
+        muted: [false, false, false, false, false, false],
+        isDefault: false,
+        difficulty: 'medium',
+      });
+    } else {
+      // Gmフォームバレー
+      // Gmフォームの基準：Gmコードの6弦3フレットからのオフセット
+      const offset = fret6 - 3;
+      // Gmバレーフォーム: [3, 3, 3, 5, 5, 3] に offset を加える
+      const baseFret = fret6;
+      fingerings.push({
+        id: `${root}m-Gm-barre`,
+        frets: [fret6, fret6, fret6, fret6 + 2, fret6 + 2, fret6],
+        fingers: [1, 1, 1, 3, 4, 1],
+        barreAt: fret6,
+        barreStrings: [0, 5],
+        baseFret: baseFret,
+        muted: [false, false, false, false, false, false],
+        isDefault: false,
+        difficulty: fret6 <= 5 ? 'hard' : 'hard', // Gフォームマイナーは常に難しい
+      });
+    }
+  }
+
+  return fingerings;
+}
+
+/**
  * コード名からルート音と品質を分離
  */
 function parseChordForCAGED(chordName: string): { root: string; quality: string } | null {
