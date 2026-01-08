@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+src-tauri/target/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test
+coverage/
+
+# Database (local development)
+*.db
+*.db-journal
+
+# Misc
+*.bak
+*.tmp
+
+# Screenshots (development artifacts)
+*.png
+
+# Claude Code (development only)
+.claude/state/
+.claude/memory/
+
+# Rust build artifacts
+Cargo.lock
+*.rs.bk
+
+# Tauri
+src-tauri/Cargo.lock
+src-tauri/.cargo/

@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Outfit", system-ui, sans-serif;
+    background-color: #0a0a0f;
+    color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(168, 85, 247, 0.3);
+  }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glow {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+
+  .hover-card {
+    @apply transition-all duration-200;
+  }
+
+  .hover-card:hover {
+    @apply bg-background-hover;
+  }
+
+  .active-item {
+    @apply bg-primary/10 border-l-2 border-primary;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-primary-hover px-4 py-2 rounded-lg font-medium;
+    @apply hover:shadow-lg hover:shadow-primary/30 transition-all duration-200;
+    @apply active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-background-surface px-4 py-2 rounded-lg font-medium;
+    @apply hover:bg-background-hover transition-all duration-200;
+    @apply active:scale-95;
+  }
+
+  .btn-icon {
+    @apply p-2 rounded-lg;
+    @apply hover:bg-background-hover transition-all duration-200;
+    @apply active:scale-95;
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full px-4 py-2;
+    @apply bg-background-surface/50 border border-white/10 rounded-lg;
+    @apply text-text-primary placeholder-text-muted;
+    @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+    @apply transition-colors duration-200;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply px-2 py-1 text-xs font-medium rounded-full;
+  }
+
+  .badge-primary {
+    @apply bg-primary/20 text-primary-light;
+  }
+
+  .badge-success {
+    @apply bg-accent-green/20 text-accent-green;
+  }
+
+  .badge-warning {
+    @apply bg-accent-yellow/20 text-accent-yellow;
+  }
+}
+
+@layer utilities {
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-pink-400 bg-clip-text text-transparent;
+  }
+
+  /* Animate on mount */
+  .animate-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+}

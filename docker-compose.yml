@@ -1,0 +1,56 @@
+# CaT4G Docker Compose Configuration
+# Usage:
+#   Development (frontend only): docker compose up dev
+#   Build production binary:     docker compose run build
+
+services:
+  # Development server (Vite frontend)
+  dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "1420:1420"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - cargo-cache:/root/.cargo/registry
+      - cargo-git:/root/.cargo/git
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: npm run dev -- --host 0.0.0.0
+
+  # Node.js only development (faster, no Rust)
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    ports:
+      - "1420:1420"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+
+  # Production build (Linux binary)
+  build:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.build
+    volumes:
+      - ./dist:/app/dist
+      - ./src-tauri/target:/app/src-tauri/target
+      - cargo-cache:/root/.cargo/registry
+      - cargo-git:/root/.cargo/git
+
+  # Lint and format check
+  lint:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run lint"
+
+volumes:
+  cargo-cache:
+  cargo-git:
