@@ -39,15 +39,25 @@ export function ChordLine({
 
   // テキストモード（コード名のみ）
   if (displayMode === 'text') {
+    // コード重なり防止: 各コードの表示位置を計算
+    const MIN_GAP = 1; // コード間の最小間隔（ch単位）
+    let occupiedRight = 0;
+
+    const chordsWithDisplayPos = transposedChords.map((chord) => {
+      const leftPos = Math.max(chord.position, occupiedRight);
+      occupiedRight = leftPos + chord.chord.length + MIN_GAP;
+      return { ...chord, displayPosition: leftPos };
+    });
+
     return (
       <div className="chord-line py-1 font-mono">
         {/* コード行 */}
         <div className="chords text-accent-primary font-semibold text-sm h-6 relative">
-          {transposedChords.map((chord, idx) => (
+          {chordsWithDisplayPos.map((chord, idx) => (
             <span
               key={idx}
               className="absolute cursor-pointer hover:text-accent-hover transition-colors"
-              style={{ left: `${chord.position}ch` }}
+              style={{ left: `${chord.displayPosition}ch` }}
               onClick={() => onChordClick?.(chord.chord)}
               title={`${chord.chord}の押さえ方を表示`}
             >
