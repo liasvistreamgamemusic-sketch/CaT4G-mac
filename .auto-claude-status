@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "001-",
+  "state": "complete",
+  "subtasks": {
+    "completed": 13,
+    "total": 13,
+    "in_progress": 0,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Integration and Wiring",
+    "id": null,
+    "total": 4
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 13,
+    "started_at": "2026-01-08T18:19:06.253682"
+  },
+  "last_update": "2026-01-08T18:47:51.316842"
+}

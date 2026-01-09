@@ -13,34 +13,94 @@ interface ChordDiagramModalProps {
   onClose: () => void;
 }
 
+/**
+ * フィンガリングIDからCAGEDフォーム名を抽出
+ * 例: "C-E-barre" -> "E", "Am-C-open" -> "C", "C-open" -> "C"
+ */
+function extractFormName(fingeringId: string): string | null {
+  // パターン: {root}{quality}-{form}-{variant} または {root}-{form}
+  // 例: "C-E-barre", "Am-Cm-open", "C-open"
+  const parts = fingeringId.split('-');
+  if (parts.length >= 2) {
+    const formPart = parts[1];
+    // CAGEDフォーム名を検出（大文字の場合）
+    if (['E', 'A', 'G', 'C', 'D'].includes(formPart)) {
+      return formPart;
+    }
+    // マイナーフォーム名を検出（Em, Am等）
+    if (formPart.length <= 3 && formPart.match(/^[A-G][mb]?$/)) {
+      return formPart[0]; // 最初の文字だけ返す（E, A, G, C, D）
+    }
+    // openやbarreが直接続く場合はルートがフォーム
+    if (['open', 'barre', 'easy'].includes(formPart)) {
+      // 最初のパートがルート音+フォーム（例: "C-open" -> C form）
+      const rootMatch = parts[0].match(/^([A-G][#b]?)/);
+      if (rootMatch) {
+        return rootMatch[1][0]; // ルートの最初の文字
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * フォーム名の表示用ラベルを取得
+ */
+function getFormLabel(fingeringId: string, baseFret: number): string {
+  const form = extractFormName(fingeringId);
+  const isOpen = baseFret === 1 && (fingeringId.includes('open') || !fingeringId.includes('barre'));
+
+  if (form) {
+    if (isOpen) {
+      return `${form}フォーム`;
+    }
+    return `${form}フォーム (${baseFret}f)`;
+  }
+
+  // フォームが特定できない場合
+  if (fingeringId.startsWith('generated-')) {
+    return `その他 (${baseFret}f)`;
+  }
+  return baseFret === 1 ? 'オープン' : `${baseFret}f`;
+}
+
 export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
   const [selectedFingeringIndex, setSelectedFingeringIndex] = useState(0);
   const [fingerings, setFingerings] = useState<ChordFingering[]>([]);
 
   // コードが変わったらフィンガリングを取得
+  // データベースのフィンガリングとCAGED生成のフィンガリングを結合
   useEffect(() => {
     if (!chord) {
       setFingerings([]);
       return;
     }
 
-    const def = getChordDefinition(chord);
-    if (def) {
-      setFingerings(def.fingerings);
-      // デフォルトを選択
-      const defaultIndex = def.fingerings.findIndex((f) => f.isDefault);
+    // generateChordFingerings は以下を結合する:
+    // 1. データベースのフィンガリング（分数コード等）
+    // 2. CAGEDシステムによる全5フォーム（C, A, G, E, D）
+    // 3. 標準コードライブラリ
+    // 4. 動的生成（フォールバック）
+    const allFingerings = generateChordFingerings(chord);
+
+    if (allFingerings.length > 0) {
+      setFingerings(allFingerings);
+      // デフォルトを選択（最初のものがデフォルト）
+      const defaultIndex = allFingerings.findIndex((f) => f.isDefault);
       setSelectedFingeringIndex(defaultIndex >= 0 ? defaultIndex : 0);
     } else {
-      // データベースにない場合は動的生成（複数の押さえ方を生成）
-      const generated = generateChordFingerings(chord);
-      if (generated.length > 0) {
-        setFingerings(generated);
+      // 動的生成できなかった場合、データベースから直接取得を試す
+      const def = getChordDefinition(chord);
+      if (def) {
+        setFingerings(def.fingerings);
+        const defaultIndex = def.fingerings.findIndex((f) => f.isDefault);
+        setSelectedFingeringIndex(defaultIndex >= 0 ? defaultIndex : 0);
       } else {
-        // 動的生成できなかった場合、デフォルトフィンガリングを試す
+        // 最終フォールバック
         const fallback = getDefaultFingering(chord);
         setFingerings(fallback ? [fallback] : []);
+        setSelectedFingeringIndex(0);
       }
-      setSelectedFingeringIndex(0);
     }
   }, [chord]);
 
@@ -128,22 +188,23 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
               </span>
             </div>
 
-            {/* 複数の押さえ方がある場合の切り替え */}
+            {/* 複数の押さえ方がある場合の切り替え（CAGEDフォーム名を表示） */}
             {fingerings.length > 1 && (
-              <div className="mt-4 flex items-center gap-2">
-                <span className="text-text-secondary text-sm">押さえ方:</span>
-                <div className="flex gap-1">
-                  {fingerings.map((_, index) => (
+              <div className="mt-4 flex flex-col items-center gap-2">
+                <span className="text-text-secondary text-sm">ポジション:</span>
+                <div className="flex flex-wrap justify-center gap-1">
+                  {fingerings.map((fingering, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedFingeringIndex(index)}
-                      className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                         index === selectedFingeringIndex
                           ? 'bg-accent-primary text-white'
                           : 'bg-white/10 text-text-secondary hover:bg-white/20'
                       }`}
+                      title={fingering.id}
                     >
-                      {index + 1}
+                      {getFormLabel(fingering.id, fingering.baseFret)}
                     </button>
                   ))}
                 </div>
