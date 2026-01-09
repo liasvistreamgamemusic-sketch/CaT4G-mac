@@ -1172,7 +1172,7 @@ export function generateMinorGForm(root: string): ChordFingering[] {
     } else {
       // Gmフォームバレー
       // Gmフォームの基準：Gmコードの6弦3フレットからのオフセット
-      const offset = fret6 - 3;
+
       // Gmバレーフォーム: [3, 3, 3, 5, 5, 3] に offset を加える
       const baseFret = fret6;
       fingerings.push({

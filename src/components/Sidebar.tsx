@@ -47,16 +47,17 @@ export function Sidebar({
   return (
     <aside className="w-72 h-full glass border-r border-border flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-border">
-        <h1 className="text-xl font-bold text-primary flex items-center gap-2">
-          <span className="w-8 h-8 rounded-lg bg-accent-primary/20 flex items-center justify-center">
-            <svg className="w-5 h-5 text-accent-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-            </svg>
-          </span>
-          CaT4G
-        </h1>
-        <p className="text-xs text-text-muted mt-1">Chords and Tabs for Guitar</p>
+      <div className="p-4 border-b border-border flex items-center gap-3">
+        <img
+          src="/icon.png"
+          alt="CaT4G"
+          className="h-10 w-10 object-contain"
+        />
+        <img
+          src="/logo.png"
+          alt="CaT4G - Chords and Tabs for Guitar"
+          className="h-10 w-auto"
+        />
       </div>
 
       {/* Search */}
