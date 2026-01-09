@@ -40,10 +40,15 @@ export function ChordLine({
   // テキストモード（コード名のみ）
   if (displayMode === 'text') {
     // コード重なり防止: 各コードの表示位置を計算
+    // 1. まずpositionでソート（左から右の順序を保証）
+    const sortedChords = [...transposedChords].sort((a, b) => a.position - b.position);
+
+    // 2. 重なり防止のため表示位置を調整
     const MIN_GAP = 1; // コード間の最小間隔（ch単位）
     let occupiedRight = 0;
 
-    const chordsWithDisplayPos = transposedChords.map((chord) => {
+    const chordsWithDisplayPos = sortedChords.map((chord) => {
+      // 元の位置か、前のコードの右端+間隔の大きい方を使用
       const leftPos = Math.max(chord.position, occupiedRight);
       occupiedRight = leftPos + chord.chord.length + MIN_GAP;
       return { ...chord, displayPosition: leftPos };
