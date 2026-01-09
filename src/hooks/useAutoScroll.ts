@@ -64,6 +64,7 @@ export function useAutoScroll({
 }: UseAutoScrollOptions): UseAutoScrollReturn {
   const intervalRef = useRef<number | null>(null);
   const hasReachedEndRef = useRef(false);
+  const accumulatedPixelsRef = useRef(0);
 
   /**
    * Calculate the effective scroll speed
@@ -99,9 +100,10 @@ export function useAutoScroll({
 
   // Main scroll effect
   useEffect(() => {
-    // Reset end detection when starting
+    // Reset state when starting
     if (isPlaying) {
       hasReachedEndRef.current = false;
+      accumulatedPixelsRef.current = 0;
     }
 
     if (isPlaying && containerRef.current) {
@@ -124,18 +126,25 @@ export function useAutoScroll({
           return;
         }
 
-        // Perform scroll
-        container.scrollBy({
-          top: BASE_SCROLL_AMOUNT * speed,
-          behavior: 'auto',
-        });
+        // Accumulate sub-pixel scroll amounts
+        accumulatedPixelsRef.current += BASE_SCROLL_AMOUNT * speed;
 
-        // Check again after scrolling
-        if (isAtBottom(container)) {
-          if (!hasReachedEndRef.current) {
-            hasReachedEndRef.current = true;
-            clearScrollInterval();
-            onReachEnd?.();
+        // Only scroll when accumulated >= 1px (browsers ignore sub-pixel scrolls)
+        if (accumulatedPixelsRef.current >= 1) {
+          const pixelsToScroll = Math.floor(accumulatedPixelsRef.current);
+          container.scrollBy({
+            top: pixelsToScroll,
+            behavior: 'auto',
+          });
+          accumulatedPixelsRef.current -= pixelsToScroll;
+
+          // Check again after scrolling
+          if (isAtBottom(container)) {
+            if (!hasReachedEndRef.current) {
+              hasReachedEndRef.current = true;
+              clearScrollInterval();
+              onReachEnd?.();
+            }
           }
         }
       }, SCROLL_INTERVAL);

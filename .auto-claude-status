@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "001-",
+  "spec": "002-",
   "state": "complete",
   "subtasks": {
-    "completed": 13,
-    "total": 13,
+    "completed": 1,
+    "total": 1,
     "in_progress": 0,
     "failed": 0
   },
   "phase": {
-    "current": "Integration and Wiring",
-    "id": null,
-    "total": 4
+    "current": "Fix Sub-Pixel Scroll Bug",
+    "id": 1,
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 13,
-    "started_at": "2026-01-08T18:19:06.253682"
+    "number": 1,
+    "started_at": "2026-01-09T09:20:36.323681"
   },
-  "last_update": "2026-01-08T18:47:51.316842"
+  "last_update": "2026-01-09T09:22:54.254331"
 }
