@@ -314,3 +314,71 @@ export interface ChordPreferenceRow {
   is_default: number;
   created_at: string;
 }
+
+// ============================================
+// Editor Types (Song Editor Page)
+// ============================================
+
+/** 演奏方法 */
+export type PlayingMethod = 'stroke' | 'arpeggio';
+
+/** ストロークの方向 */
+export type StrokeDirection = 'up' | 'down' | 'mute' | 'rest';
+
+/** アルペジオの要素（単音または同時に弾く複数弦） */
+export type ArpeggioElement = number | number[];  // number = 単音, number[] = 同時弾き
+
+/** 拡張されたコード位置（既存の ChordPosition を拡張） */
+export interface ExtendedChordPosition extends ChordPosition {
+  method?: PlayingMethod;
+  strokePattern?: StrokeDirection[];  // 例: ['down', 'up', 'down', 'up']
+  arpeggioOrder?: ArpeggioElement[];  // 例: [[6,3,2,1], 3, 2, 3] (同時弾き + 単音)
+  annotation?: string;                 // このコードへのメモ
+  voicingId?: UUID;                   // 選択した押さえ方の ID
+}
+
+/** 曲更新用入力 */
+export interface UpdateSongInput {
+  title?: string;
+  artistName?: string;
+  originalKey?: string;   // "調" はこのフィールドに対応（例: "C", "Am", "G"）
+  bpm?: number;
+  timeSignature?: TimeSignature;
+  capo?: number;
+  difficulty?: Difficulty;
+  notes?: string;
+  sections?: UpdateSectionInput[];
+}
+
+/** セクション更新用入力 */
+export interface UpdateSectionInput {
+  id?: UUID;              // 既存セクションの場合
+  name: string;
+  repeatCount?: number;
+  lines: UpdateLineInput[];
+}
+
+/** 行更新用入力 */
+export interface UpdateLineInput {
+  id?: UUID;              // 既存行の場合
+  lyrics: string;
+  chords: ExtendedChordPosition[];
+}
+
+/** 注釈（アノテーション） */
+export interface Annotation {
+  id: UUID;
+  lineId: UUID;
+  chordIndex: number | null;  // null = 行全体への注釈
+  content: string;
+  createdAt: ISODateTime;
+}
+
+/** DB行: annotations テーブル */
+export interface AnnotationRow {
+  id: string;
+  line_id: string;
+  chord_index: number | null;
+  content: string;
+  created_at: string;
+}

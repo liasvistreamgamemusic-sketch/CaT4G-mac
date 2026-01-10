@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "002-",
-  "state": "complete",
+  "spec": "005-chordwiki-url",
+  "state": "building",
   "subtasks": {
-    "completed": 1,
-    "total": 1,
-    "in_progress": 0,
+    "completed": 6,
+    "total": 9,
+    "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Fix Sub-Pixel Scroll Bug",
-    "id": 1,
-    "total": 1
+    "current": "Integration Testing",
+    "id": null,
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 1,
-    "started_at": "2026-01-09T09:20:36.323681"
+    "number": 503,
+    "started_at": "2026-01-10T00:00:38.168035"
   },
-  "last_update": "2026-01-09T09:22:54.254331"
+  "last_update": "2026-01-10T04:07:35.261775"
 }

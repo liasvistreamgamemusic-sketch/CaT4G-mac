@@ -55,6 +55,7 @@ export async function getSupportedSites(): Promise<SupportedSite[]> {
  * @returns true if the URL is from a supported site
  */
 export function isSupportedUrl(url: string): boolean {
+  // Note: 'chordwiki.org' matches both chordwiki.org and ja.chordwiki.org (actual site domain)
   const supportedDomains = ['ufret.jp', 'chordwiki.org', 'j-total.net'];
   return supportedDomains.some((domain) => url.includes(domain));
 }

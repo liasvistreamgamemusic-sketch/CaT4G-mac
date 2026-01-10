@@ -12,6 +12,7 @@ import type {
   Line,
   Tag,
   Playlist,
+  Annotation,
   SongWithDetails,
   SongListItem,
   SectionWithLines,
@@ -26,8 +27,10 @@ import type {
   LineRow,
   TagRow,
   PlaylistRow,
+  AnnotationRow,
   TimeSignature,
   Difficulty,
+  UpdateSongInput,
 } from '@/types/database';
 
 // ============================================
@@ -115,6 +118,16 @@ CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS annotations (
+    id TEXT PRIMARY KEY,
+    line_id TEXT NOT NULL REFERENCES lines(id) ON DELETE CASCADE,
+    chord_index INTEGER,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_annotations_line ON annotations(line_id);
 `;
 
 export async function initDatabase(): Promise<void> {
@@ -208,6 +221,16 @@ function toPlaylist(row: PlaylistRow): Playlist {
     description: row.description,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function toAnnotation(row: AnnotationRow): Annotation {
+  return {
+    id: row.id,
+    lineId: row.line_id,
+    chordIndex: row.chord_index,
+    content: row.content,
+    createdAt: row.created_at,
   };
 }
 
@@ -427,6 +450,118 @@ export async function deleteSong(id: UUID): Promise<void> {
   await database.execute('DELETE FROM songs WHERE id = ?', [id]);
 }
 
+export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void> {
+  const database = await getDatabase();
+  const now = new Date().toISOString();
+
+  // 1. Handle artist update if artistName is provided
+  let artistId: UUID | null = null;
+  let artistIdUpdated = false;
+
+  if (input.artistName !== undefined) {
+    if (input.artistName === null || input.artistName === '') {
+      // Remove artist association
+      artistId = null;
+      artistIdUpdated = true;
+    } else {
+      // Find existing artist or create new one
+      const existingArtist = await database.select<ArtistRow[]>(
+        'SELECT id FROM artists WHERE name = ?',
+        [input.artistName]
+      );
+
+      if (existingArtist.length > 0) {
+        artistId = existingArtist[0].id;
+      } else {
+        artistId = generateUUID();
+        await database.execute(
+          'INSERT INTO artists (id, name, created_at) VALUES (?, ?, ?)',
+          [artistId, input.artistName, now]
+        );
+      }
+      artistIdUpdated = true;
+    }
+  }
+
+  // 2. Build update query for songs table
+  const fields: string[] = [];
+  const values: unknown[] = [];
+
+  if (input.title !== undefined) {
+    fields.push('title = ?');
+    values.push(input.title);
+  }
+  if (artistIdUpdated) {
+    fields.push('artist_id = ?');
+    values.push(artistId);
+  }
+  if (input.originalKey !== undefined) {
+    fields.push('original_key = ?');
+    values.push(input.originalKey);
+  }
+  if (input.bpm !== undefined) {
+    fields.push('bpm = ?');
+    values.push(input.bpm);
+  }
+  if (input.timeSignature !== undefined) {
+    fields.push('time_signature = ?');
+    values.push(input.timeSignature);
+  }
+  if (input.capo !== undefined) {
+    fields.push('capo = ?');
+    values.push(input.capo);
+  }
+  if (input.difficulty !== undefined) {
+    fields.push('difficulty = ?');
+    values.push(input.difficulty);
+  }
+  if (input.notes !== undefined) {
+    fields.push('notes = ?');
+    values.push(input.notes);
+  }
+
+  // Always update updated_at when something changes
+  if (fields.length > 0 || input.sections !== undefined) {
+    fields.push('updated_at = ?');
+    values.push(now);
+    values.push(id);
+
+    if (fields.length > 1) { // More than just updated_at
+      await database.execute(
+        `UPDATE songs SET ${fields.join(', ')} WHERE id = ?`,
+        values
+      );
+    }
+  }
+
+  // 3. Update sections and lines if provided
+  if (input.sections !== undefined) {
+    // Delete existing sections (cascades to lines)
+    await database.execute('DELETE FROM sections WHERE song_id = ?', [id]);
+
+    // Insert new sections and lines
+    for (let sIdx = 0; sIdx < input.sections.length; sIdx++) {
+      const sectionInput = input.sections[sIdx];
+      const sectionId = sectionInput.id ?? generateUUID();
+
+      await database.execute(
+        'INSERT INTO sections (id, song_id, name, order_index, repeat_count) VALUES (?, ?, ?, ?, ?)',
+        [sectionId, id, sectionInput.name, sIdx, sectionInput.repeatCount ?? 1]
+      );
+
+      for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
+        const lineInput = sectionInput.lines[lIdx];
+        const lineId = lineInput.id ?? generateUUID();
+
+        await database.execute(
+          'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index) VALUES (?, ?, ?, ?, ?)',
+          [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx]
+        );
+      }
+    }
+  }
+}
+
 // ============================================
 // Playlists - Read Operations
 // ============================================
@@ -615,4 +750,47 @@ export async function getArtists(): Promise<Artist[]> {
     'SELECT * FROM artists ORDER BY name'
   );
   return rows.map(toArtist);
+}
+
+// ============================================
+// Annotations
+// ============================================
+
+export async function getAnnotations(lineId: UUID): Promise<Annotation[]> {
+  const database = await getDatabase();
+  const rows = await database.select<AnnotationRow[]>(
+    'SELECT * FROM annotations WHERE line_id = ? ORDER BY chord_index NULLS FIRST, created_at',
+    [lineId]
+  );
+  return rows.map(toAnnotation);
+}
+
+export async function createAnnotation(
+  lineId: UUID,
+  content: string,
+  chordIndex?: number
+): Promise<UUID> {
+  const database = await getDatabase();
+  const id = generateUUID();
+  const now = new Date().toISOString();
+
+  await database.execute(
+    'INSERT INTO annotations (id, line_id, chord_index, content, created_at) VALUES (?, ?, ?, ?, ?)',
+    [id, lineId, chordIndex ?? null, content, now]
+  );
+
+  return id;
+}
+
+export async function updateAnnotation(id: UUID, content: string): Promise<void> {
+  const database = await getDatabase();
+  await database.execute(
+    'UPDATE annotations SET content = ? WHERE id = ?',
+    [content, id]
+  );
+}
+
+export async function deleteAnnotation(id: UUID): Promise<void> {
+  const database = await getDatabase();
+  await database.execute('DELETE FROM annotations WHERE id = ?', [id]);
 }

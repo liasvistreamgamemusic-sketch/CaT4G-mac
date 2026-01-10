@@ -6,6 +6,7 @@ import { ControlBar } from '@/components/ControlBar';
 import { AddSongModal } from '@/components/AddSongModal';
 import { ChordDiagramModal } from '@/components/ChordDiagramModal';
 import { CreatePlaylistModal } from '@/components/CreatePlaylistModal';
+import { SongEditorPage } from '@/components/SongEditorPage';
 import { useAutoScroll, useKeyboardShortcuts, useMetronome } from '@/hooks';
 import type { TimeSignature } from '@/hooks';
 import {
@@ -25,9 +26,16 @@ import type {
   PlaylistWithCount,
 } from '@/types/database';
 
+// View type for state-based routing
+type AppView = 'main' | 'editor';
+
 function App() {
   // Refs
   const mainAreaRef = useRef<HTMLElement>(null);
+
+  // Routing state
+  const [currentView, setCurrentView] = useState<AppView>('main');
+  const [editingSongId, setEditingSongId] = useState<string | null>(null);
 
   // State
   const [songs, setSongs] = useState<SongListItem[]>([]);
@@ -246,6 +254,25 @@ function App() {
     setIsCreatePlaylistModalOpen(false);
   }, []);
 
+  // Editor navigation handlers
+  const handleEditClick = useCallback((songId: string) => {
+    setEditingSongId(songId);
+    setCurrentView('editor');
+  }, []);
+
+  const handleEditorClose = useCallback(async () => {
+    setEditingSongId(null);
+    setCurrentView('main');
+    // Refresh song list in case edits were made
+    const updatedSongs = await getSongs();
+    setSongs(updatedSongs);
+    // Refresh selected song if one is selected
+    if (selectedSongId) {
+      const updatedSong = await getSongById(selectedSongId);
+      setSelectedSong(updatedSong);
+    }
+  }, [selectedSongId]);
+
   // Loading state
   if (!isDbReady) {
     return (
@@ -258,8 +285,9 @@ function App() {
     );
   }
 
-  return (
-    <Layout>
+  // Main view content
+  const mainViewContent = (
+    <>
       <div className="flex h-screen">
         <Sidebar
           songs={songs}
@@ -268,6 +296,7 @@ function App() {
           onAddClick={handleAddClick}
           onDeleteSong={handleDeleteSong}
           onToggleFavorite={handleToggleFavorite}
+          onEditSong={handleEditClick}
           playlists={playlists}
           selectedPlaylistId={selectedPlaylistId}
           onPlaylistSelect={handlePlaylistSelect}
@@ -319,6 +348,25 @@ function App() {
         onClose={handleCreatePlaylistModalClose}
         onSave={handleCreatePlaylistSave}
       />
+    </>
+  );
+
+  // Editor view - SongEditorPage for editing songs
+  const editorViewContent = editingSongId ? (
+    <SongEditorPage
+      songId={editingSongId}
+      onClose={handleEditorClose}
+      onSongUpdated={async () => {
+        // Refresh song list when song is updated
+        const updatedSongs = await getSongs();
+        setSongs(updatedSongs);
+      }}
+    />
+  ) : null;
+
+  return (
+    <Layout>
+      {currentView === 'main' ? mainViewContent : editorViewContent}
     </Layout>
   );
 }

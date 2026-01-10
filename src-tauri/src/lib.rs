@@ -48,7 +48,7 @@ fn get_supported_sites() -> Vec<SupportedSite> {
         SupportedSite {
             name: "ChordWiki".to_string(),
             domain: "chordwiki.org".to_string(),
-            example_url: "https://chordwiki.org/wiki/SongName".to_string(),
+            example_url: "https://ja.chordwiki.org/wiki.cgi?c=view&t=SongName".to_string(),
         },
         SupportedSite {
             name: "J-Total".to_string(),

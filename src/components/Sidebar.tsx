@@ -9,6 +9,7 @@ interface SidebarProps {
   onAddClick: () => void;
   onDeleteSong?: (id: string) => void;
   onToggleFavorite?: (id: string) => void;
+  onEditSong?: (id: string) => void;
   // Playlist props
   playlists: PlaylistWithCount[];
   selectedPlaylistId: string | null;
@@ -23,6 +24,7 @@ export function Sidebar({
   onAddClick,
   onDeleteSong,
   onToggleFavorite,
+  onEditSong,
   playlists,
   selectedPlaylistId,
   onPlaylistSelect,
@@ -155,6 +157,7 @@ export function Sidebar({
                     onSelect={() => onSongSelect(song.id)}
                     onDelete={() => onDeleteSong?.(song.id)}
                     onToggleFavorite={() => onToggleFavorite?.(song.id)}
+                    onEdit={() => onEditSong?.(song.id)}
                   />
                 ))}
               </ul>
@@ -186,6 +189,7 @@ interface SongItemProps {
   onSelect: () => void;
   onDelete?: () => void;
   onToggleFavorite?: () => void;
+  onEdit?: () => void;
 }
 
 function SongItem({
@@ -194,6 +198,7 @@ function SongItem({
   onSelect,
   onDelete,
   onToggleFavorite,
+  onEdit,
 }: SongItemProps) {
   const [showMenu, setShowMenu] = useState(false);
 
@@ -265,6 +270,18 @@ function SongItem({
                   <span className="text-text-muted">☆</span> お気に入り
                 </>
               )}
+            </button>
+            <button
+              onClick={() => {
+                onEdit?.();
+                setShowMenu(false);
+              }}
+              className="w-full px-3 py-2 text-sm text-left hover:bg-white/10 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              編集
             </button>
             <button
               onClick={() => {

@@ -7,12 +7,15 @@ import type { ChordFingering } from '@/lib/chords/types';
 
 interface ChordDiagramHorizontalProps {
   fingering: ChordFingering;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   showFingers?: boolean;
 }
 
 // サイズ設定（横向き）
+// xs: 極小サイズ（エディタ内のコード下表示用）- 80pxコンポーネント内に収まるサイズ
+// dotSizeはdiagramサイズに比例してスケーリング
 const SIZES = {
+  xs: { width: 56, height: 36, dotSize: 4, fontSize: 4 },
   sm: { width: 96, height: 64, dotSize: 8, fontSize: 8 },
   md: { width: 160, height: 100, dotSize: 12, fontSize: 10 },
   lg: { width: 240, height: 150, dotSize: 16, fontSize: 12 },
@@ -181,12 +184,14 @@ export function ChordDiagramHorizontal({
         }
 
         if (fret === 0) {
+          // Ensure radius is always at least 1 (dotSize/2 - 3 can be negative for xs size)
+          const openStringRadius = Math.max(1, dotSize / 2 - 1);
           return (
             <circle
               key={`open-${stringIndex}`}
               cx={x}
               cy={y}
-              r={dotSize / 2 - 3}
+              r={openStringRadius}
               fill="none"
               stroke="#6b7280"
               strokeWidth={1.5}
