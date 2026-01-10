@@ -13,7 +13,7 @@ import type { ChordFingering } from './types';
 import { getStandardChordFingerings } from './standardChords';
 import { getCAGEDChordFingerings, isCAGEDSupported } from './cagedChords';
 import { getChordDefinition } from './database';
-import { normalizeQuality } from './utils';
+import { normalizeQuality, isFingeringDisplayable } from './utils';
 
 // 開放弦の音（標準チューニング）
 // [1弦(E4), 2弦(B3), 3弦(G3), 4弦(D3), 5弦(A2), 6弦(E2)]
@@ -362,8 +362,18 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
     }
   }
 
+  // Filter to only include displayable fingerings (all frets within baseFret+4)
+  // User explicitly stated: "表示フレット以外を押さえるコードは必要ない"
+  // So we return ONLY displayable fingerings, no fallback
+  const displayableFingerings = allFingerings.filter(isFingeringDisplayable);
+
+  // If no displayable fingerings, return empty array
+  if (displayableFingerings.length === 0) {
+    return [];
+  }
+
   // ソート: CAGEDシステム/標準ライブラリを優先、動的生成は最後
-  const sortedFingerings = allFingerings.sort((a, b) => {
+  const sortedFingerings = displayableFingerings.sort((a, b) => {
     // 動的生成（generated-で始まるID）は最後に
     const aIsGenerated = a.id.startsWith('generated-');
     const bIsGenerated = b.id.startsWith('generated-');

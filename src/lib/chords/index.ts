@@ -93,4 +93,9 @@ export {
 export { generateChordFingering, generateChordFingerings } from './generator';
 
 // Shared utilities
-export { normalizeQuality } from './utils';
+export {
+  normalizeQuality,
+  isFingeringDisplayable,
+  filterDisplayableFingerings,
+  DISPLAYED_FRET_COUNT,
+} from './utils';

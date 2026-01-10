@@ -12,10 +12,10 @@ interface ChordDiagramHorizontalProps {
 }
 
 // サイズ設定（横向き）
-// xs: 極小サイズ（エディタ内のコード下表示用）- 80pxコンポーネント内に収まるサイズ
+// xs: 極小サイズ（エディタ内のコード下表示用）- 88pxコンポーネント内に収まるサイズ
 // dotSizeはdiagramサイズに比例してスケーリング
 const SIZES = {
-  xs: { width: 56, height: 36, dotSize: 4, fontSize: 4 },
+  xs: { width: 72, height: 48, dotSize: 5, fontSize: 5 },
   sm: { width: 96, height: 64, dotSize: 8, fontSize: 8 },
   md: { width: 160, height: 100, dotSize: 12, fontSize: 10 },
   lg: { width: 240, height: 150, dotSize: 16, fontSize: 12 },
@@ -167,16 +167,19 @@ export function ChordDiagramHorizontal({
         const y = getStringY(stringIndex);
 
         if (fingering.muted[stringIndex]) {
+          // Mute X should be larger than dots for better visibility
+          // Minimum size of 8 for xs diagrams
+          const muteSize = Math.max(8, dotSize + 2);
           return (
             <text
               key={`mute-${stringIndex}`}
               x={x}
               y={y}
-              fontSize={dotSize - 2}
+              fontSize={muteSize}
               fill="#6b7280"
               textAnchor="middle"
               dominantBaseline="middle"
-              fontWeight="normal"
+              fontWeight="bold"
             >
               ×
             </text>

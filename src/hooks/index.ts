@@ -32,3 +32,9 @@ export type {
 
 export { useToast } from './useToast';
 export type { UseToastReturn } from './useToast';
+
+export { useTheme } from './useTheme';
+export type { Theme } from './useTheme';
+
+export { useViewMode, getViewModeSettings, VIEW_MODE_DESCRIPTIONS } from './useViewMode';
+export type { ViewMode, ViewModeSettings } from './useViewMode';

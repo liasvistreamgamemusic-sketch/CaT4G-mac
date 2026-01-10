@@ -4,6 +4,7 @@
  */
 
 import type { ChordDefinition, ChordFingering, NoteRoot } from './types';
+import { isFingeringDisplayable } from './utils';
 
 // 基本コードの押さえ方データ
 export const CHORD_DATABASE: Record<string, ChordDefinition> = {
@@ -691,13 +692,24 @@ export function getChordDefinition(
 
 /**
  * コード名からデフォルトのフィンガリングを取得
+ * Only returns fingerings that can be properly displayed (all frets within baseFret+4)
  */
 export function getDefaultFingering(
   chordName: string
 ): ChordFingering | undefined {
   const def = getChordDefinition(chordName);
   if (!def) return undefined;
-  return def.fingerings.find((f) => f.isDefault) || def.fingerings[0];
+
+  // First, try to find a displayable default fingering
+  const defaultFingering = def.fingerings.find((f) => f.isDefault);
+  if (defaultFingering && isFingeringDisplayable(defaultFingering)) {
+    return defaultFingering;
+  }
+
+  // If default isn't displayable, find the first displayable one
+  // User explicitly stated: "表示フレット以外を押さえるコードは必要ない"
+  // So return undefined if no displayable fingering exists
+  return def.fingerings.find((f) => isFingeringDisplayable(f));
 }
 
 /**

@@ -9,8 +9,8 @@ interface ControlBarProps {
   onCapoChange?: (value: number) => void;
   isPlaying?: boolean;
   onPlayPause?: () => void;
-  scrollSpeed?: number;
-  onScrollSpeedChange?: (value: number) => void;
+  playbackSpeed?: number;
+  onPlaybackSpeedChange?: (value: number) => void;
   metronomeEnabled?: boolean;
   onMetronomeToggle?: () => void;
   bpm?: number;
@@ -20,8 +20,6 @@ interface ControlBarProps {
   metronomeVolume?: number;
   onMetronomeVolumeChange?: (value: number) => void;
   currentBeat?: number;
-  chordDisplayMode?: 'text' | 'diagram';
-  onChordDisplayModeChange?: (mode: 'text' | 'diagram') => void;
 }
 
 export function ControlBar({
@@ -31,8 +29,8 @@ export function ControlBar({
   onCapoChange,
   isPlaying = false,
   onPlayPause,
-  scrollSpeed = 1.0,
-  onScrollSpeedChange,
+  playbackSpeed = 1.0,
+  onPlaybackSpeedChange,
   metronomeEnabled = false,
   onMetronomeToggle,
   bpm = 120,
@@ -42,8 +40,6 @@ export function ControlBar({
   metronomeVolume = 0.7,
   onMetronomeVolumeChange,
   currentBeat = 0,
-  chordDisplayMode = 'text',
-  onChordDisplayModeChange,
 }: ControlBarProps) {
   const beatsPerMeasure = parseInt(timeSignature.split('/')[0], 10);
   const handleTransposeDown = () => {
@@ -100,7 +96,7 @@ export function ControlBar({
 
         {/* Transpose */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-text-secondary">転調</span>
+          <span className="text-sm text-text-secondary">移調</span>
           <div className="flex items-center gap-1">
             <button
               className="btn-icon text-xs"
@@ -133,35 +129,9 @@ export function ControlBar({
             リセット
           </button>
         )}
-
-        {/* Chord Display Mode Toggle */}
-        <div className="flex items-center rounded-lg overflow-hidden border border-border">
-          <button
-            className={`px-2 py-1 text-xs transition-colors ${
-              chordDisplayMode === 'text'
-                ? 'bg-accent-primary text-white'
-                : 'bg-background-surface hover:bg-background-surface/80 text-text-secondary'
-            }`}
-            onClick={() => onChordDisplayModeChange?.('text')}
-            title="コード名で表示"
-          >
-            コード
-          </button>
-          <button
-            className={`px-2 py-1 text-xs transition-colors ${
-              chordDisplayMode === 'diagram'
-                ? 'bg-accent-primary text-white'
-                : 'bg-background-surface hover:bg-background-surface/80 text-text-secondary'
-            }`}
-            onClick={() => onChordDisplayModeChange?.('diagram')}
-            title="押さえ方で表示"
-          >
-            図
-          </button>
-        </div>
       </div>
 
-      {/* Center: Auto Scroll */}
+      {/* Center: Playback Speed */}
       <div className="flex items-center gap-4">
         <button
           className={`btn-icon ${isPlaying ? 'bg-accent-primary/20 text-accent-primary' : ''}`}
@@ -180,18 +150,21 @@ export function ControlBar({
           )}
         </button>
 
+        {/* Playback Speed */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-muted">速度</span>
+          <span className="text-xs text-text-muted">再生速度</span>
           <input
             type="range"
-            min="0.5"
-            max="2"
-            step="0.1"
-            value={scrollSpeed}
-            onChange={(e) => onScrollSpeedChange?.(parseFloat(e.target.value))}
-            className="w-20 accent-accent-primary"
+            min={0.1}
+            max={3.0}
+            step={0.05}
+            value={playbackSpeed}
+            onChange={(e) => onPlaybackSpeedChange?.(parseFloat(e.target.value))}
+            className="w-24 accent-accent-primary"
           />
-          <span className="text-xs w-10 text-center font-mono">{scrollSpeed.toFixed(1)}x</span>
+          <span className={`text-sm w-14 text-center font-mono font-semibold ${playbackSpeed !== 1.0 ? 'text-purple-400' : 'text-text-primary'}`}>
+            {playbackSpeed.toFixed(2)}x
+          </span>
         </div>
 
         <div className="flex items-center gap-2">

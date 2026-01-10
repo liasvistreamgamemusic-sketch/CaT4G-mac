@@ -104,7 +104,7 @@ export function ArpeggioOrderInput({
 
   // グループを確定して追加
   const finishGroup = (additionalString?: number) => {
-    let group = [...currentGroup];
+    const group = [...currentGroup];
     if (additionalString && !group.includes(additionalString)) {
       group.push(additionalString);
     }

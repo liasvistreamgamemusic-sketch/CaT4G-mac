@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Layout } from '@/components/Layout';
 import { Sidebar } from '@/components/Sidebar';
-import { MainArea } from '@/components/MainArea';
 import { ControlBar } from '@/components/ControlBar';
 import { AddSongModal } from '@/components/AddSongModal';
 import { ChordDiagramModal } from '@/components/ChordDiagramModal';
 import { CreatePlaylistModal } from '@/components/CreatePlaylistModal';
-import { SongEditorPage } from '@/components/SongEditorPage';
+import { SongView } from '@/components/SongView';
+import type { ViewMode, AppMode } from '@/components/SongView';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useAutoScroll, useKeyboardShortcuts, useMetronome } from '@/hooks';
 import type { TimeSignature } from '@/hooks';
 import {
@@ -26,23 +27,20 @@ import type {
   PlaylistWithCount,
 } from '@/types/database';
 
-// View type for state-based routing
-type AppView = 'main' | 'editor';
-
 function App() {
   // Refs
   const mainAreaRef = useRef<HTMLElement>(null);
 
-  // Routing state
-  const [currentView, setCurrentView] = useState<AppView>('main');
-  const [editingSongId, setEditingSongId] = useState<string | null>(null);
+  // App mode state
+  const [mode, setMode] = useState<AppMode>('play');
+  const [viewMode, setViewMode] = useState<ViewMode>('standard');
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false);
+  const [pendingModeChange, setPendingModeChange] = useState<AppMode | null>(null);
 
-  // State
+  // Song state
   const [songs, setSongs] = useState<SongListItem[]>([]);
   const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
-  const [selectedSong, setSelectedSong] = useState<SongWithDetails | null>(
-    null
-  );
+  const [selectedSong, setSelectedSong] = useState<SongWithDetails | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDbReady, setIsDbReady] = useState(false);
   const [transpose, setTranspose] = useState(0);
@@ -54,9 +52,9 @@ function App() {
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] = useState(false);
 
-  // Auto scroll state
+  // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [scrollSpeed, setScrollSpeed] = useState(1.0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [bpm, setBpm] = useState(120);
 
   // Metronome state
@@ -64,26 +62,22 @@ function App() {
   const [timeSignature, setTimeSignature] = useState<TimeSignature>('4/4');
   const [metronomeVolume, setMetronomeVolume] = useState(0.7);
 
-  // Chord display mode: 'text' = chord names only, 'diagram' = fingering diagrams
-  type ChordDisplayMode = 'text' | 'diagram';
-  const [chordDisplayMode, setChordDisplayMode] = useState<ChordDisplayMode>('text');
-
   // Current BPM (prefer song's BPM if available)
   const currentBpm = selectedSong?.song.bpm ?? bpm;
 
   // Auto scroll hook
   const { scrollToTop } = useAutoScroll({
     isPlaying,
-    scrollSpeed,
+    scrollSpeed: playbackSpeed,
     bpm: currentBpm,
-    bpmSync: false, // Could add UI toggle for this
+    bpmSync: false,
     containerRef: mainAreaRef,
     onReachEnd: () => setIsPlaying(false),
   });
 
   // Metronome hook
   const { currentBeat, toggle: toggleMetronome } = useMetronome({
-    bpm: currentBpm,
+    bpm: Math.round(currentBpm * playbackSpeed), // Apply playback speed to metronome
     timeSignature,
     volume: metronomeVolume,
     accentFirstBeat: true,
@@ -104,8 +98,8 @@ function App() {
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onPlayPause: () => setIsPlaying((prev) => !prev),
-    onSpeedUp: () => setScrollSpeed((prev) => Math.min(prev + 0.1, 2.0)),
-    onSpeedDown: () => setScrollSpeed((prev) => Math.max(prev - 0.1, 0.5)),
+    onSpeedUp: () => setPlaybackSpeed((prev) => Math.min(prev + 0.1, 3.0)),
+    onSpeedDown: () => setPlaybackSpeed((prev) => Math.max(prev - 0.1, 0.1)),
     onScrollToTop: scrollToTop,
     onMetronomeToggle: handleMetronomeToggle,
   });
@@ -135,9 +129,17 @@ function App() {
       if (selectedSongId) {
         const song = await getSongById(selectedSongId);
         setSelectedSong(song);
-        setTranspose(0); // Reset transpose when changing songs
-        setCapo(song?.song.capo ?? 0); // Set capo from song data
-        setIsPlaying(false); // Stop auto-scroll when changing songs
+        // 曲に保存された設定を読み込む
+        setTranspose(song?.song.transpose ?? 0);
+        setCapo(song?.song.capo ?? 0);
+        setPlaybackSpeed(song?.song.playbackSpeed ?? 1.0);
+        if (song?.song.bpm) {
+          setBpm(song.song.bpm);
+        }
+        setTimeSignature(song?.song.timeSignature ?? '4/4');
+        setIsPlaying(false);
+        // Reset mode to play when changing songs
+        setMode('play');
       } else {
         setSelectedSong(null);
       }
@@ -145,7 +147,29 @@ function App() {
     loadSong();
   }, [selectedSongId]);
 
-  // Handlers
+  // Mode change handler with unsaved changes check
+  const handleModeChange = useCallback((newMode: AppMode) => {
+    // For now, allow direct mode change
+    // TODO: Add unsaved changes detection when edit mode is fully implemented
+    setMode(newMode);
+  }, []);
+
+  // Confirm mode change (after unsaved changes dialog)
+  const confirmModeChange = useCallback(() => {
+    if (pendingModeChange) {
+      setMode(pendingModeChange);
+      setPendingModeChange(null);
+    }
+    setShowUnsavedChangesDialog(false);
+  }, [pendingModeChange]);
+
+  // Cancel mode change
+  const cancelModeChange = useCallback(() => {
+    setPendingModeChange(null);
+    setShowUnsavedChangesDialog(false);
+  }, []);
+
+  // Song handlers
   const handleSongSelect = useCallback((id: string) => {
     setSelectedSongId(id);
   }, []);
@@ -184,7 +208,6 @@ function App() {
         await updateSongFavorite(id, !song.isFavorite);
         const updatedSongs = await getSongs();
         setSongs(updatedSongs);
-        // Refresh selected song if it's the one being toggled
         if (selectedSongId === id) {
           const updatedSong = await getSongById(id);
           setSelectedSong(updatedSong);
@@ -194,12 +217,43 @@ function App() {
     [songs, selectedSongId]
   );
 
+  // Edit song handler (switch to edit mode)
+  const handleEditSong = useCallback((id: string) => {
+    setSelectedSongId(id);
+    setMode('edit');
+  }, []);
+
+  // Song updated callback
+  const handleSongUpdated = useCallback(async () => {
+    const updatedSongs = await getSongs();
+    setSongs(updatedSongs);
+    if (selectedSongId) {
+      const updatedSong = await getSongById(selectedSongId);
+      setSelectedSong(updatedSong);
+      // 編集後の設定を同期（保存された値を読み込む）
+      if (updatedSong) {
+        setCapo(updatedSong.song.capo);
+        setTranspose(updatedSong.song.transpose ?? 0);
+        setPlaybackSpeed(updatedSong.song.playbackSpeed ?? 1.0);
+        if (updatedSong.song.bpm) {
+          setBpm(updatedSong.song.bpm);
+        }
+        setTimeSignature(updatedSong.song.timeSignature);
+      }
+    }
+  }, [selectedSongId]);
+
+  // Control handlers
   const handleTransposeChange = useCallback((value: number) => {
     setTranspose(value);
   }, []);
 
   const handleCapoChange = useCallback((value: number) => {
     setCapo(value);
+  }, []);
+
+  const handlePlaybackSpeedChange = useCallback((value: number) => {
+    setPlaybackSpeed(value);
   }, []);
 
   const handleChordClick = useCallback((chord: string) => {
@@ -214,9 +268,6 @@ function App() {
     setIsPlaying((prev) => !prev);
   }, []);
 
-  const handleScrollSpeedChange = useCallback((value: number) => {
-    setScrollSpeed(value);
-  }, []);
 
   const handleBpmChange = useCallback((value: number) => {
     setBpm(value);
@@ -228,10 +279,6 @@ function App() {
 
   const handleMetronomeVolumeChange = useCallback((value: number) => {
     setMetronomeVolume(value);
-  }, []);
-
-  const handleChordDisplayModeChange = useCallback((mode: 'text' | 'diagram') => {
-    setChordDisplayMode(mode);
   }, []);
 
   // Playlist handlers
@@ -254,24 +301,6 @@ function App() {
     setIsCreatePlaylistModalOpen(false);
   }, []);
 
-  // Editor navigation handlers
-  const handleEditClick = useCallback((songId: string) => {
-    setEditingSongId(songId);
-    setCurrentView('editor');
-  }, []);
-
-  const handleEditorClose = useCallback(async () => {
-    setEditingSongId(null);
-    setCurrentView('main');
-    // Refresh song list in case edits were made
-    const updatedSongs = await getSongs();
-    setSongs(updatedSongs);
-    // Refresh selected song if one is selected
-    if (selectedSongId) {
-      const updatedSong = await getSongById(selectedSongId);
-      setSelectedSong(updatedSong);
-    }
-  }, [selectedSongId]);
 
   // Loading state
   if (!isDbReady) {
@@ -285,56 +314,114 @@ function App() {
     );
   }
 
-  // Main view content
-  const mainViewContent = (
-    <>
+  // Empty state (no song selected)
+  const emptyState = (
+    <div className="flex-1 flex items-center justify-center bg-background-primary">
+      <div className="text-center">
+        <svg
+          className="w-16 h-16 mx-auto mb-4 text-text-muted opacity-50"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+          />
+        </svg>
+        <p className="text-text-muted mb-4">曲を選択してください</p>
+        <button
+          onClick={handleAddClick}
+          className="btn-primary px-6 py-2 flex items-center gap-2 mx-auto"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          曲を追加
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <Layout>
       <div className="flex h-screen">
-        <Sidebar
-          songs={songs}
-          selectedSongId={selectedSongId}
-          onSongSelect={handleSongSelect}
-          onAddClick={handleAddClick}
-          onDeleteSong={handleDeleteSong}
-          onToggleFavorite={handleToggleFavorite}
-          onEditSong={handleEditClick}
-          playlists={playlists}
-          selectedPlaylistId={selectedPlaylistId}
-          onPlaylistSelect={handlePlaylistSelect}
-          onCreatePlaylist={handleCreatePlaylistClick}
-        />
-        <div className="flex flex-1 flex-col">
-          <MainArea
-            ref={mainAreaRef}
-            song={selectedSong}
-            transpose={transpose - capo}
-            onChordClick={handleChordClick}
+        {/* Left side: Sidebar (play mode only, edit mode has SettingsPanel in SongView) */}
+        {mode === 'play' && (
+          <Sidebar
+            songs={songs}
+            selectedSongId={selectedSongId}
+            onSongSelect={handleSongSelect}
             onAddClick={handleAddClick}
-            chordDisplayMode={chordDisplayMode}
+            onDeleteSong={handleDeleteSong}
+            onToggleFavorite={handleToggleFavorite}
+            onEditSong={handleEditSong}
+            playlists={playlists}
+            selectedPlaylistId={selectedPlaylistId}
+            onPlaylistSelect={handlePlaylistSelect}
+            onCreatePlaylist={handleCreatePlaylistClick}
           />
-          <ControlBar
-            transpose={transpose}
-            onTransposeChange={handleTransposeChange}
-            capo={capo}
-            onCapoChange={handleCapoChange}
-            isPlaying={isPlaying}
-            onPlayPause={handlePlayPause}
-            scrollSpeed={scrollSpeed}
-            onScrollSpeedChange={handleScrollSpeedChange}
-            bpm={currentBpm}
-            onBpmChange={handleBpmChange}
-            metronomeEnabled={metronomeEnabled}
-            onMetronomeToggle={handleMetronomeToggle}
-            timeSignature={timeSignature}
-            onTimeSignatureChange={handleTimeSignatureChange}
-            metronomeVolume={metronomeVolume}
-            onMetronomeVolumeChange={handleMetronomeVolumeChange}
-            currentBeat={currentBeat}
-            chordDisplayMode={chordDisplayMode}
-            onChordDisplayModeChange={handleChordDisplayModeChange}
-          />
+        )}
+
+        {/* Main content area - flex structure mirrors sidebar for alignment */}
+        <div className="flex flex-1 flex-col min-w-0 h-full">
+          {selectedSong ? (
+            <>
+              {/* Scrollable content area - takes remaining space */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <SongView
+                  ref={mainAreaRef}
+                  song={selectedSong}
+                  mode={mode}
+                  viewMode={viewMode}
+                  transpose={transpose}
+                  capo={capo}
+                  playbackSpeed={playbackSpeed}
+                  isPlaying={isPlaying}
+                  onModeChange={handleModeChange}
+                  onViewModeChange={setViewMode}
+                  onChordClick={handleChordClick}
+                  onSongUpdated={handleSongUpdated}
+                  onTransposeChange={handleTransposeChange}
+                  onCapoChange={handleCapoChange}
+                  onPlaybackSpeedChange={handlePlaybackSpeedChange}
+                />
+              </div>
+
+              {/* Control bar - fixed at bottom, aligns with sidebar button */}
+              {mode === 'play' && (
+                <div className="flex-shrink-0 border-t border-border">
+                  <ControlBar
+                    transpose={transpose}
+                    onTransposeChange={handleTransposeChange}
+                    capo={capo}
+                    onCapoChange={handleCapoChange}
+                    isPlaying={isPlaying}
+                    onPlayPause={handlePlayPause}
+                    playbackSpeed={playbackSpeed}
+                    onPlaybackSpeedChange={handlePlaybackSpeedChange}
+                    bpm={currentBpm}
+                    onBpmChange={handleBpmChange}
+                    metronomeEnabled={metronomeEnabled}
+                    onMetronomeToggle={handleMetronomeToggle}
+                    timeSignature={timeSignature}
+                    onTimeSignatureChange={handleTimeSignatureChange}
+                    metronomeVolume={metronomeVolume}
+                    onMetronomeVolumeChange={handleMetronomeVolumeChange}
+                    currentBeat={currentBeat}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            emptyState
+          )}
         </div>
       </div>
 
+      {/* Modals */}
       <AddSongModal
         isOpen={isAddModalOpen}
         onClose={handleModalClose}
@@ -348,25 +435,18 @@ function App() {
         onClose={handleCreatePlaylistModalClose}
         onSave={handleCreatePlaylistSave}
       />
-    </>
-  );
 
-  // Editor view - SongEditorPage for editing songs
-  const editorViewContent = editingSongId ? (
-    <SongEditorPage
-      songId={editingSongId}
-      onClose={handleEditorClose}
-      onSongUpdated={async () => {
-        // Refresh song list when song is updated
-        const updatedSongs = await getSongs();
-        setSongs(updatedSongs);
-      }}
-    />
-  ) : null;
-
-  return (
-    <Layout>
-      {currentView === 'main' ? mainViewContent : editorViewContent}
+      {/* Unsaved changes confirmation dialog */}
+      <ConfirmDialog
+        isOpen={showUnsavedChangesDialog}
+        title="未保存の変更があります"
+        message="変更を保存せずに終了しますか？"
+        confirmLabel="破棄して終了"
+        cancelLabel="キャンセル"
+        variant="danger"
+        onConfirm={confirmModeChange}
+        onCancel={cancelModeChange}
+      />
     </Layout>
   );
 }

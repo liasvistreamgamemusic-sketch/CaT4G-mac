@@ -4,32 +4,36 @@ export default {
   theme: {
     extend: {
       colors: {
-        // CaT4G Dark Theme
+        // Theme-aware colors using CSS Variables
         background: {
-          DEFAULT: "#0a0a0f",
-          elevated: "#12121a",
-          surface: "#1a1a24",
-          hover: "#22222f",
+          DEFAULT: "var(--color-bg-primary)",
+          elevated: "var(--color-bg-elevated)",
+          surface: "var(--color-bg-surface)",
+          hover: "var(--color-bg-hover)",
         },
         primary: {
-          DEFAULT: "#a855f7",
-          hover: "#9333ea",
-          light: "#c084fc",
+          DEFAULT: "var(--color-accent-primary)",
+          hover: "var(--color-accent-primary-hover)",
+          light: "var(--color-accent-primary-light)",
+        },
+        secondary: {
+          DEFAULT: "var(--color-accent-secondary)",
         },
         accent: {
-          blue: "#3b82f6",
-          green: "#22c55e",
-          yellow: "#eab308",
-          red: "#ef4444",
+          blue: "var(--color-info)",
+          green: "var(--color-success)",
+          yellow: "var(--color-warning)",
+          red: "var(--color-error)",
         },
         text: {
-          primary: "#f8fafc",
-          secondary: "#94a3b8",
-          muted: "#64748b",
+          primary: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          muted: "var(--color-text-muted)",
         },
         border: {
-          DEFAULT: "rgba(255, 255, 255, 0.08)",
-          light: "rgba(255, 255, 255, 0.12)",
+          DEFAULT: "var(--color-border-default)",
+          light: "var(--color-border-light)",
+          focus: "var(--color-border-focus)",
         },
       },
       fontFamily: {

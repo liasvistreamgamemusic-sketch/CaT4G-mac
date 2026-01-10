@@ -30,6 +30,7 @@ import type {
   AnnotationRow,
   TimeSignature,
   Difficulty,
+  Tuning,
   UpdateSongInput,
 } from '@/types/database';
 
@@ -54,6 +55,9 @@ CREATE TABLE IF NOT EXISTS songs (
     bpm INTEGER,
     time_signature TEXT DEFAULT '4/4',
     capo INTEGER DEFAULT 0,
+    transpose INTEGER DEFAULT 0,
+    playback_speed REAL DEFAULT 1.0,
+    tuning TEXT DEFAULT 'standard',
     difficulty TEXT CHECK(difficulty IN ('beginner', 'intermediate', 'advanced')),
     source_url TEXT,
     notes TEXT,
@@ -130,6 +134,13 @@ CREATE TABLE IF NOT EXISTS annotations (
 CREATE INDEX IF NOT EXISTS idx_annotations_line ON annotations(line_id);
 `;
 
+// Migration statements for adding new columns to existing databases
+const MIGRATION_STATEMENTS = [
+  'ALTER TABLE songs ADD COLUMN transpose INTEGER DEFAULT 0',
+  'ALTER TABLE songs ADD COLUMN playback_speed REAL DEFAULT 1.0',
+  "ALTER TABLE songs ADD COLUMN tuning TEXT DEFAULT 'standard'",
+];
+
 export async function initDatabase(): Promise<void> {
   db = await Database.load('sqlite:cat4g.db');
 
@@ -141,6 +152,15 @@ export async function initDatabase(): Promise<void> {
 
   for (const statement of statements) {
     await db.execute(statement);
+  }
+
+  // Run migration for new columns (ignore errors if columns already exist)
+  for (const statement of MIGRATION_STATEMENTS) {
+    try {
+      await db.execute(statement);
+    } catch {
+      // Column already exists - ignore
+    }
   }
 }
 
@@ -168,6 +188,9 @@ function toSong(row: SongRow): Song {
     bpm: row.bpm,
     timeSignature: row.time_signature as TimeSignature,
     capo: row.capo,
+    transpose: row.transpose ?? 0,
+    playbackSpeed: row.playback_speed ?? 1.0,
+    tuning: (row.tuning as Tuning) ?? 'standard',
     difficulty: row.difficulty as Difficulty | null,
     sourceUrl: row.source_url,
     notes: row.notes,
@@ -510,6 +533,18 @@ export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void
   if (input.capo !== undefined) {
     fields.push('capo = ?');
     values.push(input.capo);
+  }
+  if (input.transpose !== undefined) {
+    fields.push('transpose = ?');
+    values.push(input.transpose);
+  }
+  if (input.playbackSpeed !== undefined) {
+    fields.push('playback_speed = ?');
+    values.push(input.playbackSpeed);
+  }
+  if (input.tuning !== undefined) {
+    fields.push('tuning = ?');
+    values.push(input.tuning);
   }
   if (input.difficulty !== undefined) {
     fields.push('difficulty = ?');

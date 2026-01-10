@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import type { ExtendedChordPosition } from '@/types/database';
 import { ChordDiagramHorizontal } from '@/components/ChordDiagramHorizontal';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { generateChordFingerings } from '@/lib/chords';
+import { transposeChord } from '@/lib/chords/transpose';
 import type { ChordFingering } from '@/lib/chords/types';
 
 // Editor state for a single line
@@ -9,6 +11,7 @@ interface EditableLine {
   id?: string;
   lyrics: string;
   chords: ExtendedChordPosition[];
+  memo?: string;  // 行レベルのメモ/注釈
 }
 
 // Drag state for chord position adjustment (mouse-based for smooth sliding)
@@ -40,6 +43,8 @@ interface LineEditorProps {
   showDiagram?: boolean;        // 押さえ方の図
   showPlayingMethod?: boolean;  // 引き方 (ストローク/アルペジオパターン)
   showMemo?: boolean;           // メモ
+  // 移調量（表示用）
+  transpose?: number;
 }
 
 /**
@@ -64,23 +69,33 @@ export function LineEditor({
   showDiagram = true,
   showPlayingMethod = true,
   showMemo = true,
+  transpose = 0,
 }: LineEditorProps) {
   const [selectedChordIndex, setSelectedChordIndex] = useState<number | null>(null);
   const [dragState, setDragState] = useState<ChordDragState | null>(null);
   const [dragPreviewPosition, setDragPreviewPosition] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const chordAreaRef = useRef<HTMLDivElement>(null);
   const lyricsRef = useRef<HTMLInputElement>(null);
   const hasSpreadRef = useRef<string | null>(null); // Track if we've spread chords for this line
 
   // Character width for position calculations (monospace font with letter-spacing)
-  // Increased for better readability of Japanese text and to prevent chord overlap
-  const CHAR_WIDTH = 14;
+  // Must match the actual rendered width of characters in the lyrics input
+  // Increased from 14 to 22 for better chord placement spacing
+  const CHAR_WIDTH = 22;
+
+  // Chord component width in pixels (varies by display mode)
+  // xs diagram is 72x48, with small padding = 76px for diagram mode
+  const CHORD_COMPONENT_WIDTH = showDiagram ? 76 : 52;
+
+  // Maximum component width (diagram mode) - used for spacing calculations
+  // This ensures chords positioned in compact mode won't overlap when switching to standard mode
+  const MAX_CHORD_COMPONENT_WIDTH = 76;
 
   // Minimum chord spacing (in character positions) to prevent diagram overlap
-  // When diagram is shown: 80px component width. With CHAR_WIDTH = 14px, 80/14 ≈ 5.7 chars
-  // When diagram is hidden (minimal mode): smaller spacing
-  // Using 6 chars ensures chord frames don't overlap when diagram is shown
-  const MIN_CHORD_SPACING = showDiagram ? 6 : 3;
+  // Use exact ratio to allow adjacent placement (touching) with half-position snapping
+  // 76px / 22px = 3.45 positions - allows chords at positions like 0 and 3.5 to touch
+  const MIN_CHORD_SPACING = MAX_CHORD_COMPONENT_WIDTH / CHAR_WIDTH;
 
   // Find the nearest snap position for a given continuous position within lyrics
   // Snap positions: 0, 0.5, 1, 1.5, ... (before/center of each character)
@@ -135,11 +150,13 @@ export function LineEditor({
 
   // Generate chord fingerings for display (cached per chord)
   // Always use generateChordFingerings which can dynamically generate fingerings for any chord
+  // Use transposed chord name for correct fingering display
   const chordFingerings = useMemo(() => {
     const fingerings: Record<number, ChordFingering | null> = {};
     line.chords.forEach((chord, index) => {
-      // Generate all fingerings for this chord (handles any chord name)
-      const allFingerings = generateChordFingerings(chord.chord);
+      // Generate all fingerings for the transposed chord
+      const transposedChordName = transpose !== 0 ? transposeChord(chord.chord, transpose) : chord.chord;
+      const allFingerings = generateChordFingerings(transposedChordName);
 
       if (chord.voicingId) {
         // If voicingId is set, find that specific fingering
@@ -151,7 +168,7 @@ export function LineEditor({
       }
     });
     return fingerings;
-  }, [line.chords]);
+  }, [line.chords, transpose]);
 
   // Reset states when line changes
   useEffect(() => {
@@ -310,13 +327,14 @@ export function LineEditor({
           }
           return;
         case 'Delete':
-        case 'Backspace':
+        case 'Backspace': {
           e.preventDefault();
           // Remove the chord
           const filteredChords = line.chords.filter((_, idx) => idx !== chordIndex);
           onLineChange({ chords: filteredChords });
           setSelectedChordIndex(null);
           return;
+        }
         case 'Escape':
           e.preventDefault();
           setSelectedChordIndex(null);
@@ -361,13 +379,18 @@ export function LineEditor({
 
   // Handle chord mouse down for smooth drag sliding
   // Uses the wrapper div as the draggable element (contains chord name + diagram)
+  // NOTE: Don't call preventDefault here - it interferes with click/double-click detection
   const handleChordMouseDown = useCallback(
     (e: React.MouseEvent, chordIndex: number) => {
       const chord = line.chords[chordIndex];
       if (!chord) return;
 
-      e.preventDefault();
-      e.stopPropagation();
+      // Only left mouse button
+      if (e.button !== 0) return;
+
+      // テキスト選択を防止（ドラッグ開始時）
+      document.body.style.userSelect = 'none';
+      document.body.style.webkitUserSelect = 'none';
 
       // Store initial click position - we use pure delta-based movement
       // so the chord stays where it is and moves based on mouse delta
@@ -376,7 +399,7 @@ export function LineEditor({
         initialPosition: chord.position,
         startX: e.clientX,
         startY: e.clientY,
-        clickOffset: 0, // Not used in current implementation but kept for interface
+        clickOffset: 0,
         isDragging: true,
         verticalDirection: null,
       });
@@ -406,56 +429,117 @@ export function LineEditor({
     return findNearestSnapPosition(continuousPosition, lyricsLength);
   }, [line.lyrics.length, findNearestSnapPosition]);
 
-  // Resolve chord overlap - chords should touch but not overlap
-  // Uses MIN_CHORD_SPACING to account for chord diagram width
-  const resolveChordOverlap = useCallback((
+  /**
+   * 方向認識型の最近接空き位置を探す
+   * 他のコードは一切動かさず、ドラッグしているコードのみを配置
+   *
+   * ロジック:
+   * - 衝突なし → そのまま配置
+   * - 衝突あり、左側に配置しようとした → 左方向で空きを探す → 一番右の空き（右詰め）
+   * - 衝突あり、右側に配置しようとした → 右方向で空きを探す → 一番左の空き（左詰め）
+   * - 空きがない場合 → 歌詞の右端外に配置
+   */
+  const findNearestEmptyPosition = useCallback((
     chords: ExtendedChordPosition[],
     movedChordIndex: number,
-    newPosition: number
+    targetPosition: number,
+    minSpacing: number,
+    lyricsLength: number
   ): ExtendedChordPosition[] => {
-    // Use MIN_CHORD_SPACING to determine chord width (diagram-based)
-    const movedChordEnd = newPosition + MIN_CHORD_SPACING;
+    // 移動するコード以外のコードリスト
+    const otherChords = chords.filter((_, idx) => idx !== movedChordIndex);
 
-    // Check for overlapping chords and resolve - make them touch exactly
-    const updatedChords = chords.map((chord, idx) => {
-      if (idx === movedChordIndex) {
-        return { ...chord, position: newPosition };
-      }
-
-      const chordEnd = chord.position + MIN_CHORD_SPACING;
-
-      // Check if this chord's diagram would overlap with the moved chord's diagram
-      const overlaps = (
-        // This chord starts within the moved chord's diagram range
-        (chord.position >= newPosition && chord.position < movedChordEnd) ||
-        // This chord's diagram ends within the moved chord's diagram range
-        (chordEnd > newPosition && chordEnd <= movedChordEnd) ||
-        // This chord's diagram completely contains the moved chord's diagram
-        (chord.position <= newPosition && chordEnd >= movedChordEnd)
+    // 位置が空いているかチェック（minSpacing分の幅を考慮）
+    // 位置Pに配置すると[P, P+minSpacing)を占有
+    // コードCは[C.position, C.position+minSpacing)を占有
+    // 重なる条件: P < C.position + minSpacing AND P + minSpacing > C.position
+    const isPositionFree = (pos: number): boolean => {
+      return !otherChords.some(c =>
+        pos < c.position + minSpacing && pos + minSpacing > c.position
       );
+    };
 
-      if (overlaps) {
-        // Move this chord to touch exactly (butt up against the moved chord)
-        // Direction is based on where the new position is relative to the existing chord's center:
-        // - If new position is LEFT of existing chord's center → push existing chord RIGHT
-        // - If new position is RIGHT of existing chord's center → push existing chord LEFT
-        const existingChordCenter = chord.position + MIN_CHORD_SPACING / 2;
-        if (newPosition < existingChordCenter) {
-          // New position is to the left of existing chord's center - push existing chord RIGHT
-          return { ...chord, position: movedChordEnd };
-        } else {
-          // New position is to the right of existing chord's center - push existing chord LEFT
-          const newOverlapPosition = Math.max(0, newPosition - MIN_CHORD_SPACING);
-          return { ...chord, position: newOverlapPosition };
+    // 衝突しているコードを探す
+    const findOverlappingChord = (): ExtendedChordPosition | null => {
+      return otherChords.find(c =>
+        targetPosition < c.position + minSpacing && targetPosition + minSpacing > c.position
+      ) || null;
+    };
+
+    const overlappingChord = findOverlappingChord();
+
+    let finalPosition: number = targetPosition;
+
+    if (!overlappingChord) {
+      // 衝突なし → そのまま配置
+      finalPosition = targetPosition;
+    } else {
+      // 衝突あり → 方向に応じて空き位置を探す
+      const isLeftOfOverlap = targetPosition < overlappingChord.position;
+
+      // Use 0.5 step increments to support half-position snapping (0, 0.5, 1, 1.5, ...)
+      const STEP = 0.5;
+
+      if (isLeftOfOverlap) {
+        // 左側に配置しようとした → 左方向優先で探す → 一番右の空き（右詰め）
+        // targetPositionから0に向かって探索、最初に見つかった空きが「一番右」
+        let found = false;
+        const startLeft = Math.floor(targetPosition * 2) / 2; // Round down to nearest 0.5
+        for (let pos = startLeft; pos >= 0; pos -= STEP) {
+          if (isPositionFree(pos)) {
+            finalPosition = pos;
+            found = true;
+            break;
+          }
+        }
+        // 左になければ右を探す（フォールバック）
+        if (!found) {
+          const startRight = Math.ceil(targetPosition * 2) / 2 + STEP; // Round up to nearest 0.5, then +0.5
+          for (let pos = startRight; pos <= lyricsLength + 50; pos += STEP) {
+            if (isPositionFree(pos)) {
+              finalPosition = pos;
+              found = true;
+              break;
+            }
+          }
+        }
+        // それでも見つからなければ歌詞の右端外
+        if (!found) {
+          finalPosition = lyricsLength + 1;
+        }
+      } else {
+        // 右側に配置しようとした → 右方向で探す → 一番左の空き（左詰め）
+        // 衝突コードの右端から右に向かって探索
+        let found = false;
+        // Calculate exact minimum position (adjacent placement)
+        const exactMinPos = overlappingChord.position + minSpacing;
+        // Round up to nearest 0.5 for snap position
+        const startPos = Math.ceil(exactMinPos * 2) / 2;
+        for (let pos = startPos; pos <= lyricsLength + 50; pos += STEP) {
+          if (isPositionFree(pos)) {
+            finalPosition = pos;
+            found = true;
+            break;
+          }
+        }
+        // 見つからなければ歌詞の右端外
+        if (!found) {
+          finalPosition = lyricsLength + 1;
         }
       }
+    }
 
-      return chord;
-    });
+    // 位置を0以上に制限
+    finalPosition = Math.max(0, finalPosition);
 
-    // Sort by position
+    // 更新されたコード配列を返す（移動したコードのみ位置変更）
+    const updatedChords = chords.map((chord, idx) =>
+      idx === movedChordIndex ? { ...chord, position: finalPosition } : chord
+    );
+
+    // 位置でソート
     return updatedChords.sort((a, b) => a.position - b.position);
-  }, [MIN_CHORD_SPACING]);
+  }, []);
 
   // Minimum drag distance (in pixels) before we consider it a drag vs a click
   const DRAG_THRESHOLD = 3;
@@ -494,6 +578,10 @@ export function LineEditor({
     };
 
     const handleMouseUp = (e: MouseEvent) => {
+      // テキスト選択防止を解除
+      document.body.style.userSelect = '';
+      document.body.style.webkitUserSelect = '';
+
       if (!chordAreaRef.current || !dragState) {
         setDragState(null);
         setDragPreviewPosition(null);
@@ -542,8 +630,8 @@ export function LineEditor({
 
           // Update chord position if changed
           if (snappedPosition !== chord.position) {
-            // Resolve any overlapping chords
-            const updatedChords = resolveChordOverlap(line.chords, dragState.chordIndex, snappedPosition);
+            // Find the nearest empty position for the chord (other chords don't move)
+            const updatedChords = findNearestEmptyPosition(line.chords, dragState.chordIndex, snappedPosition, MIN_CHORD_SPACING, line.lyrics.length);
             onLineChange({ chords: updatedChords });
           }
         }
@@ -561,7 +649,7 @@ export function LineEditor({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [dragState, line.chords, onLineChange, calculateDragPosition, resolveChordOverlap, onMoveChordToLine, canMoveUp, canMoveDown]);
+  }, [dragState, line.chords, line.lyrics.length, onLineChange, calculateDragPosition, findNearestEmptyPosition, onMoveChordToLine, canMoveUp, canMoveDown, MIN_CHORD_SPACING]);
 
   // Get method indicator for chord (short version for compact display)
   const getMethodIndicator = (chord: ExtendedChordPosition): string => {
@@ -605,15 +693,8 @@ export function LineEditor({
     ...line.chords.map((c) => c.position + c.chord.length)
   );
 
-  // Create a set of chord positions for quick lookup when rendering lyrics
-  const chordPositions = useMemo(() => {
-    const positions = new Map<number, ExtendedChordPosition>();
-    line.chords.forEach((chord) => {
-      const pos = Math.floor(chord.position);
-      positions.set(pos, chord);
-    });
-    return positions;
-  }, [line.chords]);
+  // minWidth: based on content, no upper cap (scroll handles overflow)
+  const minChars = Math.max(30, maxPosition + 5);
 
   return (
     <div className="flex items-start gap-2 group">
@@ -626,7 +707,7 @@ export function LineEditor({
           } ${line.chords.length > 0 ? (showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8') : 'min-h-[2rem]'}`}
           onClick={handleChordAreaClick}
           onDoubleClick={handleChordAreaDoubleClick}
-          style={{ minWidth: `${Math.max(20, maxPosition + 5)}ch` }}
+          style={{ minWidth: `${minChars}ch` }}
           title="ダブルクリックでコードを追加"
         >
           {/* Existing chords - chord name, pattern, memo and diagram as single draggable unit */}
@@ -651,11 +732,13 @@ export function LineEditor({
             const isMinimalMode = !showDiagram && !showPlayingMethod && !showMemo;
 
             // Calculate component dimensions based on what's shown
-            // Minimal: just chord name (~32px height, auto width)
-            // With diagram: 80px width (reduced to prevent overlap), 80px min-height
-            // Without diagram: smaller height
-            const componentWidth = isMinimalMode ? 'auto' : '80px';
-            const componentMinHeight = isMinimalMode ? '28px' : (showDiagram ? '80px' : '40px');
+            // Use fixed pixel width for consistent spacing calculations
+            const componentWidth = isMinimalMode ? 'auto' : `${CHORD_COMPONENT_WIDTH}px`;
+            const componentMinHeight = isMinimalMode ? '28px' : (showDiagram ? '72px' : '36px');
+
+            // Calculate position in pixels (for precise alignment with lyrics)
+            const positionPx = chord.position * CHAR_WIDTH;
+            const previewPositionPx = dragPreviewPosition !== null ? dragPreviewPosition * CHAR_WIDTH : positionPx;
 
             return (
               <div
@@ -664,13 +747,13 @@ export function LineEditor({
                 className={`absolute top-0 flex flex-col cursor-grab select-none
                   border border-white/10 rounded bg-background-surface/50 p-1
                   hover:border-accent-primary/30 transition-colors
-                  overflow-hidden
+                  overflow-visible
                   ${isActuallyMoving ? 'cursor-grabbing opacity-70 border-accent-primary/50' : ''}
                   ${isSelected ? 'border-accent-primary/50 bg-accent-primary/5' : ''}
                   ${canMoveToDirection ? 'border-green-500 bg-green-500/20 opacity-90' : ''}
                   ${isMovingToAnotherLine && !canMoveToDirection ? 'border-red-500/50 opacity-50' : ''}`}
                 style={{
-                  left: `${isActuallyMoving ? dragPreviewPosition : chord.position}ch`,
+                  left: `${isActuallyMoving ? previewPositionPx : positionPx}px`,
                   width: componentWidth,
                   minHeight: componentMinHeight,
                 }}
@@ -679,7 +762,7 @@ export function LineEditor({
                 onDoubleClick={(e) => handleChordDoubleClick(e, chordIndex)}
                 onKeyDown={(e) => handleChordKeyDown(e, chordIndex)}
                 tabIndex={0}
-                title={`${chord.chord}${chord.annotation ? `\n${chord.annotation}` : ''} (ダブルクリックで編集)`}
+                title={`${transpose !== 0 ? transposeChord(chord.chord, transpose) : chord.chord}${chord.annotation ? `\n${chord.annotation}` : ''} (ダブルクリックで編集)`}
               >
                 {/* Header: Chord name + method badge */}
                 <div className="flex items-center justify-between w-full">
@@ -690,7 +773,7 @@ export function LineEditor({
                         : 'hover:bg-accent-primary/20 text-accent-primary'
                     }`}
                   >
-                    {chord.chord}
+                    {transpose !== 0 ? transposeChord(chord.chord, transpose) : chord.chord}
                   </div>
                   {methodIndicator && showPlayingMethod && (
                     <span className={`text-[8px] px-1 py-0.5 rounded ${
@@ -705,7 +788,7 @@ export function LineEditor({
 
                 {/* Chord diagram - conditionally shown (compact size for inline display) */}
                 {showDiagram && (
-                  <div className="flex items-center justify-center flex-shrink-0" style={{ height: '40px' }}>
+                  <div className="flex items-center justify-center flex-shrink-0" style={{ height: '56px' }}>
                     {fingering && (
                       <ChordDiagramHorizontal
                         fingering={fingering}
@@ -739,17 +822,23 @@ export function LineEditor({
                   </div>
                 )}
 
-                {/* Vertical alignment guide line - connects chord box to lyrics position */}
-                {!isActuallyMoving && (
-                  <div
-                    className="absolute w-0.5 bg-accent-primary/30 pointer-events-none"
-                    style={{
-                      left: '0px',
-                      top: '100%',
-                      height: showDiagram ? '32px' : '16px',
-                    }}
-                  />
-                )}
+                {/* Vertical alignment guide line - connects chord box left edge to lyrics position */}
+                <div
+                  className="absolute w-0.5 bg-accent-primary/50 pointer-events-none rounded-full"
+                  style={{
+                    left: '0px',
+                    top: '100%',
+                    height: showDiagram ? '24px' : '12px',
+                  }}
+                />
+                {/* Bottom anchor point indicator */}
+                <div
+                  className="absolute w-2 h-2 bg-accent-primary/60 rounded-full pointer-events-none"
+                  style={{
+                    left: '-3px',
+                    top: `calc(100% + ${showDiagram ? '22px' : '10px'})`,
+                  }}
+                />
               </div>
             );
           })}
@@ -757,8 +846,8 @@ export function LineEditor({
           {/* Drag position indicator line (shows target position) */}
           {dragState?.isDragging && dragPreviewPosition !== null && (
             <div
-              className="absolute top-0 h-full w-0.5 bg-accent-primary/40 pointer-events-none z-10"
-              style={{ left: `${dragPreviewPosition}ch` }}
+              className="absolute top-0 h-full w-0.5 bg-accent-primary/60 pointer-events-none z-10"
+              style={{ left: `${dragPreviewPosition * CHAR_WIDTH}px` }}
             />
           )}
 
@@ -770,101 +859,28 @@ export function LineEditor({
           )}
         </div>
 
-        {/* Lyrics Line with chord position markers */}
+        {/* Lyrics Line - simplified, no overlapping text */}
         <div className="relative">
-          {/* Chord position markers overlay - shows small triangles above lyrics where chords are positioned */}
-          {line.chords.length > 0 && !dragState?.isDragging && (
+          {/* Lyrics input */}
+          <div className="relative">
+            {/* Underline markers for chord positions (overlay) */}
             <div
-              className="absolute inset-0 pointer-events-none z-10 flex items-end px-3"
-              style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
+              className="absolute inset-0 pointer-events-none px-3 py-1.5"
+              style={{ fontFamily: 'monospace', fontSize: '0.875rem', letterSpacing: '0.35em' }}
             >
-              {/* Render position markers for each chord */}
               {line.chords.map((chord, chordIndex) => {
                 const pos = chord.position;
+                // Only show underline for positions within lyrics
+                if (pos >= line.lyrics.length) return null;
                 return (
-                  <div
+                  <span
                     key={chordIndex}
-                    className="absolute flex flex-col items-center"
+                    className="absolute bottom-1 h-0.5 bg-accent-primary/60 rounded-full"
                     style={{
                       left: `calc(12px + ${pos * CHAR_WIDTH}px)`,
-                      top: '-2px',
+                      width: `${CHAR_WIDTH}px`,
                     }}
-                  >
-                    {/* Small triangle marker pointing down to the character */}
-                    <div
-                      className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[6px] border-l-transparent border-r-transparent border-t-accent-primary"
-                      title={`${chord.chord} はここで弾く`}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Drag position indicator - shows target position with underline */}
-          {dragState?.isDragging && dragPreviewPosition !== null && (
-            <div
-              className="absolute inset-0 pointer-events-none z-10 flex items-center px-3"
-              style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
-            >
-              {/* Simple target position indicator */}
-              <div className="flex relative">
-                {line.lyrics.split('').map((char, index) => {
-                  const snappedPos = calculateSnappedPosition(dragPreviewPosition);
-                  const targetIndex = Math.floor(snappedPos);
-                  const isTarget = index === targetIndex;
-
-                  return (
-                    <span
-                      key={index}
-                      className="relative"
-                      style={{ width: `${CHAR_WIDTH}px`, textAlign: 'center' }}
-                    >
-                      {/* Highlight only target character with underline */}
-                      {isTarget && (
-                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-primary rounded" />
-                      )}
-                      {/* Character with clear styling */}
-                      <span className={`relative z-10 ${isTarget ? 'text-accent-primary font-bold' : 'text-black'}`}>
-                        {char}
-                      </span>
-                    </span>
-                  );
-                })}
-                {/* Position beyond lyrics */}
-                {dragPreviewPosition >= line.lyrics.length && (
-                  <span
-                    className="text-accent-primary font-bold ml-1"
-                    style={{ marginLeft: `${Math.max(0, (dragPreviewPosition - line.lyrics.length) * CHAR_WIDTH)}px` }}
-                  >
-                    |
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Lyrics input with highlighted characters where chords are positioned */}
-          <div className="relative">
-            {/* Character-by-character lyrics display with chord position highlighting */}
-            <div
-              className="absolute inset-0 flex items-center px-3 pointer-events-none overflow-hidden"
-              style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
-            >
-              {line.lyrics.split('').map((char, index) => {
-                const hasChord = chordPositions.has(index);
-                return (
-                  <span
-                    key={index}
-                    className={`relative inline-block ${hasChord ? 'text-accent-primary font-bold' : 'text-transparent'}`}
-                    style={{ width: `${CHAR_WIDTH}px`, textAlign: 'center', letterSpacing: '0.1em' }}
-                  >
-                    {/* Underline marker for chord positions */}
-                    {hasChord && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-primary/50 rounded" />
-                    )}
-                    {char}
-                  </span>
+                  />
                 );
               })}
             </div>
@@ -873,15 +889,15 @@ export function LineEditor({
               type="text"
               value={line.lyrics}
               onChange={handleLyricsChange}
-              className="w-full bg-background-primary/50 border border-white/5 rounded-b px-3 py-1.5 text-sm font-mono text-black tracking-wider focus:outline-none focus:border-accent-primary transition-colors"
-              style={{ letterSpacing: '0.1em' }}
+              className="w-full bg-[#1a1a25] border border-white/10 rounded-b px-3 py-1.5 text-sm font-mono text-white tracking-wider focus:outline-none focus:border-primary transition-colors"
+              style={{ letterSpacing: '0.35em' }}
               placeholder="歌詞を入力..."
             />
           </div>
 
           {/* Position label during drag */}
           {dragState?.isDragging && dragPreviewPosition !== null && (
-            <div className="absolute -top-6 left-0 text-xs text-white bg-accent-primary px-2 py-0.5 rounded shadow-lg">
+            <div className="absolute -top-6 right-0 text-xs text-white bg-accent-primary px-2 py-0.5 rounded shadow-lg z-20">
               {(() => {
                 const snappedPos = calculateSnappedPosition(dragPreviewPosition);
                 const isInLyrics = dragPreviewPosition < line.lyrics.length;
@@ -898,12 +914,44 @@ export function LineEditor({
           )}
         </div>
 
+        {/* 行メモ - hover時のみ表示される追加ボタン、または入力済みの場合は常に表示 */}
+        <div className="flex items-center gap-2 mt-1 min-h-[24px]">
+          {line.memo !== undefined ? (
+            <div className="flex-1 flex items-center gap-2">
+              <input
+                type="text"
+                value={line.memo}
+                onChange={(e) => onLineChange({ memo: e.target.value })}
+                className="flex-1 text-xs text-yellow-400 bg-yellow-500/10 rounded px-2 py-1
+                         border border-yellow-500/20 focus:outline-none focus:border-yellow-500/50"
+                placeholder="行のメモを入力..."
+              />
+              <button
+                type="button"
+                onClick={() => onLineChange({ memo: undefined })}
+                className="text-xs text-red-400 hover:text-red-300 px-1"
+                title="メモを削除"
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onLineChange({ memo: '' })}
+              className="text-xs text-text-muted hover:text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              + メモを追加
+            </button>
+          )}
+        </div>
+
       </div>
 
       {/* Delete Line Button */}
       <button
         type="button"
-        onClick={onDelete}
+        onClick={() => setShowDeleteConfirm(true)}
         className="p-1 mt-1 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 rounded transition-opacity"
         title="行を削除"
       >
@@ -916,6 +964,21 @@ export function LineEditor({
           />
         </svg>
       </button>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="行を削除"
+        message={line.lyrics ? `「${line.lyrics.substring(0, 20)}${line.lyrics.length > 20 ? '...' : ''}」を削除しますか？` : 'この行を削除しますか？'}
+        confirmLabel="削除"
+        cancelLabel="キャンセル"
+        variant="danger"
+        onConfirm={() => {
+          setShowDeleteConfirm(false);
+          onDelete();
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

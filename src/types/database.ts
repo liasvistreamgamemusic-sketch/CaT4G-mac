@@ -12,6 +12,7 @@ export type ISODateTime = string;
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 export type TimeSignature = '4/4' | '3/4' | '6/8' | '2/4';
 export type SourceType = 'u-fret' | 'chordwiki' | 'j-total' | 'manual';
+export type Tuning = 'standard' | 'half-step-down' | 'whole-step-down' | 'drop-d' | 'dadgad' | 'open-g' | 'open-d' | 'custom';
 
 // ============================================
 // Chord Related Types
@@ -51,6 +52,9 @@ export interface Song {
   bpm: number | null;
   timeSignature: TimeSignature;
   capo: number;
+  transpose: number;
+  playbackSpeed: number;
+  tuning: Tuning;
   difficulty: Difficulty | null;
   sourceUrl: string | null;
   notes: string | null;
@@ -263,6 +267,9 @@ export interface SongRow {
   bpm: number | null;
   time_signature: string;
   capo: number;
+  transpose: number;
+  playback_speed: number;
+  tuning: string;
   difficulty: string | null;
   source_url: string | null;
   notes: string | null;
@@ -319,6 +326,40 @@ export interface ChordPreferenceRow {
 // Editor Types (Song Editor Page)
 // ============================================
 
+// --------------------------------------------
+// TAB譜生成用の型定義
+// --------------------------------------------
+
+/**
+ * 演奏テクニック
+ * TAB譜で表現される各種奏法
+ */
+export type PlayingTechnique =
+  | 'hammer-on'    // ハンマリング
+  | 'pull-off'     // プリングオフ
+  | 'slide-up'     // スライドアップ
+  | 'slide-down'   // スライドダウン
+  | 'bend'         // ベンド（チョーキング）
+  | 'vibrato'      // ビブラート
+  | 'palm-mute'    // パームミュート
+  | 'harmonic'     // ハーモニクス
+  | 'let-ring'     // 余韻を残す
+  | 'accent';      // アクセント
+
+/**
+ * ダイナミクス（音の強さ）
+ * 標準的な音楽記号に基づく
+ */
+export type Dynamics = 'ppp' | 'pp' | 'p' | 'mp' | 'mf' | 'f' | 'ff' | 'fff';
+
+/**
+ * テンポ変化指示
+ * セクション単位で適用されるテンポの変化
+ */
+export type TempoChange = 'rit' | 'accel' | 'a tempo';
+
+// --------------------------------------------
+
 /** 演奏方法 */
 export type PlayingMethod = 'stroke' | 'arpeggio';
 
@@ -335,6 +376,14 @@ export interface ExtendedChordPosition extends ChordPosition {
   arpeggioOrder?: ArpeggioElement[];  // 例: [[6,3,2,1], 3, 2, 3] (同時弾き + 単音)
   annotation?: string;                 // このコードへのメモ
   voicingId?: UUID;                   // 選択した押さえ方の ID
+  /** 拍数（1=1拍, 0.5=半拍, 2=2拍など） */
+  duration?: number;
+  /** 適用する演奏テクニック */
+  techniques?: PlayingTechnique[];
+  /** 音の強さ（ダイナミクス） */
+  dynamics?: Dynamics;
+  /** 次のコードとタイで繋ぐ */
+  tieToNext?: boolean;
 }
 
 /** 曲更新用入力 */
@@ -345,6 +394,9 @@ export interface UpdateSongInput {
   bpm?: number;
   timeSignature?: TimeSignature;
   capo?: number;
+  transpose?: number;     // 移調量（半音単位、-12〜+12）
+  playbackSpeed?: number; // 再生速度（0.5〜2.0）
+  tuning?: Tuning;        // チューニング（standard, half-step-down等）
   difficulty?: Difficulty;
   notes?: string;
   sections?: UpdateSectionInput[];
@@ -356,6 +408,10 @@ export interface UpdateSectionInput {
   name: string;
   repeatCount?: number;
   lines: UpdateLineInput[];
+  /** このセクション専用のBPM（曲全体のBPMを上書き） */
+  bpmOverride?: number;
+  /** テンポ変化指示（rit., accel., a tempo） */
+  tempoChange?: TempoChange;
 }
 
 /** 行更新用入力 */
@@ -363,6 +419,8 @@ export interface UpdateLineInput {
   id?: UUID;              // 既存行の場合
   lyrics: string;
   chords: ExtendedChordPosition[];
+  /** この行の基本ダイナミクス（行内の各コードのデフォルト値） */
+  dynamicsOverride?: Dynamics;
 }
 
 /** 注釈（アノテーション） */

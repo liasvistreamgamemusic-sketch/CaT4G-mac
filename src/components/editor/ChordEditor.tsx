@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import type { ExtendedChordPosition, PlayingMethod, StrokeDirection, TimeSignature, ArpeggioElement } from '@/types/database';
+import type { ExtendedChordPosition, PlayingMethod, StrokeDirection, TimeSignature, ArpeggioElement, PlayingTechnique, Dynamics } from '@/types/database';
 import { PlayingMethodSelector } from './PlayingMethodSelector';
 import { StrokePatternInput } from './StrokePatternInput';
 import { ArpeggioOrderInput } from './ArpeggioOrderInput';
@@ -15,6 +15,29 @@ import type { ChordFingering } from '@/lib/chords/types';
 
 // Common chord suggestions for autocomplete
 const COMMON_CHORD_NAMES = getAllChordNames();
+
+// タブの種類
+type EditorTab = 'voicing' | 'playing' | 'advanced';
+
+// テクニック一覧
+const TECHNIQUE_OPTIONS: { value: PlayingTechnique; label: string }[] = [
+  { value: 'hammer-on', label: 'ハンマリング' },
+  { value: 'pull-off', label: 'プリングオフ' },
+  { value: 'slide-up', label: 'スライドアップ' },
+  { value: 'slide-down', label: 'スライドダウン' },
+  { value: 'bend', label: 'ベンド' },
+  { value: 'vibrato', label: 'ビブラート' },
+  { value: 'palm-mute', label: 'パームミュート' },
+  { value: 'harmonic', label: 'ハーモニクス' },
+  { value: 'let-ring', label: '余韻' },
+  { value: 'accent', label: 'アクセント' },
+];
+
+// ダイナミクス一覧
+const DYNAMICS_OPTIONS: Dynamics[] = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'];
+
+// 拍数プリセット
+const DURATION_PRESETS = [1, 2, 4];
 
 interface ChordEditorProps {
   /** 編集対象のコード（null の場合は非表示） */
@@ -48,11 +71,11 @@ export function ChordEditor({
 }: ChordEditorProps) {
   // ローカル編集状態
   const [editedChord, setEditedChord] = useState<ExtendedChordPosition | null>(null);
-  const [showVoicingSelector, setShowVoicingSelector] = useState(false);
   const [fingerings, setFingerings] = useState<ChordFingering[]>([]);
   const [selectedFingeringIndex, setSelectedFingeringIndex] = useState(0);
   const [showChordSuggestions, setShowChordSuggestions] = useState(false);
   const [chordSearchQuery, setChordSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<EditorTab>('voicing');
   const popoverRef = useRef<HTMLDivElement>(null);
   const chordInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,9 +92,9 @@ export function ChordEditor({
   useEffect(() => {
     if (chord) {
       setEditedChord({ ...chord });
-      setShowVoicingSelector(false);
       setShowChordSuggestions(false);
       setChordSearchQuery('');
+      setActiveTab('voicing');
 
       // フィンガリング情報を取得
       const allFingerings = generateChordFingerings(chord.chord);
@@ -223,6 +246,43 @@ export function ChordEditor({
     setSelectedFingeringIndex(index);
   }, []);
 
+  // 拍数の変更
+  const handleDurationChange = useCallback((duration: number | null) => {
+    setEditedChord(prev => {
+      if (!prev) return prev;
+      return { ...prev, duration: duration ?? undefined };
+    });
+  }, []);
+
+  // テクニックのトグル
+  const handleTechniqueToggle = useCallback((technique: PlayingTechnique) => {
+    setEditedChord(prev => {
+      if (!prev) return prev;
+      const currentTechniques = prev.techniques ?? [];
+      const isSelected = currentTechniques.includes(technique);
+      const newTechniques = isSelected
+        ? currentTechniques.filter(t => t !== technique)
+        : [...currentTechniques, technique];
+      return { ...prev, techniques: newTechniques.length > 0 ? newTechniques : undefined };
+    });
+  }, []);
+
+  // ダイナミクスの変更
+  const handleDynamicsChange = useCallback((dynamics: Dynamics | null) => {
+    setEditedChord(prev => {
+      if (!prev) return prev;
+      return { ...prev, dynamics: dynamics ?? undefined };
+    });
+  }, []);
+
+  // タイの切り替え
+  const handleTieToggle = useCallback(() => {
+    setEditedChord(prev => {
+      if (!prev) return prev;
+      return { ...prev, tieToNext: !prev.tieToNext };
+    });
+  }, []);
+
   // ポップオーバーが閉じている場合は何も表示しない
   if (!chord || !editedChord) return null;
 
@@ -253,6 +313,10 @@ export function ChordEditor({
                 #{chordIndex + 1}
               </span>
             )}
+            {/* コード名表示 */}
+            <span className="text-lg font-bold text-accent-primary ml-2">
+              {editedChord.chord}
+            </span>
           </div>
           <button
             onClick={onClose}
@@ -264,188 +328,342 @@ export function ChordEditor({
           </button>
         </div>
 
-        {/* メインコンテンツ: 左右分割レイアウト */}
-        <div className="flex gap-4">
-          {/* 左側: コード設定 */}
-          <div className="flex-1 min-w-0">
-            {/* コード名入力 with サジェスト */}
-            <div className="mb-4 relative">
-              <label className="block text-xs text-text-secondary mb-1">コード名（入力または選択）</label>
-              <input
-                ref={chordInputRef}
-                type="text"
-                value={editedChord.chord}
-                onChange={(e) => handleChordNameChange(e.target.value)}
-                onFocus={() => setShowChordSuggestions(editedChord.chord.length > 0)}
-                onBlur={() => setTimeout(() => setShowChordSuggestions(false), 150)}
-                className="w-full bg-background-primary border border-white/10 rounded px-3 py-2 text-lg font-bold text-accent-primary focus:outline-none focus:border-accent-primary transition-colors"
-                placeholder="C, Am, G7..."
-              />
-              {/* コードサジェスト一覧 */}
-              {showChordSuggestions && chordSuggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 bg-background-surface border border-white/10 rounded-lg shadow-xl z-10 max-h-48 overflow-y-auto">
-                  {chordSuggestions.map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        handleChordSelect(suggestion);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-accent-primary/20 transition-colors ${
-                        suggestion === editedChord.chord ? 'bg-accent-primary/10 text-accent-primary' : 'text-text-primary'
-                      }`}
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+        {/* タブナビゲーション */}
+        <div className="flex mb-4 bg-background-primary rounded-lg p-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('voicing')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'voicing'
+                ? 'bg-accent-primary text-white'
+                : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+            }`}
+          >
+            押さえ方
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('playing')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'playing'
+                ? 'bg-accent-primary text-white'
+                : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+            }`}
+          >
+            演奏方法
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('advanced')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'advanced'
+                ? 'bg-accent-primary text-white'
+                : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+            }`}
+          >
+            詳細設定
+          </button>
+        </div>
 
-            {/* 位置調整 */}
-            <div className="mb-4">
-              <label className="block text-xs text-text-secondary mb-1">位置</label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handlePositionChange(-1)}
-                  className="px-3 py-1.5 bg-background-primary border border-white/10 rounded hover:bg-white/10 transition-colors"
-                  title="左に移動"
-                >
-                  ←
-                </button>
-                <span className="w-12 text-center font-mono text-text-primary">
-                  {editedChord.position}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handlePositionChange(1)}
-                  className="px-3 py-1.5 bg-background-primary border border-white/10 rounded hover:bg-white/10 transition-colors"
-                  title="右に移動"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            {/* 演奏方法セレクター */}
-            <div className="mb-4">
-              <PlayingMethodSelector
-                value={editedChord.method}
-                onChange={handleMethodChange}
-              />
-            </div>
-
-            {/* ストロークパターン入力（ストロークの場合のみ） */}
-            {editedChord.method === 'stroke' && (
-              <div className="mb-4 p-3 bg-background-primary/50 rounded-lg border border-white/5">
-                <StrokePatternInput
-                  value={editedChord.strokePattern}
-                  onChange={handleStrokePatternChange}
-                  timeSignature={timeSignature}
-                />
-              </div>
-            )}
-
-            {/* アルペジオ順序入力（アルペジオの場合のみ） */}
-            {editedChord.method === 'arpeggio' && (
-              <div className="mb-4 p-3 bg-background-primary/50 rounded-lg border border-white/5">
-                <ArpeggioOrderInput
-                  value={editedChord.arpeggioOrder}
-                  onChange={handleArpeggioOrderChange}
-                />
-              </div>
-            )}
-
-            {/* 注釈入力 */}
-            <div className="mb-4">
-              <label className="block text-xs text-text-secondary mb-1">メモ・注釈</label>
-              <textarea
-                value={editedChord.annotation || ''}
-                onChange={(e) => handleAnnotationChange(e.target.value)}
-                className="w-full bg-background-primary border border-white/10 rounded px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-primary transition-colors resize-none"
-                rows={2}
-                placeholder="演奏のヒントやメモを入力..."
-              />
-            </div>
-          </div>
-
-          {/* 右側: 押さえ方表示（常に表示） */}
-          <div className="w-[240px] flex-shrink-0">
-            <label className="block text-xs text-text-secondary mb-1">押さえ方</label>
-            <div
-              className={`p-3 bg-background-primary/50 rounded-lg border transition-colors cursor-pointer ${
-                showVoicingSelector ? 'border-accent-primary' : 'border-white/5 hover:border-white/20'
-              }`}
-              onClick={() => setShowVoicingSelector(!showVoicingSelector)}
-              title="クリックして別の押さえ方を選択"
-            >
-              {currentFingering ? (
-                <div className="flex flex-col items-center gap-2">
-                  <ChordDiagramHorizontal
-                    fingering={currentFingering}
-                    size="md"
-                    showFingers={true}
+        {/* タブコンテンツ */}
+        <div className="min-h-[300px]">
+          {/* 押さえ方タブ */}
+          {activeTab === 'voicing' && (
+            <div className="flex gap-4">
+              {/* 左側: コード設定 */}
+              <div className="flex-1 min-w-0">
+                {/* コード名入力 with サジェスト */}
+                <div className="mb-4 relative">
+                  <label className="block text-xs text-text-secondary mb-1">コード名（入力または選択）</label>
+                  <input
+                    ref={chordInputRef}
+                    type="text"
+                    value={editedChord.chord}
+                    onChange={(e) => handleChordNameChange(e.target.value)}
+                    onFocus={() => setShowChordSuggestions(editedChord.chord.length > 0)}
+                    onBlur={() => setTimeout(() => setShowChordSuggestions(false), 150)}
+                    className="w-full bg-[#0a0a0f] border border-white/20 rounded px-3 py-2 text-lg font-bold text-[#a855f7] focus:outline-none focus:border-[#a855f7] transition-colors"
+                    placeholder="C, Am, G7..."
                   />
-                  {/* 押さえ方の情報 */}
-                  <div className="text-center">
-                    <div className="text-xs text-text-muted">
-                      {currentFingering.baseFret === 1 ? 'オープン' : `${currentFingering.baseFret}フレット`}
-                    </div>
-                    <div
-                      className={`text-[10px] px-1.5 py-0.5 rounded mt-1 inline-block ${
-                        currentFingering.difficulty === 'easy'
-                          ? 'bg-green-500/20 text-green-400'
-                          : currentFingering.difficulty === 'medium'
-                            ? 'bg-yellow-500/20 text-yellow-400'
-                            : 'bg-red-500/20 text-red-400'
-                      }`}
-                    >
-                      {currentFingering.difficulty === 'easy' ? '簡単' : currentFingering.difficulty === 'medium' ? '普通' : '難しい'}
-                    </div>
-                  </div>
-                  {fingerings.length > 1 && (
-                    <div className="text-[10px] text-text-muted text-center">
-                      クリックで他の押さえ方を選択
-                      <br />
-                      ({fingerings.length}種類)
+                  {/* コードサジェスト一覧 */}
+                  {showChordSuggestions && chordSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-background-surface border border-white/10 rounded-lg shadow-xl z-10 max-h-48 overflow-y-auto">
+                      {chordSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleChordSelect(suggestion);
+                          }}
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-accent-primary/20 transition-colors ${
+                            suggestion === editedChord.chord ? 'bg-accent-primary/10 text-accent-primary' : 'text-text-primary'
+                          }`}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="text-center py-4 text-text-muted text-sm">
-                  ダイアグラムなし
+
+                {/* 位置調整 */}
+                <div className="mb-4">
+                  <label className="block text-xs text-text-secondary mb-1">位置</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePositionChange(-1)}
+                      className="px-3 py-1.5 bg-background-primary border border-white/10 rounded hover:bg-white/10 transition-colors"
+                      title="左に移動"
+                    >
+                      <span className="text-text-primary">←</span>
+                    </button>
+                    <span className="w-12 text-center font-mono text-text-primary">
+                      {editedChord.position}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handlePositionChange(1)}
+                      className="px-3 py-1.5 bg-background-primary border border-white/10 rounded hover:bg-white/10 transition-colors"
+                      title="右に移動"
+                    >
+                      <span className="text-text-primary">→</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 注釈入力 */}
+                <div className="mb-4">
+                  <label className="block text-xs text-text-secondary mb-1">メモ・注釈</label>
+                  <textarea
+                    value={editedChord.annotation || ''}
+                    onChange={(e) => handleAnnotationChange(e.target.value)}
+                    className="w-full bg-[#0a0a0f] border border-white/20 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#a855f7] transition-colors resize-none"
+                    rows={2}
+                    placeholder="演奏のヒントやメモを入力..."
+                  />
+                </div>
+              </div>
+
+              {/* 右側: 押さえ方表示 */}
+              <div className="w-[280px] flex-shrink-0">
+                <label className="block text-xs text-text-secondary mb-1">押さえ方</label>
+                <div className="p-3 bg-background-primary/50 rounded-lg border border-white/5">
+                  {currentFingering ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <ChordDiagramHorizontal
+                        fingering={currentFingering}
+                        size="md"
+                        showFingers={true}
+                      />
+                      {/* 押さえ方の情報 */}
+                      <div className="text-center">
+                        <div className="text-xs text-text-muted">
+                          {currentFingering.baseFret === 1 ? 'オープン' : `${currentFingering.baseFret}フレット`}
+                        </div>
+                        <div
+                          className={`text-[10px] px-1.5 py-0.5 rounded mt-1 inline-block ${
+                            currentFingering.difficulty === 'easy'
+                              ? 'bg-green-500/20 text-green-400'
+                              : currentFingering.difficulty === 'medium'
+                                ? 'bg-yellow-500/20 text-yellow-400'
+                                : 'bg-red-500/20 text-red-400'
+                          }`}
+                        >
+                          {currentFingering.difficulty === 'easy' ? '簡単' : currentFingering.difficulty === 'medium' ? '普通' : '難しい'}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-text-muted text-sm">
+                      ダイアグラムなし
+                    </div>
+                  )}
+                </div>
+
+                {/* ボイシング選択パネル（常時表示） */}
+                {fingerings.length > 1 && (
+                  <div className="mt-2 p-2 bg-background-primary/50 rounded-lg border border-white/5">
+                    <div className="text-xs text-text-secondary mb-2">押さえ方を選択 ({fingerings.length}種類)</div>
+                    <div className="flex flex-wrap gap-1">
+                      {fingerings.map((fingering, index) => (
+                        <button
+                          key={fingering.id}
+                          onClick={() => handleVoicingSelect(index)}
+                          className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                            index === selectedFingeringIndex
+                              ? 'bg-accent-primary text-white'
+                              : 'bg-white/10 text-text-secondary hover:bg-white/20'
+                          }`}
+                          title={fingering.id}
+                        >
+                          {fingering.baseFret === 1 ? 'オープン' : `${fingering.baseFret}f`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 演奏方法タブ */}
+          {activeTab === 'playing' && (
+            <div className="space-y-4">
+              {/* 演奏方法セレクター */}
+              <div>
+                <PlayingMethodSelector
+                  value={editedChord.method}
+                  onChange={handleMethodChange}
+                />
+              </div>
+
+              {/* ストロークパターン入力（ストロークの場合のみ） */}
+              {editedChord.method === 'stroke' && (
+                <div className="p-3 bg-background-primary/50 rounded-lg border border-white/5">
+                  <StrokePatternInput
+                    value={editedChord.strokePattern}
+                    onChange={handleStrokePatternChange}
+                    timeSignature={timeSignature}
+                  />
+                </div>
+              )}
+
+              {/* アルペジオ順序入力（アルペジオの場合のみ） */}
+              {editedChord.method === 'arpeggio' && (
+                <div className="p-3 bg-background-primary/50 rounded-lg border border-white/5">
+                  <ArpeggioOrderInput
+                    value={editedChord.arpeggioOrder}
+                    onChange={handleArpeggioOrderChange}
+                  />
+                </div>
+              )}
+
+              {/* 演奏方法未設定時のヒント */}
+              {!editedChord.method && (
+                <div className="text-center py-8 text-text-muted">
+                  <p className="text-sm">演奏方法を選択してください</p>
+                  <p className="text-xs mt-2">ストロークまたはアルペジオを選んで詳細なパターンを設定できます</p>
                 </div>
               )}
             </div>
+          )}
 
-            {/* ボイシング選択パネル（展開時） */}
-            {showVoicingSelector && fingerings.length > 1 && (
-              <div className="mt-2 p-2 bg-background-primary/50 rounded-lg border border-white/5">
-                <div className="text-xs text-text-secondary mb-2 text-center">押さえ方を選択</div>
-                <div className="flex flex-wrap justify-center gap-1">
-                  {fingerings.map((fingering, index) => (
+          {/* 詳細設定タブ */}
+          {activeTab === 'advanced' && (
+            <div className="grid grid-cols-2 gap-4">
+              {/* 拍数入力 */}
+              <div className="space-y-2">
+                <label className="block text-xs text-text-secondary">拍数</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={editedChord.duration ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') {
+                        handleDurationChange(null);
+                      } else {
+                        const num = parseFloat(val);
+                        if (!isNaN(num) && num >= 0.25 && num <= 16) {
+                          handleDurationChange(num);
+                        }
+                      }
+                    }}
+                    step={0.25}
+                    min={0.25}
+                    max={16}
+                    className="w-20 bg-background-primary border border-white/10 rounded px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:border-accent-primary transition-colors"
+                    placeholder="-"
+                  />
+                  <div className="flex gap-1">
+                    {DURATION_PRESETS.map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => handleDurationChange(preset)}
+                        className={`px-2 py-1 text-xs rounded border transition-colors ${
+                          editedChord.duration === preset
+                            ? 'bg-accent-primary text-white border-accent-primary'
+                            : 'bg-background-primary border-white/10 text-text-secondary hover:border-accent-primary/50'
+                        }`}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs text-text-muted">0.25 ~ 16 (0.25刻み)</p>
+              </div>
+
+              {/* タイ（繋ぎ） */}
+              <div className="space-y-2">
+                <label className="block text-xs text-text-secondary">タイ</label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editedChord.tieToNext ?? false}
+                    onChange={handleTieToggle}
+                    className="w-4 h-4 rounded border-white/20 bg-background-primary text-accent-primary focus:ring-accent-primary focus:ring-offset-0 cursor-pointer"
+                  />
+                  <span className="text-sm text-text-primary">次のコードとタイで繋ぐ</span>
+                </label>
+              </div>
+
+              {/* テクニック選択 */}
+              <div className="col-span-2 space-y-2">
+                <label className="block text-xs text-text-secondary">テクニック</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {TECHNIQUE_OPTIONS.map((option) => {
+                    const isSelected = (editedChord.techniques ?? []).includes(option.value);
+                    return (
+                      <label
+                        key={option.value}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded border cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-accent-primary/20 border-accent-primary text-accent-primary'
+                            : 'bg-background-primary border-white/10 text-text-secondary hover:border-white/20'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleTechniqueToggle(option.value)}
+                          className="w-3 h-3 rounded border-white/20 bg-background-primary text-accent-primary focus:ring-accent-primary focus:ring-offset-0 cursor-pointer"
+                        />
+                        <span className="text-xs">{option.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ダイナミクス選択 */}
+              <div className="col-span-2 space-y-2">
+                <label className="block text-xs text-text-secondary">強弱</label>
+                <div className="flex items-center bg-background-primary rounded-lg p-1 border border-white/10">
+                  {DYNAMICS_OPTIONS.map((dyn) => (
                     <button
-                      key={fingering.id}
-                      onClick={() => {
-                        handleVoicingSelect(index);
-                        setShowVoicingSelector(false);
-                      }}
-                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        index === selectedFingeringIndex
+                      key={dyn}
+                      type="button"
+                      onClick={() => handleDynamicsChange(editedChord.dynamics === dyn ? null : dyn)}
+                      className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${
+                        editedChord.dynamics === dyn
                           ? 'bg-accent-primary text-white'
-                          : 'bg-white/10 text-text-secondary hover:bg-white/20'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
                       }`}
-                      title={fingering.id}
                     >
-                      {fingering.baseFret === 1 ? 'オープン' : `${fingering.baseFret}f`}
+                      {dyn}
                     </button>
                   ))}
                 </div>
+                <p className="text-xs text-text-muted text-center">
+                  ppp (最弱) → fff (最強)
+                </p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* アクションボタン */}

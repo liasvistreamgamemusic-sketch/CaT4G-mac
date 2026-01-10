@@ -1,5 +1,7 @@
 # CaT4G - Claude Code 設定
 
+# 機能実装はサブエージェントを使用すること
+
 ## プロジェクト概要
 
 - **名前**: CaT4G (Chords and Tabs for Guitar)
@@ -48,13 +50,13 @@ cat4g/
 
 ### 命名規則
 
-| 種類 | 規則 | 例 |
-| ---- | ---- | ---- |
-| コンポーネント | PascalCase | `AddSongModal` |
-| 関数/変数 | camelCase | `fetchChordSheet` |
-| 型 | PascalCase | `SongWithDetails` |
-| Rust関数 | snake_case | `fetch_chord_sheet` |
-| DBカラム | snake_case | `artist_id` |
+| 種類           | 規則       | 例                  |
+| -------------- | ---------- | ------------------- |
+| コンポーネント | PascalCase | `AddSongModal`      |
+| 関数/変数      | camelCase  | `fetchChordSheet`   |
+| 型             | PascalCase | `SongWithDetails`   |
+| Rust関数       | snake_case | `fetch_chord_sheet` |
+| DBカラム       | snake_case | `artist_id`         |
 
 ---
 
@@ -92,14 +94,14 @@ npm run format
 
 ## 仕様書参照
 
-| 機能 | 仕様書 |
-| ---- | ---- |
-| スクレイピング | [04_backend_scraping.md](specs/04_backend_scraping.md) |
-| オートスクロール | [05_autoscroll.md](specs/05_autoscroll.md) |
-| メトロノーム | [06_metronome.md](specs/06_metronome.md) |
-| 転調・コード | [07_transpose.md](specs/07_transpose.md) |
-| プレイリスト | [08_playlist.md](specs/08_playlist.md) |
-| UI デザイン | [09_ui_design.md](specs/09_ui_design.md) |
+| 機能             | 仕様書                                                 |
+| ---------------- | ------------------------------------------------------ |
+| スクレイピング   | [04_backend_scraping.md](specs/04_backend_scraping.md) |
+| オートスクロール | [05_autoscroll.md](specs/05_autoscroll.md)             |
+| メトロノーム     | [06_metronome.md](specs/06_metronome.md)               |
+| 転調・コード     | [07_transpose.md](specs/07_transpose.md)               |
+| プレイリスト     | [08_playlist.md](specs/08_playlist.md)                 |
+| UI デザイン      | [09_ui_design.md](specs/09_ui_design.md)               |
 
 ---
 
@@ -118,7 +120,6 @@ npm run format
 **編集可**: `src/`, `src-tauri/src/`, `Plans.md`
 **参照のみ**: `specs/`（仕様変更が必要な場合は相談）
 
-
 <claude-mem-context>
 # Recent Activity
 
@@ -126,8 +127,9 @@ npm run format
 
 ### Jan 8, 2026
 
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #293 | 5:17 PM | 🔵 | Second Screenshot Analysis - Additional Chord Display Evidence | ~292 |
-| #292 | " | 🔵 | First Screenshot Analysis - Chord Fingering Display Issue | ~249 |
+| ID   | Time    | T   | Title                                                          | Read |
+| ---- | ------- | --- | -------------------------------------------------------------- | ---- |
+| #293 | 5:17 PM | 🔵  | Second Screenshot Analysis - Additional Chord Display Evidence | ~292 |
+| #292 | "       | 🔵  | First Screenshot Analysis - Chord Fingering Display Issue      | ~249 |
+
 </claude-mem-context>

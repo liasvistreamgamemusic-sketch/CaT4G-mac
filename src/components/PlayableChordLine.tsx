@@ -1,0 +1,292 @@
+/**
+ * PlayableChordLine - 演奏モード用のコード行表示コンポーネント
+ * LineEditor の表示部分を抽出した読み取り専用バージョン
+ *
+ * Features:
+ * - LineEditor と同じコード配置システム（CHAR_WIDTH = 22px）
+ * - 縦のガイドライン（コードと歌詞位置を接続）
+ * - 歌詞位置のハイライト（アンダーライン）
+ * - viewMode 対応（compact/standard/detailed）
+ * - ドラッグ・編集機能なし
+ */
+
+import { useMemo } from 'react';
+import type { ExtendedChordPosition } from '@/types/database';
+import { ChordDiagramHorizontal } from '@/components/ChordDiagramHorizontal';
+import { generateChordFingerings } from '@/lib/chords';
+import { transposeChord } from '@/lib/chords';
+import type { ChordFingering } from '@/lib/chords/types';
+
+// ============================================
+// 定数（LineEditor と同期）
+// ============================================
+
+/** 文字幅（モノスペースフォント + レタースペーシング） */
+const CHAR_WIDTH = 22;
+
+/** コードコンポーネントの幅（ダイアグラムモード） */
+const CHORD_COMPONENT_WIDTH_DIAGRAM = 76;
+
+/** コードコンポーネントの幅（コンパクトモード） */
+const CHORD_COMPONENT_WIDTH_COMPACT = 52;
+
+// ============================================
+// 型定義
+// ============================================
+
+export type ViewMode = 'compact' | 'standard' | 'detailed';
+
+interface PlayableChordLineProps {
+  /** 歌詞テキスト */
+  lyrics: string;
+  /** コード配列 */
+  chords: ExtendedChordPosition[];
+  /** 移調量 */
+  transpose?: number;
+  /** 表示モード */
+  viewMode?: ViewMode;
+  /** コードクリック時のコールバック（ダイアグラムモーダル表示用） */
+  onChordClick?: (chord: string) => void;
+  /** 行メモ */
+  memo?: string;
+}
+
+/**
+ * 演奏モード用コード行コンポーネント
+ */
+export function PlayableChordLine({
+  lyrics,
+  chords,
+  transpose = 0,
+  viewMode = 'standard',
+  onChordClick,
+  memo,
+}: PlayableChordLineProps) {
+  // 表示設定
+  const showDiagram = viewMode !== 'compact';
+  const showPlayingMethod = viewMode !== 'compact';
+  const showMemo = viewMode === 'detailed';
+
+  // コードコンポーネントの幅
+  const componentWidth = showDiagram ? CHORD_COMPONENT_WIDTH_DIAGRAM : CHORD_COMPONENT_WIDTH_COMPACT;
+
+  // 移調済みコード名を計算
+  const transposedChords = useMemo(() => {
+    return chords.map((chord) => ({
+      ...chord,
+      chord: transposeChord(chord.chord, transpose),
+    }));
+  }, [chords, transpose]);
+
+  // コードのフィンガリングを生成
+  const chordFingerings = useMemo(() => {
+    const fingerings: Record<number, ChordFingering | null> = {};
+    transposedChords.forEach((chord, index) => {
+      const allFingerings = generateChordFingerings(chord.chord);
+      if (chord.voicingId) {
+        const selected = allFingerings.find((f) => f.id === chord.voicingId);
+        fingerings[index] = selected || allFingerings[0] || null;
+      } else {
+        fingerings[index] = allFingerings[0] || null;
+      }
+    });
+    return fingerings;
+  }, [transposedChords]);
+
+  // メソッドインジケーターを取得
+  const getMethodIndicator = (chord: ExtendedChordPosition): string => {
+    if (!chord.method) return '';
+    if (chord.method === 'stroke') return 'St';
+    if (chord.method === 'arpeggio') return 'Ar';
+    return '';
+  };
+
+  // パターン表示文字列を取得
+  const getPatternDisplay = (chord: ExtendedChordPosition): string => {
+    if (!chord.method) return '';
+    if (chord.method === 'stroke' && chord.strokePattern && chord.strokePattern.length > 0) {
+      return chord.strokePattern
+        .map((dir) => {
+          switch (dir) {
+            case 'down': return '↓';
+            case 'up': return '↑';
+            case 'mute': return '×';
+            case 'rest': return '−';
+            default: return '';
+          }
+        })
+        .join('');
+    }
+    if (chord.method === 'arpeggio' && chord.arpeggioOrder && chord.arpeggioOrder.length > 0) {
+      return chord.arpeggioOrder
+        .map((el) => Array.isArray(el) ? `[${el.join('')}]` : String(el))
+        .join('-');
+    }
+    return '';
+  };
+
+  // 最大位置を計算（幅の決定）
+  const maxPosition = Math.max(
+    lyrics.length,
+    ...chords.map((c) => c.position + c.chord.length)
+  );
+  const minChars = Math.max(30, maxPosition + 5);
+
+  return (
+    <div className="space-y-0">
+      {/* コード行 */}
+      <div
+        className={`relative font-mono text-sm bg-background-primary/30 rounded-t px-2 py-1 ${
+          chords.length > 0 ? (showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8') : 'min-h-[2rem]'
+        }`}
+        style={{ minWidth: `${minChars}ch` }}
+      >
+        {/* コード表示 */}
+        {transposedChords.map((chord, chordIndex) => {
+          const fingering = chordFingerings[chordIndex];
+          const methodIndicator = showPlayingMethod ? getMethodIndicator(chord) : '';
+          const patternDisplay = showPlayingMethod ? getPatternDisplay(chord) : '';
+          const hasPattern = showPlayingMethod && patternDisplay.length > 0;
+          const hasAnnotation = showMemo && chord.annotation && chord.annotation.trim().length > 0;
+
+          // コンパクトモードかどうか
+          const isMinimalMode = !showDiagram && !showPlayingMethod && !showMemo;
+          const displayWidth = isMinimalMode ? 'auto' : `${componentWidth}px`;
+          const displayHeight = isMinimalMode ? '28px' : (showDiagram ? '72px' : '36px');
+
+          // 位置をピクセルに変換
+          const positionPx = chord.position * CHAR_WIDTH;
+
+          return (
+            <div
+              key={chordIndex}
+              className={`absolute top-0 flex flex-col select-none
+                border border-white/10 rounded bg-background-surface/50 p-1
+                hover:border-accent-primary/30 transition-colors
+                overflow-visible
+                ${onChordClick ? 'cursor-pointer hover:bg-accent-primary/10' : ''}`}
+              style={{
+                left: `${positionPx}px`,
+                width: displayWidth,
+                minHeight: displayHeight,
+              }}
+              onClick={() => onChordClick?.(chord.chord)}
+              title={`${chord.chord}${chord.annotation ? `\n${chord.annotation}` : ''}`}
+            >
+              {/* ヘッダー: コード名 + メソッドバッジ */}
+              <div className="flex items-center justify-between w-full">
+                <div className="px-1 rounded transition-colors whitespace-nowrap text-sm font-semibold flex items-center text-accent-primary hover:bg-accent-primary/20">
+                  {chord.chord}
+                </div>
+                {methodIndicator && showPlayingMethod && (
+                  <span className={`text-[8px] px-1 py-0.5 rounded ${
+                    chord.method === 'stroke'
+                      ? 'bg-purple-500/20 text-purple-300'
+                      : 'bg-green-500/20 text-green-300'
+                  }`}>
+                    {methodIndicator}
+                  </span>
+                )}
+              </div>
+
+              {/* コードダイアグラム */}
+              {showDiagram && (
+                <div className="flex items-center justify-center flex-shrink-0" style={{ height: '56px' }}>
+                  {fingering && (
+                    <ChordDiagramHorizontal
+                      fingering={fingering}
+                      size="xs"
+                      showFingers={false}
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* パターン表示 */}
+              {hasPattern && (
+                <div className="text-[9px] text-center font-mono leading-tight truncate w-full px-0.5" title={patternDisplay}>
+                  <span className={chord.method === 'stroke' ? 'text-purple-300' : 'text-green-300'}>
+                    {patternDisplay.length > 12 ? patternDisplay.slice(0, 12) + '...' : patternDisplay}
+                  </span>
+                </div>
+              )}
+
+              {/* アノテーション表示 */}
+              {hasAnnotation && (
+                <div className="text-[8px] text-yellow-400 leading-tight truncate w-full px-0.5 mt-0.5" title={chord.annotation}>
+                  {chord.annotation!.length > 12 ? chord.annotation!.slice(0, 12) + '...' : chord.annotation}
+                </div>
+              )}
+
+              {/* 縦のガイドライン */}
+              <div
+                className="absolute w-0.5 bg-accent-primary/50 pointer-events-none rounded-full"
+                style={{
+                  left: '0px',
+                  top: '100%',
+                  height: showDiagram ? '24px' : '12px',
+                }}
+              />
+              {/* 下端のアンカーポイント */}
+              <div
+                className="absolute w-2 h-2 bg-accent-primary/60 rounded-full pointer-events-none"
+                style={{
+                  left: '-3px',
+                  top: `calc(100% + ${showDiagram ? '22px' : '10px'})`,
+                }}
+              />
+            </div>
+          );
+        })}
+
+        {/* コードがない場合 */}
+        {chords.length === 0 && (
+          <span className="text-text-muted/50 text-xs pointer-events-none">
+            &nbsp;
+          </span>
+        )}
+      </div>
+
+      {/* 歌詞行 */}
+      <div className="relative">
+        {/* アンダーラインマーカー（コード位置） */}
+        <div
+          className="absolute inset-0 pointer-events-none px-3 py-1.5"
+          style={{ fontFamily: 'monospace', fontSize: '0.875rem', letterSpacing: '0.35em' }}
+        >
+          {chords.map((chord, chordIndex) => {
+            const pos = chord.position;
+            if (pos >= lyrics.length) return null;
+            return (
+              <span
+                key={chordIndex}
+                className="absolute bottom-1 h-0.5 bg-accent-primary/60 rounded-full"
+                style={{
+                  left: `calc(12px + ${pos * CHAR_WIDTH}px)`,
+                  width: `${CHAR_WIDTH}px`,
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {/* 歌詞テキスト */}
+        <div
+          className="w-full bg-[#1a1a25] border border-white/10 rounded-b px-3 py-1.5 text-sm font-mono text-white"
+          style={{ letterSpacing: '0.35em', minHeight: '32px' }}
+        >
+          {lyrics || <span className="text-text-muted/30">&nbsp;</span>}
+        </div>
+      </div>
+
+      {/* 行メモ（detailed モードのみ） */}
+      {showMemo && memo && (
+        <div className="text-xs text-yellow-400 bg-yellow-500/10 rounded px-2 py-1 mt-1 border border-yellow-500/20">
+          {memo}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default PlayableChordLine;

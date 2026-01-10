@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { ExtendedChordPosition } from '@/types/database';
 import { LineEditor, type EditableLine } from './LineEditor';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 // Common section names used in songs
 const COMMON_SECTION_NAMES = [
@@ -46,7 +47,7 @@ interface SectionEditorProps {
   onMoveDown: () => void;
   onDelete: () => void;
   onCopy: () => void;  // Copy/duplicate section
-  onAddLine: () => void;
+  onAddLine: (insertAtIndex?: number) => void;  // Add line at end (no index) or insert at specific position
   onLineChange: (lineIndex: number, updates: Partial<EditableLine>) => void;
   onDeleteLine: (lineIndex: number) => void;
   onChordClick?: (lineIndex: number, chordIndex: number, chord: ExtendedChordPosition) => void;
@@ -57,14 +58,60 @@ interface SectionEditorProps {
     toLineIndex: number,
     chord: ExtendedChordPosition
   ) => void;
+  // Split section at a specific line (creates new section from that line onward)
+  onSplitSection?: (atLineIndex: number) => void;
   // Display toggle settings for chord components
   showDiagram?: boolean;        // 押さえ方の図
   showPlayingMethod?: boolean;  // 引き方 (ストローク/アルペジオパターン)
   showMemo?: boolean;           // メモ
+  // 移調量（表示用）
+  transpose?: number;
 }
 
 // Re-export EditableLine type for use in parent components
 export type { EditableLine, EditableSection };
+
+/**
+ * 行間挿入ボタンコンポーネント
+ * ホバー時にのみ表示される薄い「+」ボタン
+ */
+function InsertLineButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full py-1 opacity-0 hover:opacity-100 transition-opacity text-text-muted/50 hover:text-accent-primary text-xs group/insert"
+      title={label}
+    >
+      <div className="flex items-center justify-center gap-2">
+        <div className="h-px flex-1 bg-white/10 group-hover/insert:bg-accent-primary/30 transition-colors" />
+        <span className="px-2">+ 行を挿入</span>
+        <div className="h-px flex-1 bg-white/10 group-hover/insert:bg-accent-primary/30 transition-colors" />
+      </div>
+    </button>
+  );
+}
+
+/**
+ * セクション分割ボタンコンポーネント
+ * ホバー時にのみ表示される薄い「✂」ボタン
+ * この行から下を新しいセクションに分割する
+ */
+function SplitSectionButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="absolute right-0 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover/line:opacity-100 transition-opacity
+                 text-orange-400/70 hover:text-orange-400 hover:bg-orange-500/20 rounded"
+      title="ここでセクションを分割"
+    >
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
+      </svg>
+    </button>
+  );
+}
 
 /**
  * セクション編集コンポーネント
@@ -88,12 +135,15 @@ export function SectionEditor({
   onChordClick,
   onAddChord,
   onMoveChordBetweenLines,
+  onSplitSection,
   showDiagram = true,
   showPlayingMethod = true,
   showMemo = true,
+  transpose = 0,
 }: SectionEditorProps) {
   // Section name combo box state
   const [showSectionDropdown, setShowSectionDropdown] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const sectionNameRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -256,7 +306,7 @@ export function SectionEditor({
           {/* Delete Section */}
           <button
             type="button"
-            onClick={onDelete}
+            onClick={() => setShowDeleteConfirm(true)}
             className="p-1 hover:bg-red-500/20 text-red-400 rounded transition-colors"
             title="セクション削除"
           >
@@ -274,44 +324,56 @@ export function SectionEditor({
 
       {/* Lines - Using LineEditor for full chord editing functionality (collapsible) */}
       {!isCollapsed && (
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-x-auto">
           {section.lines.length === 0 ? (
             <div className="text-center py-4 text-text-muted text-sm">
               行がありません
             </div>
           ) : (
             section.lines.map((line, lineIndex) => (
-              <LineEditor
-                key={line.id ?? `new-line-${sectionIndex}-${lineIndex}`}
-                line={line}
-                lineIndex={lineIndex}
-                onLineChange={(updates) => onLineChange(lineIndex, updates)}
-                onDelete={() => onDeleteLine(lineIndex)}
-                onChordClick={(chordIndex, chord) => onChordClick?.(lineIndex, chordIndex, chord)}
-                onAddChord={(position) => onAddChord?.(lineIndex, position)}
-                canMoveUp={lineIndex > 0}
-                canMoveDown={lineIndex < section.lines.length - 1}
-                onMoveChordToLine={(direction, _chordIndex, chord) => {
-                  const targetLineIndex = direction === 'up' ? lineIndex - 1 : lineIndex + 1;
-                  if (targetLineIndex >= 0 && targetLineIndex < section.lines.length) {
-                    onMoveChordBetweenLines?.(lineIndex, targetLineIndex, chord);
-                  }
-                }}
-                showDiagram={showDiagram}
-                showPlayingMethod={showPlayingMethod}
-                showMemo={showMemo}
-              />
+              <div key={line.id ?? `new-line-${sectionIndex}-${lineIndex}`} className="group/line relative">
+                {/* 最初の行の上に挿入ボタン */}
+                {lineIndex === 0 && (
+                  <InsertLineButton
+                    onClick={() => onAddLine(0)}
+                    label="上に行を挿入"
+                  />
+                )}
+
+                {/* セクション分割ボタン（2行以上あり、最初の行以外に表示） */}
+                {onSplitSection && section.lines.length > 1 && lineIndex > 0 && (
+                  <SplitSectionButton onClick={() => onSplitSection(lineIndex)} />
+                )}
+
+                <LineEditor
+                  line={line}
+                  lineIndex={lineIndex}
+                  onLineChange={(updates) => onLineChange(lineIndex, updates)}
+                  onDelete={() => onDeleteLine(lineIndex)}
+                  onChordClick={(chordIndex, chord) => onChordClick?.(lineIndex, chordIndex, chord)}
+                  onAddChord={(position) => onAddChord?.(lineIndex, position)}
+                  canMoveUp={lineIndex > 0}
+                  canMoveDown={lineIndex < section.lines.length - 1}
+                  onMoveChordToLine={(direction, _chordIndex, chord) => {
+                    const targetLineIndex = direction === 'up' ? lineIndex - 1 : lineIndex + 1;
+                    if (targetLineIndex >= 0 && targetLineIndex < section.lines.length) {
+                      onMoveChordBetweenLines?.(lineIndex, targetLineIndex, chord);
+                    }
+                  }}
+                  showDiagram={showDiagram}
+                  showPlayingMethod={showPlayingMethod}
+                  showMemo={showMemo}
+                  transpose={transpose}
+                />
+
+                {/* 行の下に挿入ボタン */}
+                <InsertLineButton
+                  onClick={() => onAddLine(lineIndex + 1)}
+                  label="下に行を挿入"
+                />
+              </div>
             ))
           )}
-
-          {/* Add Line Button */}
-          <button
-            type="button"
-            onClick={onAddLine}
-            className="w-full py-2 border border-dashed border-white/10 rounded-lg text-text-secondary hover:border-accent-primary hover:text-accent-primary transition-colors text-sm"
-          >
-            + 行を追加
-          </button>
         </div>
       )}
 
@@ -321,6 +383,21 @@ export function SectionEditor({
           {section.lines.length}行
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="セクションを削除"
+        message={`「${section.name}」（${section.lines.length}行）を削除しますか？この操作は取り消せません。`}
+        confirmLabel="削除"
+        cancelLabel="キャンセル"
+        variant="danger"
+        onConfirm={() => {
+          setShowDeleteConfirm(false);
+          onDelete();
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }
