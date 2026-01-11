@@ -10,7 +10,6 @@ export { PlaylistDetail } from './PlaylistDetail';
 export { PlaylistList } from './PlaylistList';
 export { CreatePlaylistModal } from './CreatePlaylistModal';
 export { AddSongsToPlaylistModal } from './AddSongsToPlaylistModal';
-export { SettingsModal } from './SettingsModal';
 export { Toast, ToastContainer } from './Toast';
 export type { ToastData, ToastType } from './Toast';
 export * from './icons';
