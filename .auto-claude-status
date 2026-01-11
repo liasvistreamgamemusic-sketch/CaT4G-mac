@@ -1,11 +1,11 @@
 {
   "active": true,
   "spec": "013-",
-  "state": "building",
+  "state": "complete",
   "subtasks": {
-    "completed": 16,
+    "completed": 17,
     "total": 17,
-    "in_progress": 1,
+    "in_progress": 0,
     "failed": 0
   },
   "phase": {
@@ -21,5 +21,5 @@
     "number": 17,
     "started_at": "2026-01-11T11:27:17.506347"
   },
-  "last_update": "2026-01-11T11:43:08.583337"
+  "last_update": "2026-01-11T11:45:32.628102"
 }
