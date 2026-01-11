@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, type SetStateAction } from 'react';
 import { getSongById, updateSong } from '@/lib/database';
 import {
   SectionEditor,
@@ -7,6 +7,7 @@ import {
   EditorSidebar,
 } from '@/components/editor';
 import { transposeChord } from '@/lib/chords/transpose';
+import { useUndoRedo } from '@/hooks';
 import type { EditableLine, EditableSection, ViewMode } from '@/components/editor';
 import type {
   SongWithDetails,
@@ -34,6 +35,26 @@ interface EditableSongMetadata {
   notes: string;
 }
 
+// Editor state snapshot for undo/redo
+interface EditorSnapshot {
+  metadata: EditableSongMetadata;
+  sections: EditableSection[];
+}
+
+// Initial state for editor
+const INITIAL_EDITOR_STATE: EditorSnapshot = {
+  metadata: {
+    title: '',
+    artistName: '',
+    bpm: '',
+    timeSignature: '4/4',
+    capo: 0,
+    transpose: 0,
+    notes: '',
+  },
+  sections: [],
+};
+
 /**
  * 曲編集ページコンポーネント
  * フルページで曲のメタデータ、セクション、行を編集できる
@@ -47,20 +68,46 @@ export function SongEditorPage({ songId, onClose, onSongUpdated }: SongEditorPag
   // Original song data (for comparison to detect changes)
   const [originalSong, setOriginalSong] = useState<SongWithDetails | null>(null);
 
-  // Editable state
-  const [metadata, setMetadata] = useState<EditableSongMetadata>({
-    title: '',
-    artistName: '',
-    bpm: '',
-    timeSignature: '4/4',
-    capo: 0,
-    transpose: 0,
-    notes: '',
+  // Editable state with undo/redo support
+  const {
+    state: editorState,
+    setState: setEditorState,
+    canUndo,
+    canRedo,
+    undo,
+    redo,
+    resetHistory,
+  } = useUndoRedo<EditorSnapshot>(INITIAL_EDITOR_STATE, {
+    maxHistory: 50,
+    debounceMs: 300,
   });
+
+  // Destructure for convenience
+  const { metadata, sections } = editorState;
+
+  // Wrapper setters for API compatibility with existing handlers
+  const setMetadata = useCallback(
+    (updater: SetStateAction<EditableSongMetadata>) => {
+      setEditorState((prev) => ({
+        ...prev,
+        metadata: typeof updater === 'function' ? updater(prev.metadata) : updater,
+      }));
+    },
+    [setEditorState]
+  );
+
+  const setSections = useCallback(
+    (updater: SetStateAction<EditableSection[]>) => {
+      setEditorState((prev) => ({
+        ...prev,
+        sections: typeof updater === 'function' ? updater(prev.sections) : updater,
+      }));
+    },
+    [setEditorState]
+  );
 
   // Collapse states
   const [collapsedSections, setCollapsedSections] = useState<Record<number, boolean>>({});
-  const [sections, setSections] = useState<EditableSection[]>([]);
 
   // ViewMode state (replaces individual showDiagram, showPlayingMethod, showMemo toggles)
   const [viewMode, setViewMode] = useState<ViewMode>('standard');
@@ -146,20 +193,18 @@ export function SongEditorPage({ songId, onClose, onSongUpdated }: SongEditorPag
 
         setOriginalSong(song);
 
-        // Initialize metadata
-        setMetadata({
-          title: song.song.title,
-          artistName: song.artist?.name ?? '',
-          bpm: song.song.bpm?.toString() ?? '',
-          timeSignature: song.song.timeSignature,
-          capo: song.song.capo,
-          transpose: 0,  // TODO: Load from database when schema is updated
-          notes: song.song.notes ?? '',
-        });
-
-        // Initialize sections
-        setSections(
-          song.sections.map((s) => ({
+        // Initialize editor state and reset history
+        const initialState: EditorSnapshot = {
+          metadata: {
+            title: song.song.title,
+            artistName: song.artist?.name ?? '',
+            bpm: song.song.bpm?.toString() ?? '',
+            timeSignature: song.song.timeSignature,
+            capo: song.song.capo,
+            transpose: 0,  // TODO: Load from database when schema is updated
+            notes: song.song.notes ?? '',
+          },
+          sections: song.sections.map((s) => ({
             id: s.section.id,
             name: s.section.name,
             repeatCount: s.section.repeatCount,
@@ -168,8 +213,9 @@ export function SongEditorPage({ songId, onClose, onSongUpdated }: SongEditorPag
               lyrics: l.lyrics,
               chords: l.chords as ExtendedChordPosition[],
             })),
-          }))
-        );
+          })),
+        };
+        resetHistory(initialState);
       } catch (err) {
         setError(err instanceof Error ? err.message : '読み込みに失敗しました');
       } finally {
@@ -178,7 +224,7 @@ export function SongEditorPage({ songId, onClose, onSongUpdated }: SongEditorPag
     }
 
     loadSong();
-  }, [songId]);
+  }, [songId, resetHistory]);
 
   // Handle save
   const handleSave = useCallback(async () => {
@@ -220,13 +266,16 @@ export function SongEditorPage({ songId, onClose, onSongUpdated }: SongEditorPag
         setOriginalSong(updatedSong);
       }
 
+      // Reset undo/redo history after successful save
+      resetHistory();
+
       onSongUpdated?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存に失敗しました');
     } finally {
       setIsSaving(false);
     }
-  }, [songId, metadata, sections, originalSong, onSongUpdated]);
+  }, [songId, metadata, sections, originalSong, onSongUpdated, resetHistory]);
 
   // Handle close with unsaved changes confirmation
   const handleClose = useCallback(() => {
@@ -247,6 +296,40 @@ export function SongEditorPage({ songId, onClose, onSongUpdated }: SongEditorPag
   const handleCancelDiscard = useCallback(() => {
     setShowUnsavedDialog(false);
   }, []);
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if in input field
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Ctrl+Z or Cmd+Z for undo, Ctrl+Shift+Z for redo
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
+      }
+
+      // Ctrl+Y or Cmd+Y for redo
+      if ((e.metaKey || e.ctrlKey) && e.key === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo]);
 
   // Section handlers
   const handleSectionChange = useCallback(
@@ -615,6 +698,10 @@ export function SongEditorPage({ songId, onClose, onSongUpdated }: SongEditorPag
         onSave={handleSave}
         onBack={handleClose}
         isSaving={isSaving}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={undo}
+        onRedo={redo}
       />
 
       {/* Error banner */}

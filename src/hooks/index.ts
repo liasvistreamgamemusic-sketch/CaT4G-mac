@@ -38,3 +38,6 @@ export type { Theme } from './useTheme';
 
 export { useViewMode, getViewModeSettings, VIEW_MODE_DESCRIPTIONS } from './useViewMode';
 export type { ViewMode, ViewModeSettings } from './useViewMode';
+
+export { useUndoRedo } from './useUndoRedo';
+export type { UseUndoRedoOptions, UseUndoRedoReturn } from './useUndoRedo';

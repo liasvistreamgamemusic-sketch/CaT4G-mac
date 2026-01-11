@@ -10,6 +10,8 @@ import {
   LayoutGrid,
   Loader2,
   Check,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -26,6 +28,10 @@ interface EditorHeaderProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   onPreview?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
 
 const VIEW_MODE_CONFIG: Record<
@@ -72,6 +78,10 @@ export function EditorHeader({
   viewMode,
   onViewModeChange,
   onPreview,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
 }: EditorHeaderProps) {
   const { toggleTheme, isDark } = useTheme();
 
@@ -263,6 +273,40 @@ export function EditorHeader({
             ))}
           </select>
         </div>
+
+        {/* Undo/Redo buttons */}
+        {(onUndo || onRedo) && (
+          <div className="flex items-center gap-0.5 mr-1">
+            <button
+              type="button"
+              onClick={onUndo}
+              disabled={!canUndo}
+              className="w-8 h-8 flex items-center justify-center
+                         rounded-lg text-text-secondary hover:text-text-primary
+                         disabled:opacity-30 disabled:cursor-not-allowed
+                         hover:bg-background-hover transition-colors
+                         focus:outline-none focus:ring-2 focus:ring-primary/50"
+              title="元に戻す (Ctrl+Z)"
+              aria-label="元に戻す"
+            >
+              <Undo2 className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onRedo}
+              disabled={!canRedo}
+              className="w-8 h-8 flex items-center justify-center
+                         rounded-lg text-text-secondary hover:text-text-primary
+                         disabled:opacity-30 disabled:cursor-not-allowed
+                         hover:bg-background-hover transition-colors
+                         focus:outline-none focus:ring-2 focus:ring-primary/50"
+              title="やり直す (Ctrl+Y)"
+              aria-label="やり直す"
+            >
+              <Redo2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Theme toggle */}
         <button

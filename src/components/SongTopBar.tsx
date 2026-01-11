@@ -17,6 +17,9 @@ import {
   Layout,
   LayoutGrid,
   ExternalLink,
+  Undo2,
+  Redo2,
+  X,
 } from 'lucide-react';
 import type { SongWithDetails } from '@/types/database';
 
@@ -48,6 +51,16 @@ interface SongTopBarProps {
   onSave?: () => void | Promise<void>;
   /** 保存中かどうか */
   isSaving?: boolean;
+  /** Undo可能かどうか */
+  canUndo?: boolean;
+  /** Redo可能かどうか */
+  canRedo?: boolean;
+  /** Undoコールバック */
+  onUndo?: () => void;
+  /** Redoコールバック */
+  onRedo?: () => void;
+  /** キャンセル（保存せずに戻る）コールバック */
+  onCancel?: () => void;
 }
 
 // ============================================
@@ -117,6 +130,11 @@ export function SongTopBar({
   hasUnsavedChanges = false,
   onSave,
   isSaving = false,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
+  onCancel,
 }: SongTopBarProps) {
   const { song: songData, artist } = song;
 
@@ -236,6 +254,46 @@ export function SongTopBar({
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-xs text-green-400">再生中</span>
           </div>
+        )}
+
+        {/* Undo/Redo buttons (編集モードのみ) */}
+        {mode === 'edit' && (onUndo || onRedo) && (
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={onUndo}
+              disabled={!canUndo}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-background-hover transition-colors"
+              title="元に戻す (Ctrl+Z)"
+              aria-label="元に戻す"
+            >
+              <Undo2 className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onRedo}
+              disabled={!canRedo}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-background-hover transition-colors"
+              title="やり直す (Ctrl+Y)"
+              aria-label="やり直す"
+            >
+              <Redo2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* 編集モードでのキャンセルボタン */}
+        {mode === 'edit' && onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSaving}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:text-text-primary hover:bg-background-hover transition-colors disabled:opacity-50"
+            title="保存せずに戻る"
+          >
+            <X className="w-4 h-4" />
+            <span>キャンセル</span>
+          </button>
         )}
 
         {/* 編集モードでの保存ボタン */}

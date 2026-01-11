@@ -9,7 +9,7 @@
  * - スクロール可能なコンテンツエリア
  */
 
-import { forwardRef, useMemo, useCallback, useState, useEffect } from 'react';
+import { forwardRef, useMemo, useCallback, useState, useEffect, type SetStateAction } from 'react';
 import type {
   SongWithDetails,
   TimeSignature,
@@ -17,6 +17,7 @@ import type {
 } from '@/types/database';
 import { SongTopBar } from '@/components/SongTopBar';
 import type { ViewMode, AppMode } from '@/components/SongTopBar';
+import { useUndoRedo } from '@/hooks';
 
 // Re-export types for convenience
 export type { ViewMode, AppMode };
@@ -87,6 +88,27 @@ interface ChordEditState {
   chord: ExtendedChordPosition;
 }
 
+// Editor state snapshot for undo/redo
+interface EditorSnapshot {
+  metadata: EditableSongMetadata;
+  sections: EditableSection[];
+}
+
+// Initial empty state for editor
+const INITIAL_EDITOR_STATE: EditorSnapshot = {
+  metadata: {
+    title: '',
+    artistName: '',
+    bpm: '',
+    timeSignature: '4/4',
+    capo: 0,
+    transpose: 0,
+    playbackSpeed: 1.0,
+    notes: '',
+  },
+  sections: [],
+};
+
 // ============================================
 // ヘルパー関数
 // ============================================
@@ -153,10 +175,59 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
   void _onPlaybackSpeedChange;
   const { song: songData, sections } = song;
 
-  // 編集モード用の状態
-  const [editMetadata, setEditMetadata] = useState<EditableSongMetadata | null>(null);
-  const [editSections, setEditSections] = useState<EditableSection[] | null>(null);
+  // 編集モード用の状態 with undo/redo support
+  const {
+    state: editorState,
+    setState: setEditorState,
+    canUndo,
+    canRedo,
+    undo,
+    redo,
+    resetHistory,
+  } = useUndoRedo<EditorSnapshot>(INITIAL_EDITOR_STATE, {
+    maxHistory: 50,
+    debounceMs: 300,
+  });
+
+  // Destructure for convenience (null check for play mode)
+  const editMetadata = editorState.metadata.title ? editorState.metadata : null;
+  const editSections = editorState.sections.length > 0 ? editorState.sections : null;
+
+  // Wrapper setters for API compatibility
+  const setEditMetadata = useCallback(
+    (updater: SetStateAction<EditableSongMetadata | null>) => {
+      setEditorState((prev) => {
+        const newMetadata = typeof updater === 'function'
+          ? updater(prev.metadata.title ? prev.metadata : null)
+          : updater;
+        return {
+          ...prev,
+          metadata: newMetadata || INITIAL_EDITOR_STATE.metadata,
+        };
+      });
+    },
+    [setEditorState]
+  );
+
+  const setEditSections = useCallback(
+    (updater: SetStateAction<EditableSection[] | null>) => {
+      setEditorState((prev) => {
+        const newSections = typeof updater === 'function'
+          ? updater(prev.sections.length > 0 ? prev.sections : null)
+          : updater;
+        return {
+          ...prev,
+          sections: newSections || [],
+        };
+      });
+    },
+    [setEditorState]
+  );
+
   const [isSaving, setIsSaving] = useState(false);
+
+  // キャンセル確認ダイアログの状態
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   // コード編集用の状態
   const [chordEditState, setChordEditState] = useState<ChordEditState | null>(null);
@@ -168,14 +239,53 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
   // 編集モードの設定パネル折りたたみ状態
   const [isSettingsPanelCollapsed, setIsSettingsPanelCollapsed] = useState(false);
 
+  // Keyboard shortcuts for undo/redo (edit mode only)
+  useEffect(() => {
+    if (mode !== 'edit') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if in input field
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Ctrl+Z or Cmd+Z for undo, Ctrl+Shift+Z for redo
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
+      }
+
+      // Ctrl+Y or Cmd+Y for redo
+      if ((e.metaKey || e.ctrlKey) && e.key === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mode, undo, redo]);
+
   // 編集モードに入る時に状態を初期化
   useEffect(() => {
     if (mode === 'edit') {
       const { metadata, sections: editableSections } = initializeEditState(song);
-      setEditMetadata(metadata);
-      setEditSections(editableSections);
+      // Initialize editor state and reset history
+      resetHistory({
+        metadata,
+        sections: editableSections,
+      });
     }
-  }, [mode, song]);
+  }, [mode, song, resetHistory]);
 
   // 変更検出
   const hasUnsavedChanges = useMemo(() => {
@@ -259,8 +369,11 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
       const updatedSong = await getSongById(songData.id);
       if (updatedSong) {
         const { metadata, sections: newSections } = initializeEditState(updatedSong);
-        setEditMetadata(metadata);
-        setEditSections(newSections);
+        // Reset history after successful save
+        resetHistory({
+          metadata,
+          sections: newSections,
+        });
       }
 
       onSongUpdated?.();
@@ -269,7 +382,36 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     } finally {
       setIsSaving(false);
     }
-  }, [editMetadata, editSections, hasUnsavedChanges, songData.id, onSongUpdated]);
+  }, [editMetadata, editSections, hasUnsavedChanges, songData.id, onSongUpdated, resetHistory]);
+
+  // キャンセルボタン押下時の処理
+  const handleCancelClick = useCallback(() => {
+    if (hasUnsavedChanges) {
+      // 未保存の変更がある場合は確認ダイアログを表示
+      setShowCancelConfirm(true);
+    } else {
+      // 変更がない場合はそのまま戻る
+      onModeChange('play');
+    }
+  }, [hasUnsavedChanges, onModeChange]);
+
+  // キャンセル確認後の処理（変更を破棄して戻る）
+  const handleConfirmCancel = useCallback(() => {
+    setShowCancelConfirm(false);
+    // 編集状態をリセットして元のデータに戻す
+    const { metadata, sections: editableSections } = initializeEditState(song);
+    resetHistory({
+      metadata,
+      sections: editableSections,
+    });
+    // 再生モードに戻る
+    onModeChange('play');
+  }, [song, resetHistory, onModeChange]);
+
+  // キャンセル確認ダイアログを閉じる
+  const handleDismissCancelConfirm = useCallback(() => {
+    setShowCancelConfirm(false);
+  }, []);
 
   // セクション変更ハンドラー
   const handleSectionChange = useCallback((sectionIndex: number, updates: Partial<EditableSection>) => {
@@ -612,6 +754,11 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           hasUnsavedChanges={hasUnsavedChanges}
           onSave={handleSave}
           isSaving={isSaving}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={undo}
+          onRedo={redo}
+          onCancel={handleCancelClick}
         />
 
         {/* コンテンツエリア */}
@@ -733,6 +880,36 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           onDelete={chordEditState.chordIndex !== -1 ? handleDeleteChord : undefined}
           timeSignature={currentTimeSignature}
         />
+      )}
+
+      {/* キャンセル確認ダイアログ */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-background-surface border border-border rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold text-text-primary mb-2">
+              変更を破棄しますか？
+            </h3>
+            <p className="text-sm text-text-secondary mb-6">
+              保存されていない変更があります。編集を終了すると、変更内容は失われます。
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={handleDismissCancelConfirm}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-hover transition-colors"
+              >
+                編集を続ける
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCancel}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors"
+              >
+                変更を破棄
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
