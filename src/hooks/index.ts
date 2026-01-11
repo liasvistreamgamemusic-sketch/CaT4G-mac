@@ -18,12 +18,6 @@ export type {
   UseMetronomeReturn,
 } from './useMetronome';
 
-export { useDragAndDrop } from './useDragAndDrop';
-export type {
-  UseDragAndDropOptions,
-  UseDragAndDropReturn,
-} from './useDragAndDrop';
-
 export { usePlaylistPlayback } from './usePlaylistPlayback';
 export type {
   UsePlaylistPlaybackOptions,
