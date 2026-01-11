@@ -18,12 +18,6 @@ export type {
   UseMetronomeReturn,
 } from './useMetronome';
 
-export { usePlaylistPlayback } from './usePlaylistPlayback';
-export type {
-  UsePlaylistPlaybackOptions,
-  UsePlaylistPlaybackReturn,
-} from './usePlaylistPlayback';
-
 export { useToast } from './useToast';
 export type { UseToastReturn } from './useToast';
 
