@@ -1,15 +1,15 @@
 {
   "active": true,
-  "spec": "005-chordwiki-url",
-  "state": "building",
+  "spec": "013-",
+  "state": "complete",
   "subtasks": {
-    "completed": 6,
-    "total": 9,
-    "in_progress": 1,
+    "completed": 17,
+    "total": 17,
+    "in_progress": 0,
     "failed": 0
   },
   "phase": {
-    "current": "Integration Testing",
+    "current": "Build and Functional Verification",
     "id": null,
     "total": 3
   },
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 503,
-    "started_at": "2026-01-10T00:00:38.168035"
+    "number": 17,
+    "started_at": "2026-01-11T11:27:17.506347"
   },
-  "last_update": "2026-01-10T04:07:35.261775"
+  "last_update": "2026-01-11T11:45:32.628102"
 }
