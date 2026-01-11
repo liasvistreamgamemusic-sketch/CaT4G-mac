@@ -3,23 +3,23 @@
   "spec": "013-",
   "state": "building",
   "subtasks": {
-    "completed": 8,
+    "completed": 9,
     "total": 17,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Delete Standalone Unused Components",
+    "current": "Delete Unused Hooks",
     "id": null,
-    "total": 5
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 9,
+    "number": 10,
     "started_at": "2026-01-11T11:27:17.506347"
   },
-  "last_update": "2026-01-11T11:34:22.713085"
+  "last_update": "2026-01-11T11:34:58.512323"
 }
