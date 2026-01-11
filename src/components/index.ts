@@ -1,15 +1,10 @@
 export { Layout } from './Layout';
 export { Sidebar } from './Sidebar';
-export { MainArea } from './MainArea';
 export { ControlBar } from './ControlBar';
-export { ChordLine } from './ChordLine';
-export { ChordSheet } from './ChordSheet';
 export { AddSongModal } from './AddSongModal';
 export { MetronomeBeatIndicator } from './MetronomeBeatIndicator';
-export { PlaylistDetail } from './PlaylistDetail';
 export { PlaylistList } from './PlaylistList';
 export { CreatePlaylistModal } from './CreatePlaylistModal';
-export { AddSongsToPlaylistModal } from './AddSongsToPlaylistModal';
 export { Toast, ToastContainer } from './Toast';
 export type { ToastData, ToastType } from './Toast';
 export * from './icons';

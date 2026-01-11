@@ -3,23 +3,23 @@
   "spec": "013-",
   "state": "building",
   "subtasks": {
-    "completed": 11,
+    "completed": 12,
     "total": 17,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Delete Unused Hooks",
+    "current": "Update Index Exports",
     "id": null,
-    "total": 3
+    "total": 2
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 12,
+    "number": 13,
     "started_at": "2026-01-11T11:27:17.506347"
   },
-  "last_update": "2026-01-11T11:36:49.903538"
+  "last_update": "2026-01-11T11:37:48.880452"
 }
