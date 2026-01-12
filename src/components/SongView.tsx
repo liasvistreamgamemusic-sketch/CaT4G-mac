@@ -206,7 +206,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     const updateBaselinePosition = () => {
       if (contentRef.current) {
         const rect = contentRef.current.getBoundingClientRect();
-        // 基準線は画面の上から25%の位置
+        // 基準線は画面の上から15%の位置
         const offset = rect.height * 0.25;
         setBaselineOffset(offset);
         setBaselineY(rect.top + offset);
@@ -231,7 +231,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
       const containerRect = contentRef.current.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
 
-      // 基準線のビューポート位置（コンテナ高さの25%）
+      // 基準線のビューポート位置（コンテナ高さの15%）
       const baselineViewportY = containerRect.top + containerRect.height * 0.25;
 
       // 必要なスクロール量 = 要素の現在位置 - 基準線位置

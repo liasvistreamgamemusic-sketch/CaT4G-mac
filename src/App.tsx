@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Layout } from '@/components/Layout';
 import { Sidebar } from '@/components/Sidebar';
-import { ControlBar } from '@/components/ControlBar';
+import { FloatingControlBar } from '@/components/FloatingControlBar';
 import { AddSongModal } from '@/components/AddSongModal';
 import { ChordDiagramModal } from '@/components/ChordDiagramModal';
 import { CreatePlaylistModal } from '@/components/CreatePlaylistModal';
@@ -115,7 +115,7 @@ function App() {
 
     const container = mainAreaRef.current;
     const containerRect = container.getBoundingClientRect();
-    // 基準線は画面の上から25%の位置
+    // 基準線は画面の上から15%の位置
     const baselineY = containerRect.top + containerRect.height * 0.25;
 
     const lineElements = container.querySelectorAll('[data-line-id]');
@@ -520,7 +520,7 @@ function App() {
           {selectedSong ? (
             <>
               {/* Scrollable content area - takes remaining space */}
-              <div className="flex-1 min-h-0 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-hidden relative">
                 <SongView
                   ref={mainAreaRef}
                   song={selectedSong}
@@ -541,12 +541,10 @@ function App() {
                   onScrollToLine={(fn) => { scrollToLineRef.current = fn; }}
                   onPlayFromLine={handlePlayFromLine}
                 />
-              </div>
 
-              {/* Control bar - fixed at bottom, aligns with sidebar button */}
-              {mode === 'play' && (
-                <div className="flex-shrink-0 border-t border-border">
-                  <ControlBar
+                {/* Floating control bar - positioned inside scrollable area */}
+                {mode === 'play' && (
+                  <FloatingControlBar
                     transpose={transpose}
                     onTransposeChange={handleTransposeChange}
                     capo={capo}
@@ -563,9 +561,10 @@ function App() {
                     metronomeVolume={metronomeVolume}
                     onMetronomeVolumeChange={handleMetronomeVolumeChange}
                     currentBeat={currentBeat}
+                    containerRef={mainAreaRef}
                   />
-                </div>
-              )}
+                )}
+              </div>
             </>
           ) : (
             emptyState
