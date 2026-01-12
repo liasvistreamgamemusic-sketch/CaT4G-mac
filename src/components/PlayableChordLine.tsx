@@ -277,7 +277,7 @@ export function PlayableChordLine({
 
           {/* 歌詞テキスト */}
           <div
-            className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono text-text-primary"
+            className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono font-semibold text-text-primary"
             style={{ letterSpacing: '0.35em', minHeight: '32px' }}
           >
             {lyrics || <span className="text-text-muted/30">&nbsp;</span>}

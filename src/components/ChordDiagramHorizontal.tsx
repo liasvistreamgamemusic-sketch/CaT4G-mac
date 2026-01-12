@@ -56,7 +56,7 @@ export function ChordDiagramHorizontal({
           y={padding.top - 2}
           width={nutWidth}
           height={gridHeight + 4}
-          fill="#e5e7eb"
+          fill="var(--chord-nut)"
           rx={2}
         />
       )}
@@ -67,7 +67,7 @@ export function ChordDiagramHorizontal({
           x={padding.left - 6}
           y={fingering.muted[5] ? getStringY(4) : getStringY(5)}
           fontSize={fontSize + 2}
-          fill="#6b7280"
+          fill="var(--chord-text-muted)"
           textAnchor="end"
           dominantBaseline="middle"
           fontWeight="bold"
@@ -84,7 +84,7 @@ export function ChordDiagramHorizontal({
           y1={getStringY(i)}
           x2={width - padding.right}
           y2={getStringY(i)}
-          stroke="#4b5563"
+          stroke="var(--chord-string)"
           strokeWidth={i === 5 ? 2 : 1}
         />
       ))}
@@ -97,7 +97,7 @@ export function ChordDiagramHorizontal({
           y1={padding.top - 2}
           x2={padding.left + i * fretSpacing}
           y2={height - padding.bottom + 2}
-          stroke="#4b5563"
+          stroke="var(--chord-fret)"
           strokeWidth={i === 0 ? 2 : 1}
         />
       ))}
@@ -114,7 +114,7 @@ export function ChordDiagramHorizontal({
             dotSize
           }
           rx={dotSize / 2}
-          fill="#a855f7"
+          fill="var(--chord-dot)"
         />
       )}
 
@@ -143,7 +143,7 @@ export function ChordDiagramHorizontal({
 
         return (
           <g key={`dot-${stringIndex}`}>
-            <circle cx={x} cy={y} r={dotSize / 2} fill="#a855f7" />
+            <circle cx={x} cy={y} r={dotSize / 2} fill="var(--chord-dot)" />
             {showFingers && fingering.fingers[stringIndex] !== null && (
               <text
                 x={x}
@@ -176,7 +176,7 @@ export function ChordDiagramHorizontal({
               x={x}
               y={y}
               fontSize={muteSize}
-              fill="#6b7280"
+              fill="var(--chord-text-muted)"
               textAnchor="middle"
               dominantBaseline="middle"
               fontWeight="bold"
@@ -196,7 +196,7 @@ export function ChordDiagramHorizontal({
               cy={y}
               r={openStringRadius}
               fill="none"
-              stroke="#6b7280"
+              stroke="var(--chord-text-muted)"
               strokeWidth={1.5}
             />
           );

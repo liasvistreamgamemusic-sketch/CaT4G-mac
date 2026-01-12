@@ -84,6 +84,19 @@
 
     /* Modal backdrop */
     --backdrop-bg: rgba(0, 0, 0, 0.6);
+
+    /* Chord diagram colors */
+    --chord-string: #4b5563;
+    --chord-fret: #4b5563;
+    --chord-nut: #e5e7eb;
+    --chord-dot: var(--color-accent-primary);
+    --chord-text-muted: #6b7280;
+    --chord-text-secondary: #9ca3af;
+
+    /* Count-in overlay */
+    --count-in-bg: rgba(0, 0, 0, 0.85);
+    --count-in-indicator-inactive: rgba(255, 255, 255, 0.2);
+    --count-in-text-shadow: rgba(168, 85, 247, 0.6);
   }
 
   /* Light Theme */
@@ -163,6 +176,18 @@
 
     /* Modal backdrop */
     --backdrop-bg: rgba(0, 0, 0, 0.4);
+
+    /* Chord diagram colors (Light) */
+    --chord-string: #9ca3af;
+    --chord-fret: #9ca3af;
+    --chord-nut: #374151;
+    --chord-text-muted: #9ca3af;
+    --chord-text-secondary: #6b7280;
+
+    /* Count-in overlay */
+    --count-in-bg: rgba(0, 0, 0, 0.7);
+    --count-in-indicator-inactive: rgba(0, 0, 0, 0.15);
+    --count-in-text-shadow: rgba(124, 58, 237, 0.5);
   }
 
   * {
@@ -680,4 +705,31 @@
   50% {
     box-shadow: 0 0 0 8px rgba(168, 85, 247, 0);
   }
+}
+
+/* Float animations for decorative elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(-3deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 8s ease-in-out infinite 2s;
 }

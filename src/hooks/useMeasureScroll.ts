@@ -22,6 +22,8 @@ export interface MeasureSectionInfo {
   bpmOverride: number | null;
   /** Section-specific playback speed override (null = use default 1.0) */
   playbackSpeedOverride: number | null;
+  /** Number of times to repeat this section during playback (default: 1) */
+  repeatCount?: number;
 }
 
 /**
@@ -56,6 +58,8 @@ export interface UseMeasureScrollReturn {
   currentBeat: number;
   /** Total beats in the current line */
   totalBeatsInLine: number;
+  /** Current repeat iteration within the section (1-based) */
+  currentRepeatIteration: number;
   /** Manually scroll to a specific line by indices */
   scrollToLine: (sectionIndex: number, lineIndex: number) => void;
   /** Reset playback to the beginning */
@@ -129,6 +133,7 @@ export function useMeasureScroll({
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [currentBeat, setCurrentBeat] = useState(0);
+  const [currentRepeatIteration, setCurrentRepeatIteration] = useState(1);
 
   // Refs for timer management
   const animationFrameIdRef = useRef<number | null>(null);
@@ -215,7 +220,25 @@ export function useMeasureScroll({
       return true;
     }
 
-    // Check if we can advance to the next section
+    // At end of section - check if we need to repeat
+    const repeatCount = currentSection.repeatCount ?? 1;
+    if (currentRepeatIteration < repeatCount) {
+      // Repeat section - go back to first line
+      const firstLine = currentSection.lines[0];
+
+      setCurrentRepeatIteration(prev => prev + 1);
+      setCurrentLineIndex(0);
+      setCurrentBeat(0);
+      currentBeatRef.current = 0;
+      playbackStartTimeRef.current = performance.now();
+
+      externalScrollToLine?.(firstLine.id);
+      onLineChangeRef.current?.(currentSectionIndex, 0);
+
+      return true;
+    }
+
+    // All repeats done - check if we can advance to the next section
     if (currentSectionIndex < sections.length - 1) {
       const nextSectionIndex = currentSectionIndex + 1;
       const nextSection = sections[nextSectionIndex];
@@ -226,6 +249,7 @@ export function useMeasureScroll({
         setCurrentSectionIndex(nextSectionIndex);
         setCurrentLineIndex(0);
         setCurrentBeat(0);
+        setCurrentRepeatIteration(1);
         currentBeatRef.current = 0;
         playbackStartTimeRef.current = performance.now();
 
@@ -238,7 +262,7 @@ export function useMeasureScroll({
 
     // Reached the end of the song
     return false;
-  }, [sections, currentSectionIndex, currentLineIndex, externalScrollToLine]);
+  }, [sections, currentSectionIndex, currentLineIndex, currentRepeatIteration, externalScrollToLine]);
 
   /**
    * Main timer tick handler - uses performance.now() for high-precision timing
@@ -325,6 +349,7 @@ export function useMeasureScroll({
       setCurrentSectionIndex(sectionIndex);
       setCurrentLineIndex(lineIndex);
       setCurrentBeat(0);
+      setCurrentRepeatIteration(1);
       currentBeatRef.current = 0;
       playbackStartTimeRef.current = performance.now();
 
@@ -345,6 +370,7 @@ export function useMeasureScroll({
           setCurrentSectionIndex(si);
           setCurrentLineIndex(li);
           setCurrentBeat(0);
+          setCurrentRepeatIteration(1);
           currentBeatRef.current = 0;
           playbackStartTimeRef.current = performance.now();
           externalScrollToLine?.(lineId);
@@ -362,6 +388,7 @@ export function useMeasureScroll({
     setCurrentSectionIndex(0);
     setCurrentLineIndex(0);
     setCurrentBeat(0);
+    setCurrentRepeatIteration(1);
     currentBeatRef.current = 0;
     playbackStartTimeRef.current = performance.now();
   }, []);
@@ -376,6 +403,7 @@ export function useMeasureScroll({
     currentLineIndex,
     currentBeat,
     totalBeatsInLine: calculateTotalBeatsInLine(),
+    currentRepeatIteration,
     scrollToLine,
     reset,
     jumpToLine,

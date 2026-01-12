@@ -806,6 +806,31 @@ export async function getArtists(): Promise<Artist[]> {
   return rows.map(toArtist);
 }
 
+export async function getSongsByArtist(artistId: UUID): Promise<SongListItem[]> {
+  const database = await getDatabase();
+  const rows = await database.select<
+    Array<{
+      id: string;
+      title: string;
+      artist_name: string | null;
+      is_favorite: number;
+    }>
+  >(
+    `SELECT s.id, s.title, a.name as artist_name, s.is_favorite
+     FROM songs s
+     LEFT JOIN artists a ON s.artist_id = a.id
+     WHERE s.artist_id = ?
+     ORDER BY s.title`,
+    [artistId]
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    artistName: row.artist_name,
+    isFavorite: row.is_favorite === 1,
+  }));
+}
+
 // ============================================
 // Annotations
 // ============================================

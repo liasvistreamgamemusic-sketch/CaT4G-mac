@@ -308,7 +308,7 @@ export function ArpeggioOrderInput({
                 y1={padding.top + 15}
                 x2={x}
                 y2={svgHeight - padding.bottom - 15}
-                stroke={inGroup ? '#22c55e' : isSelected ? '#a855f7' : '#4b5563'}
+                stroke={inGroup ? 'var(--color-success)' : isSelected ? 'var(--color-accent-primary)' : 'var(--chord-string)'}
                 strokeWidth={string.number >= 4 ? 2 : 1.5}
                 className={disabled ? '' : 'cursor-pointer'}
                 onClick={(e) => handleStringClick(string.number, e.shiftKey)}
@@ -319,7 +319,7 @@ export function ArpeggioOrderInput({
                 x={x}
                 y={padding.top + 8}
                 fontSize={10}
-                fill="#9ca3af"
+                fill="var(--chord-text-secondary)"
                 textAnchor="middle"
                 dominantBaseline="middle"
               >
@@ -333,7 +333,7 @@ export function ArpeggioOrderInput({
                     cx={x}
                     cy={padding.top + gridHeight / 2 + 7}
                     r={12}
-                    fill="#22c55e"
+                    fill="var(--color-success)"
                     className={disabled ? '' : 'cursor-pointer'}
                     onClick={(e) => handleStringClick(string.number, e.shiftKey)}
                   />
@@ -358,7 +358,7 @@ export function ArpeggioOrderInput({
                     cx={x}
                     cy={padding.top + gridHeight / 2 + 7}
                     r={12}
-                    fill="#a855f7"
+                    fill="var(--color-accent-primary)"
                     className={disabled ? '' : 'cursor-pointer'}
                     onClick={(e) => handleStringClick(string.number, e.shiftKey)}
                   />
@@ -383,7 +383,7 @@ export function ArpeggioOrderInput({
                 x={x}
                 y={svgHeight - padding.bottom - 3}
                 fontSize={9}
-                fill="#6b7280"
+                fill="var(--chord-text-muted)"
                 textAnchor="middle"
                 dominantBaseline="middle"
               >

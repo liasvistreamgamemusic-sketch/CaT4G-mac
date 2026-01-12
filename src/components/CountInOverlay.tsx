@@ -159,7 +159,8 @@ export function CountInOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+      style={{ backgroundColor: 'var(--count-in-bg)' }}
       onClick={onCancel}
     >
       <div className="text-center" onClick={(e) => e.stopPropagation()}>
@@ -168,7 +169,7 @@ export function CountInOverlay({
           className={`text-[12rem] font-bold text-accent-primary transition-transform duration-100
             ${isAnimating ? 'scale-110' : 'scale-100'}`}
           style={{
-            textShadow: '0 0 40px rgba(168, 85, 247, 0.6)',
+            textShadow: '0 0 40px var(--count-in-text-shadow)',
           }}
         >
           {currentBeat}
@@ -183,19 +184,19 @@ export function CountInOverlay({
 
         {/* ビートインジケーター */}
         <div className="flex justify-center gap-3 mt-8">
-          {Array.from({ length: beatsPerMeasure }, (_, i) => (
-            <div
-              key={i}
-              className={`w-4 h-4 rounded-full transition-all duration-100
-                ${
-                  i + 1 === currentBeat
-                    ? 'bg-accent-primary scale-125 shadow-lg shadow-accent-primary/50'
-                    : i + 1 < currentBeat
-                      ? 'bg-accent-primary/50'
-                      : 'bg-white/20'
-                }`}
-            />
-          ))}
+          {Array.from({ length: beatsPerMeasure }, (_, i) => {
+            const isActive = i + 1 === currentBeat;
+            const isPast = i + 1 < currentBeat;
+            return (
+              <div
+                key={i}
+                className={`w-4 h-4 rounded-full transition-all duration-100
+                  ${isActive ? 'bg-accent-primary scale-125 shadow-lg shadow-accent-primary/50' : ''}
+                  ${isPast ? 'bg-accent-primary/50' : ''}`}
+                style={!isActive && !isPast ? { backgroundColor: 'var(--count-in-indicator-inactive)' } : undefined}
+              />
+            );
+          })}
         </div>
 
         {/* キャンセル案内 */}

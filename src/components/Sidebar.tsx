@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Music,
@@ -11,10 +12,16 @@ import {
   Edit3,
   Trash2,
 } from 'lucide-react';
-import type { SongListItem, PlaylistWithCount } from '@/types/database';
+import type { SongListItem, PlaylistWithCount, Artist } from '@/types/database';
 import { PlaylistList } from './PlaylistList';
 
 const COLLAPSED_STORAGE_KEY = 'cat4g-sidebar-collapsed';
+
+interface PlaylistSongItem {
+  id: string;
+  title: string;
+  artistName: string | null;
+}
 
 interface SidebarProps {
   songs: SongListItem[];
@@ -29,6 +36,17 @@ interface SidebarProps {
   selectedPlaylistId: string | null;
   onPlaylistSelect: (id: string) => void;
   onCreatePlaylist: () => void;
+  onAddSongToPlaylist?: (songId: string, playlistId: string) => void;
+  // New expandable playlist props - make optional
+  expandedPlaylistId?: string | null;
+  expandedPlaylistSongs?: PlaylistSongItem[];
+  onPlaylistExpand?: (id: string) => void;
+  onRemoveSongFromPlaylist?: (playlistId: string, songId: string) => void;
+  // Artist props - make optional
+  artists?: Artist[];
+  expandedArtistId?: string | null;
+  artistSongs?: SongListItem[];
+  onArtistExpand?: (id: string) => void;
 }
 
 export function Sidebar({
@@ -43,9 +61,18 @@ export function Sidebar({
   selectedPlaylistId,
   onPlaylistSelect,
   onCreatePlaylist,
+  onAddSongToPlaylist,
+  expandedPlaylistId = null,
+  expandedPlaylistSongs = [],
+  onPlaylistExpand = () => {},
+  onRemoveSongFromPlaylist = () => {},
+  artists = [],
+  expandedArtistId = null,
+  artistSongs = [],
+  onArtistExpand = () => {},
 }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'songs' | 'favorites' | 'playlists'>('songs');
+  const [activeTab, setActiveTab] = useState<'songs' | 'favorites' | 'playlists' | 'artists'>('songs');
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const stored = localStorage.getItem(COLLAPSED_STORAGE_KEY);
     return stored === 'true';
@@ -186,6 +213,23 @@ export function Sidebar({
           <ListMusic className="w-4 h-4" />
           {!isCollapsed && <span>リスト</span>}
         </button>
+        <button
+          className={`
+            ${isCollapsed ? 'py-3 px-0' : 'flex-1 py-2'}
+            text-sm font-medium transition-colors flex items-center justify-center gap-2
+            ${activeTab === 'artists'
+              ? 'text-accent-primary border-b-2 border-accent-primary'
+              : 'text-text-secondary hover:text-text-primary'
+            }
+          `}
+          onClick={() => setActiveTab('artists')}
+          title="アーティスト"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          {!isCollapsed && <span>人</span>}
+        </button>
       </div>
 
       {/* Content based on active tab */}
@@ -213,11 +257,65 @@ export function Sidebar({
         ) : (
           <PlaylistList
             playlists={playlists}
-            selectedPlaylistId={selectedPlaylistId}
-            onPlaylistSelect={onPlaylistSelect}
+            expandedPlaylistId={expandedPlaylistId}
+            expandedPlaylistSongs={expandedPlaylistSongs}
+            onPlaylistExpand={onPlaylistExpand}
+            onSongSelect={onSongSelect}
+            onRemoveSongFromPlaylist={onRemoveSongFromPlaylist}
             onCreatePlaylist={onCreatePlaylist}
           />
         )
+      ) : activeTab === 'artists' ? (
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          <ul className="space-y-0.5">
+            {artists.map((artist) => {
+              const isExpanded = expandedArtistId === artist.id;
+              return (
+                <li key={artist.id}>
+                  <button
+                    onClick={() => onArtistExpand(artist.id)}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-text-primary hover:bg-[var(--btn-glass-hover)] transition-colors"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="w-4 h-4 text-text-muted" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-text-muted" />
+                    )}
+                    <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="flex-1 text-left truncate">{artist.name}</span>
+                  </button>
+                  {isExpanded && (
+                    <ul className="ml-6 mt-1 space-y-0.5">
+                      {artistSongs.map((song) => (
+                        <li key={song.id}>
+                          <button
+                            onClick={() => onSongSelect(song.id)}
+                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                              selectedSongId === song.id
+                                ? 'bg-accent-primary/20 text-accent-primary'
+                                : 'text-text-secondary hover:bg-[var(--btn-glass-hover)] hover:text-text-primary'
+                            }`}
+                          >
+                            <Music className="w-3 h-3" />
+                            <span className="truncate">{song.title}</span>
+                          </button>
+                        </li>
+                      ))}
+                      {artistSongs.length === 0 && (
+                        <li className="px-3 py-2 text-sm text-text-muted">曲がありません</li>
+                      )}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+            {artists.length === 0 && (
+              <li className="px-3 py-4 text-sm text-center text-text-muted">アーティストがいません</li>
+            )}
+          </ul>
+        </div>
       ) : (
         <>
           {/* Song List */}
@@ -285,6 +383,8 @@ export function Sidebar({
                     onDelete={() => onDeleteSong?.(song.id)}
                     onToggleFavorite={() => onToggleFavorite?.(song.id)}
                     onEdit={() => onEditSong?.(song.id)}
+                    playlists={playlists}
+                    onAddToPlaylist={onAddSongToPlaylist}
                   />
                 ))}
               </ul>
@@ -326,6 +426,8 @@ interface SongItemProps {
   onDelete?: () => void;
   onToggleFavorite?: () => void;
   onEdit?: () => void;
+  playlists?: PlaylistWithCount[];
+  onAddToPlaylist?: (songId: string, playlistId: string) => void;
 }
 
 function SongItem({
@@ -335,6 +437,8 @@ function SongItem({
   onDelete,
   onToggleFavorite,
   onEdit,
+  playlists,
+  onAddToPlaylist,
 }: SongItemProps) {
   const [showMenu, setShowMenu] = useState(false);
 
@@ -413,6 +517,41 @@ function SongItem({
               <Edit3 className="w-4 h-4" />
               編集
             </button>
+            {/* プレイリストに追加 */}
+            <div className="relative group/playlist">
+              <button
+                className="w-full px-3 py-2 text-sm text-left hover:bg-[var(--btn-glass-hover)] flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                プレイリストに追加
+                <svg className="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Submenu - appears on hover */}
+              <div className="absolute left-full top-0 ml-1 hidden group-hover/playlist:block min-w-[160px] glass-premium-elevated rounded-lg p-1 shadow-premium-elevated z-[60]">
+                {playlists && playlists.length > 0 ? (
+                  playlists.map((p) => (
+                    <button
+                      key={p.playlist.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddToPlaylist?.(song.id, p.playlist.id);
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-[var(--btn-glass-hover)] rounded-lg text-text-primary"
+                    >
+                      {p.playlist.name}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-text-muted">
+                    プレイリストがありません
+                  </div>
+                )}
+              </div>
+            </div>
             <button
               onClick={() => {
                 setShowMenu(false);

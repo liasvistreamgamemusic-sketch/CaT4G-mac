@@ -891,7 +891,7 @@ export function LineEditor({
               type="text"
               value={line.lyrics}
               onChange={handleLyricsChange}
-              className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono text-text-primary tracking-wider focus:outline-none focus:border-primary transition-colors"
+              className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono font-semibold text-text-primary tracking-wider focus:outline-none focus:border-primary transition-colors"
               style={{ letterSpacing: '0.35em' }}
               placeholder="歌詞を入力..."
             />

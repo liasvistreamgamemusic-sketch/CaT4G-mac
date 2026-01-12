@@ -65,7 +65,7 @@ export function SongMetadataForm({
     <div className={`flex flex-wrap items-center gap-6 ${className}`}>
       {/* BPM */}
       <div className="flex items-center gap-2">
-        <label className="text-sm text-black whitespace-nowrap">BPM</label>
+        <label className="text-sm text-text-secondary whitespace-nowrap">BPM</label>
         <input
           type="number"
           value={bpm ?? ''}
@@ -80,7 +80,7 @@ export function SongMetadataForm({
 
       {/* Time Signature */}
       <div className="flex items-center gap-2">
-        <label className="text-sm text-black whitespace-nowrap">拍子</label>
+        <label className="text-sm text-text-secondary whitespace-nowrap">拍子</label>
         <select
           value={timeSignature}
           onChange={(e) => onTimeSignatureChange(e.target.value as TimeSignature)}
@@ -97,7 +97,7 @@ export function SongMetadataForm({
 
       {/* Capo */}
       <div className="flex items-center gap-2">
-        <label className="text-sm text-black whitespace-nowrap">Capo</label>
+        <label className="text-sm text-text-secondary whitespace-nowrap">Capo</label>
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -127,7 +127,7 @@ export function SongMetadataForm({
 
       {/* Key (調) */}
       <div className="flex items-center gap-2">
-        <label className="text-sm text-black whitespace-nowrap">調</label>
+        <label className="text-sm text-text-secondary whitespace-nowrap">調</label>
         <select
           value={originalKey ?? ''}
           onChange={handleKeyChange}

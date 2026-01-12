@@ -244,15 +244,15 @@ export function SectionEditor({
                 setShowSectionDropdown(true);
               }}
               onFocus={() => setShowSectionDropdown(true)}
-              className="flex-1 bg-background-primary border border-[var(--glass-premium-border)] rounded-l-lg px-3 py-1.5 text-text-primary font-medium focus:outline-none focus:border-accent-primary"
+              className="flex-1 bg-background border border-[var(--glass-premium-border)] rounded-l-lg px-3 py-1.5 text-text-primary font-medium focus:outline-none focus:border-accent-primary"
               placeholder="セクション名"
             />
             <button
               type="button"
               onClick={() => setShowSectionDropdown(!showSectionDropdown)}
-              className="bg-background-primary border border-l-0 border-[var(--glass-premium-border)] rounded-r-lg px-2 py-1.5 hover:bg-[var(--btn-glass-hover)] transition-colors"
+              className="bg-background border border-l-0 border-[var(--glass-premium-border)] rounded-r-lg px-2 py-1.5 hover:bg-[var(--btn-glass-hover)] transition-colors"
             >
-              <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -271,7 +271,7 @@ export function SectionEditor({
                     onSectionChange({ name });
                     setShowSectionDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-sm text-black hover:bg-accent-primary/20 transition-colors ${
+                  className={`w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-accent-primary/20 transition-colors ${
                     section.name === name ? 'bg-accent-primary/10' : ''
                   }`}
                 >
@@ -280,23 +280,6 @@ export function SectionEditor({
               ))}
             </div>
           )}
-        </div>
-
-        {/* Repeat Count */}
-        <div className="flex items-center gap-1 text-sm text-black">
-          <span>×</span>
-          <input
-            type="number"
-            value={section.repeatCount}
-            onChange={(e) =>
-              onSectionChange({
-                repeatCount: Math.max(1, Math.min(10, parseInt(e.target.value) || 1)),
-              })
-            }
-            min={1}
-            max={10}
-            className="w-12 bg-background-primary border border-[var(--glass-premium-border)] rounded px-2 py-1 text-center text-text-primary focus:outline-none focus:border-accent-primary"
-          />
         </div>
 
         {/* Section Settings Button */}
@@ -326,6 +309,8 @@ export function SectionEditor({
                 bpmOverride={section.bpmOverride}
                 songBpm={songBpm}
                 songCapo={songCapo}
+                repeatCount={section.repeatCount}
+                onRepeatCountChange={(value) => onSectionChange({ repeatCount: value })}
                 onCapoChange={(value, transposeChords) =>
                   onSectionSettingsChange({
                     capoOverride: value,

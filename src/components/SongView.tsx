@@ -29,6 +29,7 @@ import { SettingsPanel } from '@/components/SettingsPanel';
 import { getSongById, updateSong } from '@/lib/database';
 import { transposeChord } from '@/lib/chords/transpose';
 import type { UpdateSongInput, UpdateSectionInput, UpdateLineInput } from '@/types/database';
+import { Repeat, Guitar, Timer } from 'lucide-react';
 
 // ============================================
 // 型定義
@@ -869,7 +870,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
               (ref as React.MutableRefObject<HTMLElement | null>).current = node;
             }
           }}
-          className="flex-1 overflow-y-auto overflow-x-auto bg-background-primary"
+          className="flex-1 overflow-y-auto overflow-x-auto bg-background-primary select-none"
         >
         <div className="space-y-6 p-4">
           {mode === 'edit' && editSections ? (
@@ -995,11 +996,27 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                     >
                       {section.name}
                     </button>
-                    {section.repeatCount > 1 && (
-                      <span className="px-2 py-0.5 text-xs rounded-full bg-accent-primary/20 text-accent-primary">
-                        ×{section.repeatCount}
-                      </span>
-                    )}
+                    {/* Section badges */}
+                    <div className="flex items-center gap-1.5">
+                      {section.repeatCount > 1 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-accent-primary/20 text-accent-primary">
+                          <Repeat className="w-3 h-3" />
+                          ×{section.repeatCount}
+                        </span>
+                      )}
+                      {section.transposeOverride !== null && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-orange-500/20 text-orange-400">
+                          <Guitar className="w-3 h-3" />
+                          Capo {section.transposeOverride}
+                        </span>
+                      )}
+                      {section.bpmOverride !== null && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400">
+                          <Timer className="w-3 h-3" />
+                          {section.bpmOverride}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* ライン表示（クリックでジャンプ） */}

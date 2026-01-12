@@ -9,6 +9,7 @@
 
 import { useCallback, useState, useEffect } from 'react';
 import { X, RotateCcw, Timer, Guitar } from 'lucide-react';
+import { NumberStepper } from '@/components/ui/NumberStepper';
 
 // ============================================
 // Types
@@ -23,10 +24,14 @@ export interface SectionSettingsPanelProps {
   songBpm: number | null;
   /** 曲のカポ（参考表示用） */
   songCapo: number;
+  /** 繰り返し回数 */
+  repeatCount: number;
   /** カポ変更コールバック */
   onCapoChange: (value: number | null, transposeChords: boolean) => void;
   /** BPM変更コールバック */
   onBpmChange: (value: number | null) => void;
+  /** 繰り返し回数変更コールバック */
+  onRepeatCountChange: (value: number) => void;
   /** パネルを閉じるコールバック */
   onClose: () => void;
 }
@@ -288,8 +293,10 @@ export function SectionSettingsPanel({
   bpmOverride,
   songBpm,
   songCapo,
+  repeatCount,
   onCapoChange,
   onBpmChange,
+  onRepeatCountChange,
   onClose,
 }: SectionSettingsPanelProps) {
   return (
@@ -309,6 +316,23 @@ export function SectionSettingsPanel({
 
       {/* Content */}
       <div className="p-4 space-y-5">
+        {/* 繰り返し回数 */}
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-text-secondary">
+            繰り返し回数
+          </label>
+          <NumberStepper
+            value={repeatCount}
+            onChange={onRepeatCountChange}
+            min={1}
+            max={10}
+            suffix="回"
+          />
+        </div>
+
+        {/* 区切り線 */}
+        <div className="border-t border-[var(--glass-premium-border)]" />
+
         {/* カポ設定 */}
         <CapoDropdown
           value={capoOverride}
