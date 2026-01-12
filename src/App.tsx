@@ -200,9 +200,7 @@ function App() {
         setTranspose(song?.song.transpose ?? 0);
         setCapo(song?.song.capo ?? 0);
         setPlaybackSpeed(song?.song.playbackSpeed ?? 1.0);
-        if (song?.song.bpm) {
-          setBpm(song.song.bpm);
-        }
+        setBpm(song?.song.bpm ?? 120);
         setTimeSignature(song?.song.timeSignature ?? '4/4');
         setIsPlaying(false);
         // Reset mode to play when changing songs
@@ -329,9 +327,7 @@ function App() {
         setCapo(updatedSong.song.capo);
         setTranspose(updatedSong.song.transpose ?? 0);
         setPlaybackSpeed(updatedSong.song.playbackSpeed ?? 1.0);
-        if (updatedSong.song.bpm) {
-          setBpm(updatedSong.song.bpm);
-        }
+        setBpm(updatedSong.song.bpm ?? 120);
         setTimeSignature(updatedSong.song.timeSignature);
       }
     }
