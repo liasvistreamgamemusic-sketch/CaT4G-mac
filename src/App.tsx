@@ -21,12 +21,17 @@ import {
   updateSongFavorite,
   getPlaylists,
   createPlaylist,
+  getPlaylistById,
+  removeSongFromPlaylist,
+  getArtists,
+  getSongsByArtist,
 } from '@/lib/database';
 import type {
   SongListItem,
   SongWithDetails,
   CreateSongInput,
   PlaylistWithCount,
+  Artist,
 } from '@/types/database';
 
 function App() {
@@ -54,6 +59,15 @@ function App() {
   const [playlists, setPlaylists] = useState<PlaylistWithCount[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] = useState(false);
+
+  // Expanded playlist state
+  const [expandedPlaylistId, setExpandedPlaylistId] = useState<string | null>(null);
+  const [expandedPlaylistSongs, setExpandedPlaylistSongs] = useState<{id: string; title: string; artistName: string | null}[]>([]);
+
+  // Artist state
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [expandedArtistId, setExpandedArtistId] = useState<string | null>(null);
+  const [artistSongs, setArtistSongs] = useState<SongListItem[]>([]);
 
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -199,6 +213,33 @@ function App() {
     }
     loadSong();
   }, [selectedSongId]);
+
+  // Load artists (including "その他" for songs without artist)
+  const loadArtists = useCallback(async () => {
+    const dbArtists = await getArtists();
+
+    // Check if there are songs without an artist
+    const songsWithoutArtist = songs.filter(s => !s.artistName);
+
+    // Add "その他" virtual artist if there are songs without artist
+    const allArtists: Artist[] = [...dbArtists];
+    if (songsWithoutArtist.length > 0) {
+      allArtists.push({
+        id: '__no_artist__',
+        name: 'その他',
+        createdAt: new Date().toISOString(),
+      });
+    }
+
+    setArtists(allArtists);
+  }, [songs]);
+
+  // Load artists when songs change
+  useEffect(() => {
+    if (isDbReady && songs.length >= 0) {
+      loadArtists();
+    }
+  }, [isDbReady, songs, loadArtists]);
 
   // Mode change handler with unsaved changes check
   const handleModeChange = useCallback((newMode: AppMode) => {
@@ -451,6 +492,63 @@ function App() {
     setIsCreatePlaylistModalOpen(false);
   }, []);
 
+  // Handle playlist expand/collapse
+  const handlePlaylistExpand = useCallback(async (playlistId: string) => {
+    if (expandedPlaylistId === playlistId) {
+      // Collapse
+      setExpandedPlaylistId(null);
+      setExpandedPlaylistSongs([]);
+    } else {
+      // Expand
+      setExpandedPlaylistId(playlistId);
+      const playlistData = await getPlaylistById(playlistId);
+      if (playlistData) {
+        setExpandedPlaylistSongs(playlistData.songs.map(s => ({
+          id: s.id,
+          title: s.title,
+          artistName: s.artistName,
+        })));
+      }
+    }
+  }, [expandedPlaylistId]);
+
+  // Handle remove song from playlist
+  const handleRemoveSongFromPlaylist = useCallback(async (playlistId: string, songId: string) => {
+    await removeSongFromPlaylist(playlistId, songId);
+    // Refresh playlist songs
+    const playlistData = await getPlaylistById(playlistId);
+    if (playlistData) {
+      setExpandedPlaylistSongs(playlistData.songs.map(s => ({
+        id: s.id,
+        title: s.title,
+        artistName: s.artistName,
+      })));
+    }
+    // Refresh playlists to update song count
+    const updatedPlaylists = await getPlaylists();
+    setPlaylists(updatedPlaylists);
+  }, []);
+
+  // Handle artist expand/collapse
+  const handleArtistExpand = useCallback(async (artistId: string) => {
+    if (expandedArtistId === artistId) {
+      // Collapse
+      setExpandedArtistId(null);
+      setArtistSongs([]);
+    } else {
+      // Expand
+      setExpandedArtistId(artistId);
+
+      if (artistId === '__no_artist__') {
+        // Special case: songs without artist
+        const songsWithoutArtist = songs.filter(s => !s.artistName);
+        setArtistSongs(songsWithoutArtist);
+      } else {
+        const songsByArtist = await getSongsByArtist(artistId);
+        setArtistSongs(songsByArtist);
+      }
+    }
+  }, [expandedArtistId, songs]);
 
   // Loading state
   if (!isDbReady) {
@@ -527,6 +625,14 @@ function App() {
             selectedPlaylistId={selectedPlaylistId}
             onPlaylistSelect={handlePlaylistSelect}
             onCreatePlaylist={handleCreatePlaylistClick}
+            expandedPlaylistId={expandedPlaylistId}
+            expandedPlaylistSongs={expandedPlaylistSongs}
+            onPlaylistExpand={handlePlaylistExpand}
+            onRemoveSongFromPlaylist={handleRemoveSongFromPlaylist}
+            artists={artists}
+            expandedArtistId={expandedArtistId}
+            artistSongs={artistSongs}
+            onArtistExpand={handleArtistExpand}
           />
         )}
 
