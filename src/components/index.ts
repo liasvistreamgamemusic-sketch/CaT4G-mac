@@ -7,4 +7,5 @@ export { PlaylistList } from './PlaylistList';
 export { CreatePlaylistModal } from './CreatePlaylistModal';
 export { Toast, ToastContainer } from './Toast';
 export type { ToastData, ToastType } from './Toast';
+export { CountInOverlay } from './CountInOverlay';
 export * from './icons';

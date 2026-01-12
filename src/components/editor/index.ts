@@ -12,8 +12,10 @@ export { EditorHeader } from './EditorHeader';
 export { EditorSidebar } from './EditorSidebar';
 export { DraggableChord } from './DraggableChord';
 export { ChordDetailSettings } from './ChordDetailSettings';
+export { SectionSettingsPanel } from './SectionSettingsPanel';
 
 // Re-export types
 export type { EditableLine } from './LineEditor';
 export type { EditableSection } from './SectionEditor';
 export type { ViewMode, DraggableChordProps } from './DraggableChord';
+export type { SectionSettingsPanelProps } from './SectionSettingsPanel';

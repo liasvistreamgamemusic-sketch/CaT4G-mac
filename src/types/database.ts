@@ -71,6 +71,9 @@ export interface Section {
   name: string;
   orderIndex: number;
   repeatCount: number;
+  transposeOverride: number | null;      // 相対転調（-12〜+12）
+  bpmOverride: number | null;            // BPM上書き
+  playbackSpeedOverride: number | null;  // 再生速度上書き（0.5〜2.0）
 }
 
 /** 行（歌詞 + コード） */
@@ -80,6 +83,7 @@ export interface Line {
   lyrics: string;
   chords: ChordPosition[];
   orderIndex: number;
+  measures: number;  // 小節数（デフォルト: 4）
 }
 
 /** タグ */
@@ -286,6 +290,9 @@ export interface SectionRow {
   name: string;
   order_index: number;
   repeat_count: number;
+  transpose_override: number | null;
+  bpm_override: number | null;
+  playback_speed_override: number | null;
 }
 
 /** DB行: lines テーブル */
@@ -295,6 +302,7 @@ export interface LineRow {
   lyrics: string;
   chords_json: string;
   order_index: number;
+  measures: number;
 }
 
 /** DB行: tags テーブル */
@@ -408,8 +416,12 @@ export interface UpdateSectionInput {
   name: string;
   repeatCount?: number;
   lines: UpdateLineInput[];
+  /** このセクション専用の相対転調（-12〜+12） */
+  transposeOverride?: number;
   /** このセクション専用のBPM（曲全体のBPMを上書き） */
   bpmOverride?: number;
+  /** このセクション専用の再生速度（0.5〜2.0） */
+  playbackSpeedOverride?: number;
   /** テンポ変化指示（rit., accel., a tempo） */
   tempoChange?: TempoChange;
 }
@@ -421,6 +433,8 @@ export interface UpdateLineInput {
   chords: ExtendedChordPosition[];
   /** この行の基本ダイナミクス（行内の各コードのデフォルト値） */
   dynamicsOverride?: Dynamics;
+  /** 小節数（デフォルト: 4） */
+  measures?: number;
 }
 
 /** 注釈（アノテーション） */

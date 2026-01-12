@@ -135,11 +135,16 @@ export function useMetronome({
       // Schedule the click at the precise time
       scheduleClick(nextNoteTimeRef.current, isAccent);
 
-      // Update UI state
-      setCurrentBeat(currentBeatRef.current);
+      // UI更新用に現在のビート番号を保存（インクリメント前）
+      const beatToDisplay = currentBeatRef.current;
+      const delayMs = Math.max(0, (nextNoteTimeRef.current - ctx.currentTime) * 1000);
+      setTimeout(() => {
+        setCurrentBeat(beatToDisplay);
+      }, delayMs);
 
-      // Advance to next beat
+      // Advance to next beat（UI更新のスケジュール後）
       currentBeatRef.current = (currentBeatRef.current + 1) % beatsPerMeasureRef.current;
+
       nextNoteTimeRef.current += secondsPerBeat;
     }
 

@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
+import { Settings2 } from 'lucide-react';
 import type { ExtendedChordPosition } from '@/types/database';
 import { LineEditor, type EditableLine } from './LineEditor';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { SectionSettingsPanel } from './SectionSettingsPanel';
 
 // Common section names used in songs
 const COMMON_SECTION_NAMES = [
@@ -33,6 +35,8 @@ interface EditableSection {
   name: string;
   repeatCount: number;
   lines: EditableLine[];
+  capoOverride: number | null;
+  bpmOverride: number | null;
 }
 
 interface SectionEditorProps {
@@ -66,6 +70,14 @@ interface SectionEditorProps {
   showMemo?: boolean;           // メモ
   // 移調量（表示用）
   transpose?: number;
+  // セクション設定用
+  songBpm?: number | null;
+  songCapo?: number;
+  onSectionSettingsChange?: (settings: {
+    capoOverride: number | null;
+    bpmOverride: number | null;
+    transposeChords?: boolean;
+  }) => void;
 }
 
 // Re-export EditableLine type for use in parent components
@@ -140,12 +152,23 @@ export function SectionEditor({
   showPlayingMethod = true,
   showMemo = true,
   transpose = 0,
+  songBpm = null,
+  songCapo = 0,
+  onSectionSettingsChange,
 }: SectionEditorProps) {
   // Section name combo box state
   const [showSectionDropdown, setShowSectionDropdown] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
   const sectionNameRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsPanelRef = useRef<HTMLDivElement>(null);
+
+  // Check if section has custom settings
+  const hasCustomSettings =
+    section.capoOverride !== null ||
+    section.bpmOverride !== null;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -162,6 +185,24 @@ export function SectionEditor({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Close settings panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        settingsPanelRef.current &&
+        !settingsPanelRef.current.contains(e.target as Node) &&
+        settingsButtonRef.current &&
+        !settingsButtonRef.current.contains(e.target as Node)
+      ) {
+        setShowSettingsPanel(false);
+      }
+    };
+    if (showSettingsPanel) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showSettingsPanel]);
 
   // Filter section names based on input
   const filteredSectionNames = COMMON_SECTION_NAMES.filter((name) =>
@@ -256,6 +297,52 @@ export function SectionEditor({
             max={10}
             className="w-12 bg-background-primary border border-white/10 rounded px-2 py-1 text-center text-black focus:outline-none focus:border-accent-primary"
           />
+        </div>
+
+        {/* Section Settings Button */}
+        <div className="relative">
+          <button
+            ref={settingsButtonRef}
+            type="button"
+            onClick={() => setShowSettingsPanel(!showSettingsPanel)}
+            className={`p-1 rounded transition-colors ${
+              hasCustomSettings
+                ? 'text-accent-primary hover:bg-accent-primary/20'
+                : 'text-text-secondary hover:bg-white/10'
+            }`}
+            title="セクション設定"
+          >
+            <Settings2 className="w-4 h-4" />
+          </button>
+
+          {/* Settings Panel Popover */}
+          {showSettingsPanel && onSectionSettingsChange && (
+            <div
+              ref={settingsPanelRef}
+              className="absolute z-50 top-full right-0 mt-2"
+            >
+              <SectionSettingsPanel
+                capoOverride={section.capoOverride}
+                bpmOverride={section.bpmOverride}
+                songBpm={songBpm}
+                songCapo={songCapo}
+                onCapoChange={(value, transposeChords) =>
+                  onSectionSettingsChange({
+                    capoOverride: value,
+                    bpmOverride: section.bpmOverride,
+                    transposeChords,
+                  })
+                }
+                onBpmChange={(value) =>
+                  onSectionSettingsChange({
+                    capoOverride: section.capoOverride,
+                    bpmOverride: value,
+                  })
+                }
+                onClose={() => setShowSettingsPanel(false)}
+              />
+            </div>
+          )}
         </div>
 
         {/* Section Controls */}

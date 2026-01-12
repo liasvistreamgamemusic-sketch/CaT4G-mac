@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Layout } from '@/components/Layout';
 import { Sidebar } from '@/components/Sidebar';
 import { ControlBar } from '@/components/ControlBar';
@@ -6,9 +6,11 @@ import { AddSongModal } from '@/components/AddSongModal';
 import { ChordDiagramModal } from '@/components/ChordDiagramModal';
 import { CreatePlaylistModal } from '@/components/CreatePlaylistModal';
 import { SongView } from '@/components/SongView';
+import { CountInOverlay } from '@/components/CountInOverlay';
 import type { ViewMode, AppMode } from '@/components/SongView';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useAutoScroll, useKeyboardShortcuts, useMetronome } from '@/hooks';
+import { useMeasureScroll, useKeyboardShortcuts, useMetronome } from '@/hooks';
+import type { MeasureSectionInfo } from '@/hooks';
 import type { TimeSignature } from '@/hooks';
 import {
   initDatabase,
@@ -30,6 +32,7 @@ import type {
 function App() {
   // Refs
   const mainAreaRef = useRef<HTMLElement>(null);
+  const scrollToLineRef = useRef<((lineId: string) => void) | null>(null);
 
   // App mode state
   const [mode, setMode] = useState<AppMode>('play');
@@ -60,49 +63,99 @@ function App() {
   // Metronome state
   const [metronomeEnabled, setMetronomeEnabled] = useState(false);
   const [timeSignature, setTimeSignature] = useState<TimeSignature>('4/4');
-  const [metronomeVolume, setMetronomeVolume] = useState(0.7);
+  const [metronomeVolume, setMetronomeVolume] = useState(0.35);
+
+  // Count-in state
+  const [isCountingIn, setIsCountingIn] = useState(false);
+
+  // Play from specific line state
+  const [playStartLineId, setPlayStartLineId] = useState<string | null>(null);
+  const playStartLineIdRef = useRef<string | null>(null);
+  const [countInBpm, setCountInBpm] = useState(120);
 
   // Current BPM (prefer song's BPM if available)
   const currentBpm = selectedSong?.song.bpm ?? bpm;
 
-  // Auto scroll hook
-  const { scrollToTop } = useAutoScroll({
-    isPlaying,
-    scrollSpeed: playbackSpeed,
-    bpm: currentBpm,
-    bpmSync: false,
+  // Prepare sections data for measure-based scrolling
+  const measureScrollSections: MeasureSectionInfo[] = useMemo(() => {
+    if (!selectedSong) return [];
+    return selectedSong.sections.map(({ section, lines }) => ({
+      id: section.id,
+      lines: lines.map(line => ({
+        id: line.id,
+        measures: line.measures ?? 4,
+      })),
+      bpmOverride: section.bpmOverride ?? null,
+      playbackSpeedOverride: null, // Removed playback speed feature
+    }));
+  }, [selectedSong]);
+
+  // Measure-based scroll hook
+  const { reset: resetScroll, jumpToLine } = useMeasureScroll({
     containerRef: mainAreaRef,
-    onReachEnd: () => setIsPlaying(false),
+    sections: measureScrollSections,
+    songBpm: currentBpm,
+    songTimeSignature: timeSignature,
+    isPlaying,
+    onLineChange: undefined,
+    scrollToLine: (lineId) => scrollToLineRef.current?.(lineId),
   });
 
+  // Scroll to top function for keyboard shortcuts
+  const scrollToTop = useCallback(() => {
+    resetScroll();
+    if (mainAreaRef.current) {
+      mainAreaRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [resetScroll]);
+
+  // Find the line nearest to the baseline position (25% from top)
+  const findNearestLineToBaseline = useCallback((): string | null => {
+    if (!mainAreaRef.current) return null;
+
+    const container = mainAreaRef.current;
+    const containerRect = container.getBoundingClientRect();
+    // 基準線は画面の上から25%の位置
+    const baselineY = containerRect.top + containerRect.height * 0.25;
+
+    const lineElements = container.querySelectorAll('[data-line-id]');
+    if (lineElements.length === 0) return null;
+
+    let nearestLineId: string | null = null;
+    let minDistance = Infinity;
+
+    lineElements.forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      const lineTop = rect.top;
+      const distance = Math.abs(lineTop - baselineY);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestLineId = element.getAttribute('data-line-id');
+      }
+    });
+
+    return nearestLineId;
+  }, []);
+
   // Metronome hook
-  const { currentBeat, toggle: toggleMetronome } = useMetronome({
-    bpm: Math.round(currentBpm * playbackSpeed), // Apply playback speed to metronome
+  // メトロノームは常に動作し、音声は metronomeEnabled で制御（volume=0で無音）
+  const {
+    currentBeat,
+    start: startMetronome,
+    stop: stopMetronome,
+  } = useMetronome({
+    bpm: currentBpm,
     timeSignature,
-    volume: metronomeVolume,
+    volume: metronomeEnabled ? metronomeVolume : 0, // 無効時は音量0
     accentFirstBeat: true,
   });
 
-  // Sync metronome state with hook
-  useEffect(() => {
-    if (metronomeEnabled) {
-      toggleMetronome();
-    }
-  }, []); // Only run once on mount
-
+  // メトロノームのオン/オフ切り替え（UIトグルボタン用）
+  // 音声のオン/オフのみを制御（ビジュアルは常に表示）
   const handleMetronomeToggle = useCallback(() => {
     setMetronomeEnabled((prev) => !prev);
-    toggleMetronome();
-  }, [toggleMetronome]);
-
-  // Keyboard shortcuts
-  useKeyboardShortcuts({
-    onPlayPause: () => setIsPlaying((prev) => !prev),
-    onSpeedUp: () => setPlaybackSpeed((prev) => Math.min(prev + 0.1, 3.0)),
-    onSpeedDown: () => setPlaybackSpeed((prev) => Math.max(prev - 0.1, 0.1)),
-    onScrollToTop: scrollToTop,
-    onMetronomeToggle: handleMetronomeToggle,
-  });
+  }, []);
 
   // Initialize database and load songs + playlists
   useEffect(() => {
@@ -264,10 +317,107 @@ function App() {
     setSelectedChord(null);
   }, []);
 
+  // Play/Pause handler with count-in support
   const handlePlayPause = useCallback(() => {
-    setIsPlaying((prev) => !prev);
+    if (isPlaying) {
+      // 停止時
+      setIsPlaying(false);
+      // メトロノームも停止（ビジュアルカウントのため常に停止）
+      stopMetronome();
+    } else {
+      // playStartLineId がなければ基準線に最も近い行から開始
+      if (!playStartLineId) {
+        const nearestLineId = findNearestLineToBaseline();
+        const startLineId = nearestLineId ?? measureScrollSections[0]?.lines[0]?.id;
+        if (startLineId) {
+          setPlayStartLineId(startLineId);
+          playStartLineIdRef.current = startLineId;
+          setCountInBpm(currentBpm);
+        }
+      }
+      // 再生開始時はカウントインを開始
+      setIsCountingIn(true);
+    }
+  }, [isPlaying, playStartLineId, measureScrollSections, currentBpm, stopMetronome, findNearestLineToBaseline]);
+
+  // カウントイン完了時のハンドラー
+  // 注意: playStartLineIdRef を使用して依存配列から playStartLineId を除外
+  // これにより onComplete の変更によるカウントインのリセットを防ぐ
+  const handleCountInComplete = useCallback(() => {
+    setIsCountingIn(false);
+    setIsPlaying(true);
+    // メトロノームを開始（音声はmetronomeEnabledで制御、ビジュアルは常に表示）
+    startMetronome();
+
+    // 2フレーム待ってからスクロール（スペーサー配置を確実に待つ）
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const lineId = playStartLineIdRef.current;
+        if (lineId) {
+          jumpToLine(lineId);
+          // Note: scrollToLineRef.current は jumpToLine 内で呼ばれるため不要
+        }
+        // resetScroll() は呼ばない - jumpToLine で既に位置設定済み
+
+        // 再生後は playStartLineId をリセット（rAFコールバック内で実行）
+        setPlayStartLineId(null);
+        playStartLineIdRef.current = null;
+      });
+    });
+  }, [startMetronome, jumpToLine]);
+
+  // カウントインキャンセル時のハンドラー
+  const handleCountInCancel = useCallback(() => {
+    setIsCountingIn(false);
   }, []);
 
+  // 特定行から再生するハンドラー
+  const handlePlayFromLine = useCallback((lineId: string) => {
+    // セクション固有のBPMを取得
+    for (let si = 0; si < measureScrollSections.length; si++) {
+      const li = measureScrollSections[si].lines.findIndex(l => l.id === lineId);
+      if (li !== -1) {
+        const effectiveBpm = measureScrollSections[si].bpmOverride ?? currentBpm;
+        setCountInBpm(effectiveBpm);
+        break;
+      }
+    }
+
+    // state と ref の両方を更新
+    setPlayStartLineId(lineId);
+    playStartLineIdRef.current = lineId;
+    setIsCountingIn(true);
+  }, [measureScrollSections, currentBpm]);
+
+  // 再生中の行クリック時のハンドラー（メトロノームを再スタート）
+  const handleLineClick = useCallback((lineId: string) => {
+    if (!isPlaying) return;
+
+    stopMetronome();
+    jumpToLine(lineId);
+    // scrollToLineRef.current?.(lineId); ← 削除（jumpToLine内で呼ばれる）
+    startMetronome();
+  }, [isPlaying, stopMetronome, startMetronome, jumpToLine]);
+
+  // 最初から再生するハンドラー
+  const handlePlayFromBeginning = useCallback(() => {
+    const firstLineId = measureScrollSections[0]?.lines[0]?.id;
+    if (firstLineId) {
+      setPlayStartLineId(firstLineId);
+      playStartLineIdRef.current = firstLineId;
+      setCountInBpm(currentBpm);
+      setIsCountingIn(true);
+    }
+  }, [measureScrollSections, currentBpm]);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onPlayPause: handlePlayPause,
+    onSpeedUp: () => setPlaybackSpeed((prev) => Math.min(prev + 0.1, 3.0)),
+    onSpeedDown: () => setPlaybackSpeed((prev) => Math.max(prev - 0.1, 0.1)),
+    onScrollToTop: scrollToTop,
+    onMetronomeToggle: handleMetronomeToggle,
+  });
 
   const handleBpmChange = useCallback((value: number) => {
     setBpm(value);
@@ -387,6 +537,9 @@ function App() {
                   onTransposeChange={handleTransposeChange}
                   onCapoChange={handleCapoChange}
                   onPlaybackSpeedChange={handlePlaybackSpeedChange}
+                  onLineClick={handleLineClick}
+                  onScrollToLine={(fn) => { scrollToLineRef.current = fn; }}
+                  onPlayFromLine={handlePlayFromLine}
                 />
               </div>
 
@@ -400,8 +553,7 @@ function App() {
                     onCapoChange={handleCapoChange}
                     isPlaying={isPlaying}
                     onPlayPause={handlePlayPause}
-                    playbackSpeed={playbackSpeed}
-                    onPlaybackSpeedChange={handlePlaybackSpeedChange}
+                    onPlayFromBeginning={handlePlayFromBeginning}
                     bpm={currentBpm}
                     onBpmChange={handleBpmChange}
                     metronomeEnabled={metronomeEnabled}
@@ -446,6 +598,17 @@ function App() {
         variant="danger"
         onConfirm={confirmModeChange}
         onCancel={cancelModeChange}
+      />
+
+      {/* Count-in overlay */}
+      <CountInOverlay
+        isActive={isCountingIn}
+        bpm={countInBpm}
+        timeSignature={timeSignature}
+        playAudio={metronomeEnabled}
+        volume={metronomeVolume}
+        onComplete={handleCountInComplete}
+        onCancel={handleCountInCancel}
       />
     </Layout>
   );

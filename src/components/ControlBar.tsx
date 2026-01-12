@@ -2,6 +2,13 @@ import { MetronomeBeatIndicator } from './MetronomeBeatIndicator';
 
 export type TimeSignature = '4/4' | '3/4' | '6/8' | '2/4';
 
+// 現在のセクション情報（usePlaybackSyncから渡される）
+interface CurrentSectionInfo {
+  name: string;
+  transposeOverride: number | null;
+  bpmOverride: number | null;
+}
+
 interface ControlBarProps {
   transpose?: number;
   onTransposeChange?: (value: number) => void;
@@ -9,8 +16,7 @@ interface ControlBarProps {
   onCapoChange?: (value: number) => void;
   isPlaying?: boolean;
   onPlayPause?: () => void;
-  playbackSpeed?: number;
-  onPlaybackSpeedChange?: (value: number) => void;
+  onPlayFromBeginning?: () => void;
   metronomeEnabled?: boolean;
   onMetronomeToggle?: () => void;
   bpm?: number;
@@ -20,6 +26,8 @@ interface ControlBarProps {
   metronomeVolume?: number;
   onMetronomeVolumeChange?: (value: number) => void;
   currentBeat?: number;
+  // 現在のセクション情報（usePlaybackSyncから渡される）
+  currentSection?: CurrentSectionInfo | null;
 }
 
 export function ControlBar({
@@ -29,8 +37,7 @@ export function ControlBar({
   onCapoChange,
   isPlaying = false,
   onPlayPause,
-  playbackSpeed = 1.0,
-  onPlaybackSpeedChange,
+  onPlayFromBeginning,
   metronomeEnabled = false,
   onMetronomeToggle,
   bpm = 120,
@@ -40,8 +47,18 @@ export function ControlBar({
   metronomeVolume = 0.7,
   onMetronomeVolumeChange,
   currentBeat = 0,
+  currentSection,
 }: ControlBarProps) {
   const beatsPerMeasure = parseInt(timeSignature.split('/')[0], 10);
+
+  // 実効値の計算（セクションオーバーライドがある場合はそちらを使用）
+  const effectiveBpm = currentSection?.bpmOverride ?? bpm;
+  const effectiveTranspose = transpose + (currentSection?.transposeOverride ?? 0);
+
+  // セクション固有の設定があるかどうか
+  const hasSectionBpmOverride = currentSection?.bpmOverride != null;
+  const hasSectionTransposeOverride = currentSection?.transposeOverride != null;
+
   const handleTransposeDown = () => {
     if (transpose > -12) {
       onTransposeChange?.(transpose - 1);
@@ -55,7 +72,7 @@ export function ControlBar({
   };
 
   const handleCapoDown = () => {
-    if (capo > 0) {
+    if (capo > -2) {
       onCapoChange?.(capo - 1);
     }
   };
@@ -77,12 +94,15 @@ export function ControlBar({
             <button
               className="btn-icon text-xs"
               onClick={handleCapoDown}
-              disabled={capo <= 0}
+              disabled={capo <= -2}
             >
               -
             </button>
-            <span className={`w-6 text-center font-mono ${capo !== 0 ? 'text-orange-400 font-semibold' : ''}`}>
-              {capo}
+            <span className={`w-8 text-center font-mono ${
+              capo > 0 ? 'text-orange-400 font-semibold' :
+              capo < 0 ? 'text-blue-400 font-semibold' : ''
+            }`}>
+              {capo === -1 ? '半↓' : capo === -2 ? '全↓' : capo}
             </span>
             <button
               className="btn-icon text-xs"
@@ -105,8 +125,8 @@ export function ControlBar({
             >
               -
             </button>
-            <span className={`w-8 text-center font-mono ${transpose !== 0 ? 'text-accent-primary font-semibold' : ''}`}>
-              {transpose > 0 ? `+${transpose}` : transpose}
+            <span className={`w-8 text-center font-mono ${effectiveTranspose !== 0 ? 'text-accent-primary font-semibold' : ''}`}>
+              {effectiveTranspose > 0 ? `+${effectiveTranspose}` : effectiveTranspose}
             </span>
             <button
               className="btn-icon text-xs"
@@ -115,6 +135,9 @@ export function ControlBar({
             >
               +
             </button>
+            {hasSectionTransposeOverride && (
+              <span className="text-yellow-400 text-xs ml-1" title="セクション固有の転調設定">★</span>
+            )}
           </div>
         </div>
 
@@ -131,8 +154,31 @@ export function ControlBar({
         )}
       </div>
 
-      {/* Center: Playback Speed */}
+      {/* Center: Playback Controls */}
       <div className="flex items-center gap-4">
+        {/* Current Section Name */}
+        {currentSection && (
+          <div className="flex items-center gap-1 px-2 py-1 bg-accent-primary/10 rounded text-sm">
+            <span className="text-accent-primary">▶</span>
+            <span className="text-text-secondary truncate max-w-24" title={currentSection.name}>
+              {currentSection.name}
+            </span>
+          </div>
+        )}
+
+        {/* Play from Beginning button - only visible when not playing */}
+        {!isPlaying && (
+          <button
+            className="btn-icon"
+            onClick={onPlayFromBeginning}
+            title="最初から再生"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+
         <button
           className={`btn-icon ${isPlaying ? 'bg-accent-primary/20 text-accent-primary' : ''}`}
           onClick={onPlayPause}
@@ -150,23 +196,6 @@ export function ControlBar({
           )}
         </button>
 
-        {/* Playback Speed */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-text-muted">再生速度</span>
-          <input
-            type="range"
-            min={0.1}
-            max={3.0}
-            step={0.05}
-            value={playbackSpeed}
-            onChange={(e) => onPlaybackSpeedChange?.(parseFloat(e.target.value))}
-            className="w-24 accent-accent-primary"
-          />
-          <span className={`text-sm w-14 text-center font-mono font-semibold ${playbackSpeed !== 1.0 ? 'text-purple-400' : 'text-text-primary'}`}>
-            {playbackSpeed.toFixed(2)}x
-          </span>
-        </div>
-
         <div className="flex items-center gap-2">
           <span className="text-sm text-text-secondary">BPM</span>
           <input
@@ -178,13 +207,19 @@ export function ControlBar({
             className="w-16 px-2 py-1 bg-background-surface rounded border border-border
                        text-center font-mono focus:border-accent-primary focus:outline-none"
           />
+          <span className={`text-sm font-mono ${hasSectionBpmOverride ? 'text-yellow-400' : 'text-text-muted'}`}>
+            {hasSectionBpmOverride && `→ ${effectiveBpm}`}
+          </span>
+          {hasSectionBpmOverride && (
+            <span className="text-yellow-400 text-xs" title="セクション固有のBPM設定">★</span>
+          )}
         </div>
       </div>
 
       {/* Right: Metronome */}
       <div className="flex items-center gap-4">
         <button
-          className={`btn-icon ${metronomeEnabled ? 'bg-accent-primary/20 text-accent-primary' : ''}`}
+          className={`btn-icon ${metronomeEnabled ? 'bg-accent-primary/20 text-purple-400' : 'text-gray-400'}`}
           onClick={onMetronomeToggle}
           title={metronomeEnabled ? 'メトロノーム停止 (M)' : 'メトロノーム開始 (M)'}
         >
@@ -211,11 +246,11 @@ export function ControlBar({
           <option value="2/4">2/4</option>
         </select>
 
-        {/* Beat Indicator */}
+        {/* Beat Indicator - ビジュアルは音声オフでも再生中は表示 */}
         <MetronomeBeatIndicator
           beatsPerMeasure={beatsPerMeasure}
           currentBeat={currentBeat}
-          isPlaying={metronomeEnabled}
+          isPlaying={isPlaying}
         />
 
         {/* Volume Slider */}

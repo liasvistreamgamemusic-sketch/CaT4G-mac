@@ -139,6 +139,12 @@ const MIGRATION_STATEMENTS = [
   'ALTER TABLE songs ADD COLUMN transpose INTEGER DEFAULT 0',
   'ALTER TABLE songs ADD COLUMN playback_speed REAL DEFAULT 1.0',
   "ALTER TABLE songs ADD COLUMN tuning TEXT DEFAULT 'standard'",
+  // Section overrides (from 002_section_overrides.sql)
+  'ALTER TABLE sections ADD COLUMN transpose_override INTEGER DEFAULT NULL',
+  'ALTER TABLE sections ADD COLUMN bpm_override INTEGER DEFAULT NULL',
+  'ALTER TABLE sections ADD COLUMN playback_speed_override REAL DEFAULT NULL',
+  // Line measures (from 003_line_measures.sql)
+  'ALTER TABLE lines ADD COLUMN measures INTEGER DEFAULT 4',
 ];
 
 export async function initDatabase(): Promise<void> {
@@ -216,6 +222,9 @@ function toSection(row: SectionRow): Section {
     name: row.name,
     orderIndex: row.order_index,
     repeatCount: row.repeat_count,
+    transposeOverride: row.transpose_override ?? null,
+    bpmOverride: row.bpm_override ?? null,
+    playbackSpeedOverride: row.playback_speed_override ?? null,
   };
 }
 
@@ -226,6 +235,7 @@ function toLine(row: LineRow): Line {
     lyrics: row.lyrics,
     chords: JSON.parse(row.chords_json) as ChordPosition[],
     orderIndex: row.order_index,
+    measures: row.measures ?? 4,
   };
 }
 
@@ -424,8 +434,8 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
     const sectionId = generateUUID();
 
     await database.execute(
-      'INSERT INTO sections (id, song_id, name, order_index, repeat_count) VALUES (?, ?, ?, ?, ?)',
-      [sectionId, songId, sectionInput.name, sIdx, sectionInput.repeatCount ?? 1]
+      'INSERT INTO sections (id, song_id, name, order_index, repeat_count, transpose_override, bpm_override, playback_speed_override) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [sectionId, songId, sectionInput.name, sIdx, sectionInput.repeatCount ?? 1, null, null, null]
     );
 
     for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
@@ -433,8 +443,8 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
       const lineId = generateUUID();
 
       await database.execute(
-        'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index) VALUES (?, ?, ?, ?, ?)',
-        [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx]
+        'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index, measures) VALUES (?, ?, ?, ?, ?, ?)',
+        [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx, 4]
       );
     }
   }
@@ -580,8 +590,17 @@ export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void
       const sectionId = sectionInput.id ?? generateUUID();
 
       await database.execute(
-        'INSERT INTO sections (id, song_id, name, order_index, repeat_count) VALUES (?, ?, ?, ?, ?)',
-        [sectionId, id, sectionInput.name, sIdx, sectionInput.repeatCount ?? 1]
+        'INSERT INTO sections (id, song_id, name, order_index, repeat_count, transpose_override, bpm_override, playback_speed_override) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          sectionId,
+          id,
+          sectionInput.name,
+          sIdx,
+          sectionInput.repeatCount ?? 1,
+          sectionInput.transposeOverride ?? null,
+          sectionInput.bpmOverride ?? null,
+          sectionInput.playbackSpeedOverride ?? null,
+        ]
       );
 
       for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
@@ -589,8 +608,8 @@ export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void
         const lineId = lineInput.id ?? generateUUID();
 
         await database.execute(
-          'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index) VALUES (?, ?, ?, ?, ?)',
-          [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx]
+          'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index, measures) VALUES (?, ?, ?, ?, ?, ?)',
+          [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx, lineInput.measures ?? 4]
         );
       }
     }

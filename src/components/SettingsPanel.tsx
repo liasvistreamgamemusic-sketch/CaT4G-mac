@@ -5,7 +5,7 @@
  * Features:
  * - 折りたたみ可能（展開時280px、折りたたみ時48px）
  * - 左側に配置（折りたたみボタンは右端）
- * - メタデータ編集（BPM, 拍子, Capo, 移調, 再生速度）
+ * - メタデータ編集（BPM, 拍子, Capo, 移調）
  * - セクションナビゲーション
  * - ガラスモーフィズム効果
  */
@@ -20,7 +20,6 @@ import {
   List,
   FileText,
   Hash,
-  Gauge,
 } from 'lucide-react';
 import type { TimeSignature } from '@/types/database';
 
@@ -29,7 +28,6 @@ import type { TimeSignature } from '@/types/database';
 // ============================================
 
 const TIME_SIGNATURES: TimeSignature[] = ['4/4', '3/4', '6/8', '2/4'];
-const PLAYBACK_SPEEDS = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0];
 
 // Capo オプション: -2（全音下げ）〜 12
 const CAPO_OPTIONS = [
@@ -57,7 +55,6 @@ export interface SettingsPanelProps {
   timeSignature: TimeSignature;
   capo: number;
   transpose: number;
-  playbackSpeed: number;
   notes: string | null;
   onMetadataChange: (key: string, value: unknown) => void;
 
@@ -132,7 +129,6 @@ interface MetadataPanelProps {
   timeSignature: TimeSignature;
   capo: number;
   transpose: number;
-  playbackSpeed: number;
   notes: string | null;
   onMetadataChange: (key: string, value: unknown) => void;
 }
@@ -143,7 +139,6 @@ function MetadataPanel({
   timeSignature,
   capo,
   transpose,
-  playbackSpeed,
   notes,
   onMetadataChange,
 }: MetadataPanelProps) {
@@ -280,49 +275,6 @@ function MetadataPanel({
         </div>
       </div>
 
-      {/* 再生速度（全幅） */}
-      <div className="flex flex-col gap-1 pt-2 border-t border-border/30">
-        <label className="text-xs text-text-muted flex items-center gap-1">
-          <Gauge className="w-3 h-3" />
-          再生速度
-        </label>
-        <div className="flex items-center gap-2">
-          <input
-            type="range"
-            min={0.1}
-            max={3.0}
-            step={0.05}
-            value={playbackSpeed}
-            onChange={(e) => onMetadataChange('playbackSpeed', parseFloat(e.target.value))}
-            className="flex-1 accent-accent-primary"
-          />
-          <span
-            className={`w-14 text-center text-sm font-mono font-semibold ${
-              playbackSpeed !== 1.0 ? 'text-purple-400' : 'text-text-primary'
-            }`}
-          >
-            {playbackSpeed.toFixed(2)}x
-          </span>
-        </div>
-        {/* プリセットボタン */}
-        <div className="flex items-center gap-1 mt-1">
-          {PLAYBACK_SPEEDS.map((speed) => (
-            <button
-              key={speed}
-              type="button"
-              onClick={() => onMetadataChange('playbackSpeed', speed)}
-              className={`flex-1 px-1 py-0.5 text-[10px] rounded transition-colors ${
-                playbackSpeed === speed
-                  ? 'bg-accent-primary/30 text-accent-primary'
-                  : 'bg-background hover:bg-background-hover text-text-muted'
-              }`}
-            >
-              {speed}x
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* メモ */}
       <div className="pt-2 border-t border-border/30">
         <button
@@ -408,7 +360,6 @@ export function SettingsPanel({
   timeSignature,
   capo,
   transpose,
-  playbackSpeed,
   notes,
   onMetadataChange,
   sections,
@@ -506,7 +457,6 @@ export function SettingsPanel({
             timeSignature={timeSignature}
             capo={capo}
             transpose={transpose}
-            playbackSpeed={playbackSpeed}
             notes={notes}
             onMetadataChange={onMetadataChange}
           />

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { Music } from 'lucide-react';
 import type { ExtendedChordPosition } from '@/types/database';
 import { ChordDiagramHorizontal } from '@/components/ChordDiagramHorizontal';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -12,6 +13,7 @@ interface EditableLine {
   lyrics: string;
   chords: ExtendedChordPosition[];
   memo?: string;  // 行レベルのメモ/注釈
+  measures?: number;  // 小節数（デフォルト: 4）
 }
 
 // Drag state for chord position adjustment (mouse-based for smooth sliding)
@@ -914,8 +916,49 @@ export function LineEditor({
           )}
         </div>
 
-        {/* 行メモ - hover時のみ表示される追加ボタン、または入力済みの場合は常に表示 */}
-        <div className="flex items-center gap-2 mt-1 min-h-[24px]">
+        {/* 行メモ + 小節数 - hover時のみ表示される追加ボタン、または入力済みの場合は常に表示 */}
+        <div className="flex items-center gap-3 mt-1 min-h-[24px]">
+          {/* 小節数入力 (コンパクト) */}
+          <div className="flex items-center gap-1 shrink-0">
+            <Music className="w-3 h-3 text-text-muted" />
+            <button
+              type="button"
+              onClick={() => {
+                const current = line.measures ?? 4;
+                if (current > 1) onLineChange({ measures: current - 1 });
+              }}
+              disabled={(line.measures ?? 4) <= 1}
+              className="w-5 h-5 flex items-center justify-center text-xs text-text-muted
+                       hover:text-text-primary hover:bg-white/10 rounded
+                       disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="小節数を減らす"
+            >
+              -
+            </button>
+            <span className="w-6 text-center text-xs font-mono text-text-secondary" title="小節数">
+              {line.measures ?? 4}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                const current = line.measures ?? 4;
+                if (current < 16) onLineChange({ measures: current + 1 });
+              }}
+              disabled={(line.measures ?? 4) >= 16}
+              className="w-5 h-5 flex items-center justify-center text-xs text-text-muted
+                       hover:text-text-primary hover:bg-white/10 rounded
+                       disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="小節数を増やす"
+            >
+              +
+            </button>
+            <span className="text-[10px] text-text-muted">小節</span>
+          </div>
+
+          {/* 区切り */}
+          <div className="w-px h-4 bg-white/10" />
+
+          {/* メモ */}
           {line.memo !== undefined ? (
             <div className="flex-1 flex items-center gap-2">
               <input

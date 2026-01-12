@@ -9,7 +9,7 @@
  * - スクロール可能なコンテンツエリア
  */
 
-import { forwardRef, useMemo, useCallback, useState, useEffect, type SetStateAction } from 'react';
+import { forwardRef, useMemo, useCallback, useState, useEffect, useRef, type SetStateAction } from 'react';
 import type {
   SongWithDetails,
   TimeSignature,
@@ -47,8 +47,10 @@ interface SongViewProps {
   capo: number;
   /** 再生速度 */
   playbackSpeed: number;
-  /** 再生中かどうか */
+  /** 再生中かどうか（オートスクロール） */
   isPlaying: boolean;
+  /** 基準線の位置（0.0〜1.0、コンテンツエリア上部からの割合）デフォルト: 0.25（25%） */
+  baselinePosition?: number;
   /** モード切り替えコールバック */
   onModeChange: (mode: AppMode) => void;
   /** ビューモード切り替えコールバック */
@@ -63,6 +65,14 @@ interface SongViewProps {
   onCapoChange?: (value: number) => void;
   /** 再生速度変更コールバック */
   onPlaybackSpeedChange?: (value: number) => void;
+  /** セクションクリック時のコールバック */
+  onSectionClick?: (sectionId: string) => void;
+  /** 行クリック時のコールバック（再生中のジャンプ用） */
+  onLineClick?: (lineId: string) => void;
+  /** scrollToLine関数を親に渡すコールバック */
+  onScrollToLine?: (scrollFn: (lineId: string) => void) => void;
+  /** 特定行から再生するコールバック */
+  onPlayFromLine?: (lineId: string) => void;
 }
 
 // ============================================
@@ -134,11 +144,14 @@ function initializeEditState(song: SongWithDetails): {
     id: section.id,
     name: section.name,
     repeatCount: section.repeatCount,
+    capoOverride: section.transposeOverride ?? null,  // TODO: Update DB schema to use capoOverride
+    bpmOverride: section.bpmOverride ?? null,
     lines: lines.map((line) => ({
       id: line.id,
       lyrics: line.lyrics,
       chords: line.chords as ExtendedChordPosition[],
       memo: undefined,
+      measures: line.measures ?? 4,
     })),
   }));
 
@@ -158,10 +171,15 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     capo,
     playbackSpeed,
     isPlaying,
+    baselinePosition = 0.25,
     onModeChange,
     onViewModeChange,
     onChordClick,
     onSongUpdated,
+    onSectionClick,
+    onLineClick,
+    onScrollToLine,
+    onPlayFromLine,
     // These will be used when edit mode is fully implemented
     onTransposeChange: _onTransposeChange,
     onCapoChange: _onCapoChange,
@@ -174,6 +192,85 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
   void _onCapoChange;
   void _onPlaybackSpeedChange;
   const { song: songData, sections } = song;
+
+  // コンテナ参照（スクロール操作用）
+  const contentRef = useRef<HTMLElement>(null);
+
+  // 基準線のY座標（ビューポート座標）
+  const [baselineY, setBaselineY] = useState(0);
+  // 基準線オフセット（コンテナ高さの25%）
+  const [baselineOffset, setBaselineOffset] = useState(0);
+
+  // コンテンツエリアのサイズ変更時に基準線位置を更新
+  useEffect(() => {
+    const updateBaselinePosition = () => {
+      if (contentRef.current) {
+        const rect = contentRef.current.getBoundingClientRect();
+        // 基準線は画面の上から25%の位置
+        const offset = rect.height * 0.25;
+        setBaselineOffset(offset);
+        setBaselineY(rect.top + offset);
+      }
+    };
+    updateBaselinePosition();
+    window.addEventListener('resize', updateBaselinePosition);
+    const observer = new ResizeObserver(updateBaselinePosition);
+    if (contentRef.current) {
+      observer.observe(contentRef.current);
+    }
+    return () => {
+      window.removeEventListener('resize', updateBaselinePosition);
+      observer.disconnect();
+    };
+  }, []);
+
+  // セクションへスムーズスクロール（ビューポート座標ベース）
+  const scrollToSection = useCallback((sectionId: string) => {
+    const element = document.querySelector(`[data-section-id="${sectionId}"]`);
+    if (element && contentRef.current) {
+      const containerRect = contentRef.current.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect();
+
+      // 基準線のビューポート位置（コンテナ高さの25%）
+      const baselineViewportY = containerRect.top + containerRect.height * 0.25;
+
+      // 必要なスクロール量 = 要素の現在位置 - 基準線位置
+      const scrollDelta = elementRect.top - baselineViewportY;
+      const newScrollTop = contentRef.current.scrollTop + scrollDelta;
+
+      contentRef.current.scrollTo({
+        top: Math.max(0, newScrollTop),
+        behavior: 'smooth',
+      });
+    }
+    onSectionClick?.(sectionId);
+  }, [onSectionClick]);
+
+  // 行へスムーズスクロール（ビューポート座標ベース）
+  const scrollToLine = useCallback((lineId: string) => {
+    const lineElement = contentRef.current?.querySelector(`[data-line-id="${lineId}"]`);
+    if (!lineElement || !contentRef.current) return;
+
+    const containerRect = contentRef.current.getBoundingClientRect();
+    const elementRect = lineElement.getBoundingClientRect();
+
+    // 基準線のビューポート位置（コンテナ高さの25%）
+    const baselineViewportY = containerRect.top + containerRect.height * 0.25;
+
+    // 必要なスクロール量 = 要素の現在位置 - 基準線位置
+    const scrollDelta = elementRect.top - baselineViewportY;
+    const newScrollTop = contentRef.current.scrollTop + scrollDelta;
+
+    contentRef.current.scrollTo({
+      top: Math.max(0, newScrollTop),
+      behavior: 'smooth',
+    });
+  }, []); // No dependencies - uses getBoundingClientRect() for fresh values
+
+  // scrollToLine を親に渡す
+  useEffect(() => {
+    onScrollToLine?.(scrollToLine);
+  }, [scrollToLine, onScrollToLine]);
 
   // 編集モード用の状態 with undo/redo support
   const {
@@ -312,21 +409,26 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
       const editSec = editSections[i];
       const origSec = sections[i];
 
+      // セクションレベルの比較（名前、リピート、カポ、BPM）
       if (
         editSec.name !== origSec.section.name ||
         editSec.repeatCount !== origSec.section.repeatCount ||
+        editSec.capoOverride !== (origSec.section.transposeOverride ?? null) ||
+        editSec.bpmOverride !== (origSec.section.bpmOverride ?? null) ||
         editSec.lines.length !== origSec.lines.length
       ) {
         return true;
       }
 
+      // 行レベルの比較（歌詞、コード、小節数）
       for (let j = 0; j < editSec.lines.length; j++) {
         const editLine = editSec.lines[j];
         const origLine = origSec.lines[j];
 
         if (
           editLine.lyrics !== origLine.lyrics ||
-          JSON.stringify(editLine.chords) !== JSON.stringify(origLine.chords)
+          JSON.stringify(editLine.chords) !== JSON.stringify(origLine.chords) ||
+          (editLine.measures ?? 4) !== (origLine.measures ?? 4)
         ) {
           return true;
         }
@@ -355,10 +457,13 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           id: section.id,
           name: section.name,
           repeatCount: section.repeatCount,
+          transposeOverride: section.capoOverride ?? undefined,  // TODO: Update DB schema to use capoOverride
+          bpmOverride: section.bpmOverride ?? undefined,
           lines: section.lines.map((line): UpdateLineInput => ({
             id: line.id,
             lyrics: line.lyrics,
             chords: line.chords,
+            measures: line.measures ?? 4,
           })),
         })),
       };
@@ -484,6 +589,8 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
         id: undefined, // 新しいIDを割り当てる
         name: `${section.name} (続き)`,
         repeatCount: 1,
+        capoOverride: null,
+        bpmOverride: null,
         lines: section.lines.slice(atLineIndex).map(line => ({
           ...line,
           id: undefined, // 新しいIDを割り当てる
@@ -652,36 +759,11 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     }));
   }, []);
 
-  // 全セクションの全コードを移調
-  const transposeAllChords = useCallback((semitones: number) => {
-    setEditSections((prev) => {
-      if (!prev) return prev;
-      return prev.map((section) => ({
-        ...section,
-        lines: section.lines.map((line) => ({
-          ...line,
-          chords: line.chords.map((chord) => ({
-            ...chord,
-            chord: transposeChord(chord.chord, semitones),
-          })),
-        })),
-      }));
-    });
-  }, []);
-
-  // メタデータ変更ハンドラー（Capo変更時は常に移調）
+  // メタデータ変更ハンドラー
   const handleMetadataChange = useCallback((key: string, value: unknown) => {
-    // Capo変更時は常にコードを移調（実音を維持）
-    if (key === 'capo' && editMetadata) {
-      const newCapo = value as number;
-      const delta = newCapo - editMetadata.capo;
-
-      if (delta !== 0) {
-        // Capoが上がったらコードを下げる（実音を維持）
-        transposeAllChords(-delta);
-      }
-
-      setEditMetadata((prev) => prev ? { ...prev, capo: newCapo } : prev);
+    // Capo変更時はメタデータのみ変更（表示移調はeffectiveTransposeで行う）
+    if (key === 'capo') {
+      setEditMetadata((prev) => prev ? { ...prev, capo: value as number } : prev);
       return;
     }
 
@@ -693,7 +775,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
         [key]: key === 'bpm' ? String(value ?? '') : value,
       };
     });
-  }, [editMetadata, transposeAllChords]);
+  }, []);
 
   // 表示用の有効な移調量（Capo を考慮）
   const effectiveTranspose = transpose - capo;
@@ -730,7 +812,6 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           timeSignature={editMetadata.timeSignature}
           capo={editMetadata.capo}
           transpose={editMetadata.transpose}
-          playbackSpeed={editMetadata.playbackSpeed}
           notes={editMetadata.notes || null}
           onMetadataChange={handleMetadataChange}
           sections={sectionNavItems}
@@ -761,9 +842,33 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           onCancel={handleCancelClick}
         />
 
+        {/* オートスクロール時の基準線 */}
+        {isPlaying && mode === 'play' && (
+          <div
+            className="fixed pointer-events-none z-50"
+            style={{ top: `${baselineY}px`, left: '280px', right: 0 }}
+          >
+            <div className="h-0.5 bg-cyan-400/50 shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+            {/* 基準線ラベル（右端に配置） */}
+            <div className="absolute right-4 -top-3 flex items-center gap-1 text-[10px] text-cyan-400">
+              <span>▶</span>
+              <span>再生位置</span>
+            </div>
+          </div>
+        )}
+
         {/* コンテンツエリア */}
         <main
-          ref={ref}
+          ref={(node) => {
+            // 内部refを設定
+            (contentRef as React.MutableRefObject<HTMLElement | null>).current = node;
+            // 外部refも設定
+            if (typeof ref === 'function') {
+              ref(node);
+            } else if (ref) {
+              (ref as React.MutableRefObject<HTMLElement | null>).current = node;
+            }
+          }}
           className="flex-1 overflow-y-auto overflow-x-auto bg-background-primary"
         >
         <div className="space-y-6 p-4">
@@ -771,7 +876,11 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
             // 編集モード: SectionEditor を使用
             <>
               {editSections.map((section, sectionIndex) => (
-                <div key={section.id ?? `new-section-${sectionIndex}`} id={`section-${sectionIndex}`}>
+                <div
+                  key={section.id ?? `new-section-${sectionIndex}`}
+                  id={`section-${sectionIndex}`}
+                  data-section-id={section.id ?? `new-section-${sectionIndex}`}
+                >
                 <SectionEditor
                   section={section}
                   sectionIndex={sectionIndex}
@@ -798,7 +907,45 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                   showDiagram={viewMode !== 'compact'}
                   showPlayingMethod={viewMode !== 'compact'}
                   showMemo={viewMode === 'detailed'}
-                  transpose={editMetadata?.transpose ?? 0}
+                  transpose={(editMetadata?.transpose ?? 0) - (editMetadata?.capo ?? 0)}
+                  songBpm={editMetadata?.bpm ? parseInt(editMetadata.bpm, 10) : song.song.bpm}
+                  songCapo={editMetadata?.capo ?? song.song.capo ?? 0}
+                  onSectionSettingsChange={(settings) => {
+                    setEditSections(prev => {
+                      if (!prev) return prev;
+                      const newSections = [...prev];
+                      const currentSection = newSections[sectionIndex];
+                      const songCapoValue = editMetadata?.capo ?? song.song.capo ?? 0;
+
+                      // カポ変更時にコードを移調する処理
+                      let updatedLines = currentSection.lines;
+                      if (settings.transposeChords) {
+                        // 古いカポ値と新しいカポ値の差分を計算
+                        const oldCapo = currentSection.capoOverride ?? songCapoValue;
+                        const newCapo = settings.capoOverride ?? songCapoValue;
+                        const semitones = oldCapo - newCapo; // カポが上がると音が下がるので符号逆
+
+                        if (semitones !== 0) {
+                          // 全行のコードを移調
+                          updatedLines = currentSection.lines.map(line => ({
+                            ...line,
+                            chords: line.chords.map(chord => ({
+                              ...chord,
+                              chord: transposeChord(chord.chord, semitones),
+                            })),
+                          }));
+                        }
+                      }
+
+                      newSections[sectionIndex] = {
+                        ...currentSection,
+                        capoOverride: settings.capoOverride,
+                        bpmOverride: settings.bpmOverride,
+                        lines: updatedLines,
+                      };
+                      return newSections;
+                    });
+                  }}
                 />
                 </div>
               ))}
@@ -812,6 +959,8 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                     const newSection: EditableSection = {
                       name: '新しいセクション',
                       repeatCount: 1,
+                      capoOverride: null,
+                      bpmOverride: null,
                       lines: [{ lyrics: '', chords: [] }],
                     };
                     return [...prev, newSection];
@@ -828,11 +977,24 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           ) : (
             // 演奏モード: PlayableChordLine を使用
             <>
+              {/* 上部スペーサー: 常に表示（1行目の上辺が基準線位置になるよう押し下げ） */}
+              <div style={{ height: `${baselineOffset}px` }} aria-hidden="true" />
+
               {sections.map(({ section, lines }) => (
-                <section key={section.id} className="space-y-2">
-                  {/* セクションヘッダー */}
+                <section
+                  key={section.id}
+                  className="space-y-2"
+                  data-section-id={section.id}
+                >
+                  {/* セクションヘッダー（クリックでジャンプ） */}
                   <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-text-primary">{section.name}</h2>
+                    <button
+                      type="button"
+                      onClick={() => scrollToSection(String(section.id))}
+                      className="text-lg font-bold text-text-primary hover:text-accent-primary transition-colors cursor-pointer text-left"
+                    >
+                      {section.name}
+                    </button>
                     {section.repeatCount > 1 && (
                       <span className="px-2 py-0.5 text-xs rounded-full bg-accent-primary/20 text-accent-primary">
                         ×{section.repeatCount}
@@ -840,21 +1002,55 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                     )}
                   </div>
 
-                  {/* ライン表示 */}
+                  {/* ライン表示（クリックでジャンプ） */}
                   <div className="space-y-3 bg-background-surface rounded-lg p-3">
                     {lines.map((line) => (
-                      <PlayableChordLine
+                      <div
                         key={line.id}
-                        lyrics={line.lyrics}
-                        chords={line.chords as ExtendedChordPosition[]}
-                        transpose={effectiveTranspose}
-                        viewMode={viewMode}
-                        onChordClick={onChordClick}
-                      />
+                        data-line-id={line.id}
+                        onClick={() => {
+                          if (isPlaying) {
+                            // 再生中: handleLineClick で処理
+                            onLineClick?.(String(line.id));
+                          } else {
+                            // 停止中: スクロールのみ
+                            scrollToLine(String(line.id));
+                          }
+                        }}
+                        className="cursor-pointer hover:bg-white/5 rounded transition-colors -mx-2 px-2 py-1"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            if (isPlaying) {
+                              // 再生中: handleLineClick で処理
+                              onLineClick?.(String(line.id));
+                            } else {
+                              // 停止中: スクロールのみ
+                              scrollToLine(String(line.id));
+                            }
+                          }
+                        }}
+                      >
+                        <PlayableChordLine
+                          lyrics={line.lyrics}
+                          chords={line.chords as ExtendedChordPosition[]}
+                          transpose={effectiveTranspose}
+                          viewMode={viewMode}
+                          onChordClick={onChordClick}
+                          onPlayFromLine={!isPlaying && onPlayFromLine ? () => onPlayFromLine(String(line.id)) : undefined}
+                        />
+                      </div>
                     ))}
                   </div>
                 </section>
               ))}
+
+              {/* 下部スペーサー: 再生中のみ表示（最後の行がベースライン位置までスクロールできるように） */}
+              {isPlaying && (
+                <div style={{ height: `${(1 - baselinePosition) * 100}vh` }} aria-hidden="true" />
+              )}
             </>
           )}
 

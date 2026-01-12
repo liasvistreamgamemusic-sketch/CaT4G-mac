@@ -144,7 +144,7 @@ function MetadataPanel({
   }, [onMetadataChange]);
 
   const handleCapoDown = useCallback(() => {
-    if (capo > 0) {
+    if (capo > -2) {
       onMetadataChange('capo', capo - 1);
     }
   }, [capo, onMetadataChange]);
@@ -234,16 +234,16 @@ function MetadataPanel({
                          hover:bg-background-hover disabled:opacity-40 disabled:cursor-not-allowed
                          transition-colors duration-150 text-lg font-medium"
               onClick={handleCapoDown}
-              disabled={capo <= 0}
+              disabled={capo <= -2}
             >
               -
             </button>
             <span
               className={`w-8 text-center font-mono font-semibold transition-colors ${
-                capo !== 0 ? 'text-orange-400' : 'text-text-primary'
+                capo > 0 ? 'text-orange-400' : capo < 0 ? 'text-blue-400' : 'text-text-primary'
               }`}
             >
-              {capo}
+              {capo === -1 ? '半↓' : capo === -2 ? '全↓' : capo}
             </span>
             <button
               type="button"

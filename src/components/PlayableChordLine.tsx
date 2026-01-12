@@ -49,6 +49,8 @@ interface PlayableChordLineProps {
   onChordClick?: (chord: string) => void;
   /** 行メモ */
   memo?: string;
+  /** 特定行から再生するコールバック */
+  onPlayFromLine?: () => void;
 }
 
 /**
@@ -61,6 +63,7 @@ export function PlayableChordLine({
   viewMode = 'standard',
   onChordClick,
   memo,
+  onPlayFromLine,
 }: PlayableChordLineProps) {
   // 表示設定
   const showDiagram = viewMode !== 'compact';
@@ -133,7 +136,7 @@ export function PlayableChordLine({
   const minChars = Math.max(30, maxPosition + 5);
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 group">
       {/* コード行 */}
       <div
         className={`relative font-mono text-sm bg-background-primary/30 rounded-t px-2 py-1 ${
@@ -170,7 +173,7 @@ export function PlayableChordLine({
                 width: displayWidth,
                 minHeight: displayHeight,
               }}
-              onClick={() => onChordClick?.(chord.chord)}
+              onDoubleClick={() => onChordClick?.(chord.chord)}
               title={`${chord.chord}${chord.annotation ? `\n${chord.annotation}` : ''}`}
             >
               {/* ヘッダー: コード名 + メソッドバッジ */}
@@ -247,36 +250,57 @@ export function PlayableChordLine({
         )}
       </div>
 
-      {/* 歌詞行 */}
-      <div className="relative">
-        {/* アンダーラインマーカー（コード位置） */}
-        <div
-          className="absolute inset-0 pointer-events-none px-3 py-1.5"
-          style={{ fontFamily: 'monospace', fontSize: '0.875rem', letterSpacing: '0.35em' }}
-        >
-          {chords.map((chord, chordIndex) => {
-            const pos = chord.position;
-            if (pos >= lyrics.length) return null;
-            return (
-              <span
-                key={chordIndex}
-                className="absolute bottom-1 h-0.5 bg-accent-primary/60 rounded-full"
-                style={{
-                  left: `calc(12px + ${pos * CHAR_WIDTH}px)`,
-                  width: `${CHAR_WIDTH}px`,
-                }}
-              />
-            );
-          })}
+      {/* 歌詞行を囲む flex コンテナ */}
+      <div className="flex items-center gap-2">
+        {/* 既存の歌詞表示 */}
+        <div className="flex-1 relative">
+          {/* アンダーラインマーカー（コード位置） */}
+          <div
+            className="absolute inset-0 pointer-events-none px-3 py-1.5"
+            style={{ fontFamily: 'monospace', fontSize: '0.875rem', letterSpacing: '0.35em' }}
+          >
+            {chords.map((chord, chordIndex) => {
+              const pos = chord.position;
+              if (pos >= lyrics.length) return null;
+              return (
+                <span
+                  key={chordIndex}
+                  className="absolute bottom-1 h-0.5 bg-accent-primary/60 rounded-full"
+                  style={{
+                    left: `calc(12px + ${pos * CHAR_WIDTH}px)`,
+                    width: `${CHAR_WIDTH}px`,
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* 歌詞テキスト */}
+          <div
+            className="w-full bg-[#1a1a25] border border-white/10 rounded-b px-3 py-1.5 text-sm font-mono text-white"
+            style={{ letterSpacing: '0.35em', minHeight: '32px' }}
+          >
+            {lyrics || <span className="text-text-muted/30">&nbsp;</span>}
+          </div>
         </div>
 
-        {/* 歌詞テキスト */}
-        <div
-          className="w-full bg-[#1a1a25] border border-white/10 rounded-b px-3 py-1.5 text-sm font-mono text-white"
-          style={{ letterSpacing: '0.35em', minHeight: '32px' }}
-        >
-          {lyrics || <span className="text-text-muted/30">&nbsp;</span>}
-        </div>
+        {/* 再生ボタン - onPlayFromLine が渡された場合のみ表示 */}
+        {onPlayFromLine && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlayFromLine();
+            }}
+            className="flex-shrink-0 p-1.5 rounded hover:bg-accent-primary/20 text-text-secondary hover:text-accent-primary transition-colors opacity-0 group-hover:opacity-100"
+            title="この行から再生"
+            aria-label="この行から再生"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* 行メモ（detailed モードのみ） */}
