@@ -200,8 +200,8 @@ export function ArpeggioOrderInput({
                 text-xs px-2 py-1 rounded border
                 transition-colors duration-150
                 ${disabled
-                  ? 'opacity-50 cursor-not-allowed border-white/5 bg-background-surface text-text-muted'
-                  : 'border-white/10 bg-background-surface hover:bg-accent-primary/20 hover:border-accent-primary/50 text-text-secondary hover:text-text-primary'
+                  ? 'opacity-50 cursor-not-allowed border-[var(--glass-premium-border)] bg-background-surface text-text-muted'
+                  : 'border-[var(--glass-premium-border)] bg-background-surface hover:bg-accent-primary/20 hover:border-accent-primary/50 text-text-secondary hover:text-text-primary'
                 }
               `}
               onClick={() => handleApplyTemplate(template)}

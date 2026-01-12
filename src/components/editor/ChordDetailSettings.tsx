@@ -139,7 +139,7 @@ function DurationInput({ value, onChange }: DurationInputProps) {
             className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
               value === preset.value
                 ? 'bg-accent-primary text-white border-accent-primary shadow-md shadow-accent-primary/25'
-                : 'bg-background-primary border-white/10 text-text-secondary hover:border-accent-primary/50 hover:text-text-primary'
+                : 'bg-background-primary border-[var(--glass-premium-border)] text-text-secondary hover:border-accent-primary/50 hover:text-text-primary'
             }`}
           >
             {preset.label}拍
@@ -158,7 +158,7 @@ function DurationInput({ value, onChange }: DurationInputProps) {
             step={0.25}
             min={0.25}
             max={8}
-            className="w-24 pl-8 pr-3 py-2 bg-background-primary border border-white/10 rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/25 transition-all"
+            className="w-24 pl-8 pr-3 py-2 bg-background-primary border border-[var(--glass-premium-border)] rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/25 transition-all"
             placeholder="カスタム"
           />
         </div>
@@ -168,7 +168,7 @@ function DurationInput({ value, onChange }: DurationInputProps) {
       {/* 視覚的フィードバック: 拍数バー */}
       {value !== undefined && (
         <div className="space-y-1">
-          <div className="h-2 bg-background-primary rounded-full overflow-hidden border border-white/5">
+          <div className="h-2 bg-background-primary rounded-full overflow-hidden border border-[var(--glass-premium-border)]">
             <div
               className="h-full bg-gradient-to-r from-accent-primary to-accent-secondary rounded-full transition-all duration-300"
               style={{ width: `${barWidth}%` }}
@@ -232,11 +232,11 @@ function TechniqueSelector({ value = [], onChange }: TechniqueSelectorProps) {
               className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200 ${
                 isSelected
                   ? 'bg-accent-primary/15 border-accent-primary text-accent-primary'
-                  : 'bg-background-primary border-white/10 text-text-secondary hover:border-white/20 hover:text-text-primary'
+                  : 'bg-background-primary border-[var(--glass-premium-border)] text-text-secondary hover:border-[var(--glass-premium-border)] hover:text-text-primary'
               }`}
             >
               <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-                isSelected ? 'bg-accent-primary text-white' : 'bg-white/5'
+                isSelected ? 'bg-accent-primary text-white' : 'bg-[var(--btn-glass-hover)]'
               }`}>
                 <Icon className="w-3 h-3" />
               </div>
@@ -267,7 +267,7 @@ function DynamicsSelector({ value, onChange }: DynamicsSelectorProps) {
       </div>
 
       {/* 横並びのラジオボタン風セレクター */}
-      <div className="flex items-end gap-0.5 bg-background-primary rounded-xl p-1.5 border border-white/5">
+      <div className="flex items-end gap-0.5 bg-background-primary rounded-xl p-1.5 border border-[var(--glass-premium-border)]">
         {DYNAMICS_OPTIONS.map((option) => {
           const isSelected = value === option.value;
 
@@ -279,7 +279,7 @@ function DynamicsSelector({ value, onChange }: DynamicsSelectorProps) {
               className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-lg transition-all duration-200 ${
                 isSelected
                   ? 'bg-accent-primary text-white shadow-md shadow-accent-primary/25'
-                  : 'text-text-secondary hover:bg-white/5 hover:text-text-primary'
+                  : 'text-text-secondary hover:bg-[var(--btn-glass-hover)] hover:text-text-primary'
               }`}
               title={`${option.label} - ${option.intensity <= 3 ? '弱' : option.intensity <= 5 ? '中' : '強'}`}
             >
@@ -336,13 +336,13 @@ function TieToggle({ value, onChange }: TieToggleProps) {
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 ${
           isEnabled
             ? 'bg-accent-primary/15 border-accent-primary'
-            : 'bg-background-primary border-white/10 hover:border-white/20'
+            : 'bg-background-primary border-[var(--glass-premium-border)] hover:border-[var(--glass-premium-border)]'
         }`}
       >
         {/* トグルスイッチ */}
         <div
           className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
-            isEnabled ? 'bg-accent-primary' : 'bg-white/10'
+            isEnabled ? 'bg-accent-primary' : 'bg-[var(--btn-glass-hover)]'
           }`}
         >
           <div
@@ -422,7 +422,7 @@ export function ChordDetailSettings({
       />
 
       {/* 区切り線 */}
-      <div className="border-t border-white/5" />
+      <div className="border-t border-[var(--glass-premium-border)]" />
 
       {/* テクニック選択 */}
       <TechniqueSelector
@@ -431,7 +431,7 @@ export function ChordDetailSettings({
       />
 
       {/* 区切り線 */}
-      <div className="border-t border-white/5" />
+      <div className="border-t border-[var(--glass-premium-border)]" />
 
       {/* ダイナミクス選択 */}
       <DynamicsSelector
@@ -440,7 +440,7 @@ export function ChordDetailSettings({
       />
 
       {/* 区切り線 */}
-      <div className="border-t border-white/5" />
+      <div className="border-t border-[var(--glass-premium-border)]" />
 
       {/* タイ接続トグル */}
       <TieToggle

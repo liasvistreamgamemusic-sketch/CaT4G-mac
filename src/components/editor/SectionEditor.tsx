@@ -96,9 +96,9 @@ function InsertLineButton({ onClick, label }: { onClick: () => void; label: stri
       title={label}
     >
       <div className="flex items-center justify-center gap-2">
-        <div className="h-px flex-1 bg-white/10 group-hover/insert:bg-accent-primary/30 transition-colors" />
+        <div className="h-px flex-1 bg-[var(--glass-premium-border)] group-hover/insert:bg-accent-primary/30 transition-colors" />
         <span className="px-2">+ 行を挿入</span>
-        <div className="h-px flex-1 bg-white/10 group-hover/insert:bg-accent-primary/30 transition-colors" />
+        <div className="h-px flex-1 bg-[var(--glass-premium-border)] group-hover/insert:bg-accent-primary/30 transition-colors" />
       </div>
     </button>
   );
@@ -210,7 +210,7 @@ export function SectionEditor({
   );
 
   return (
-    <div className="bg-background-surface rounded-xl p-4 border border-white/5">
+    <div className="bg-background-surface rounded-xl p-4 border border-[var(--glass-premium-border)]">
       {/* Section Header */}
       <div className="flex items-center gap-3 mb-4">
         {/* Collapse Toggle Button */}
@@ -218,7 +218,7 @@ export function SectionEditor({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="p-1 hover:bg-white/10 rounded transition-colors flex-shrink-0"
+            className="p-1 hover:bg-[var(--btn-glass-hover)] rounded transition-colors flex-shrink-0"
             title={isCollapsed ? '展開' : '折りたたみ'}
           >
             <svg
@@ -244,13 +244,13 @@ export function SectionEditor({
                 setShowSectionDropdown(true);
               }}
               onFocus={() => setShowSectionDropdown(true)}
-              className="flex-1 bg-background-primary border border-white/10 rounded-l-lg px-3 py-1.5 text-black font-medium focus:outline-none focus:border-accent-primary"
+              className="flex-1 bg-background-primary border border-[var(--glass-premium-border)] rounded-l-lg px-3 py-1.5 text-text-primary font-medium focus:outline-none focus:border-accent-primary"
               placeholder="セクション名"
             />
             <button
               type="button"
               onClick={() => setShowSectionDropdown(!showSectionDropdown)}
-              className="bg-background-primary border border-l-0 border-white/10 rounded-r-lg px-2 py-1.5 hover:bg-white/5 transition-colors"
+              className="bg-background-primary border border-l-0 border-[var(--glass-premium-border)] rounded-r-lg px-2 py-1.5 hover:bg-[var(--btn-glass-hover)] transition-colors"
             >
               <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -261,7 +261,7 @@ export function SectionEditor({
           {showSectionDropdown && filteredSectionNames.length > 0 && (
             <div
               ref={dropdownRef}
-              className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-background-surface border border-white/10 rounded-lg shadow-lg"
+              className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-background-surface border border-[var(--glass-premium-border)] rounded-lg shadow-lg"
             >
               {filteredSectionNames.map((name) => (
                 <button
@@ -295,7 +295,7 @@ export function SectionEditor({
             }
             min={1}
             max={10}
-            className="w-12 bg-background-primary border border-white/10 rounded px-2 py-1 text-center text-black focus:outline-none focus:border-accent-primary"
+            className="w-12 bg-background-primary border border-[var(--glass-premium-border)] rounded px-2 py-1 text-center text-text-primary focus:outline-none focus:border-accent-primary"
           />
         </div>
 
@@ -308,7 +308,7 @@ export function SectionEditor({
             className={`p-1 rounded transition-colors ${
               hasCustomSettings
                 ? 'text-accent-primary hover:bg-accent-primary/20'
-                : 'text-text-secondary hover:bg-white/10'
+                : 'text-text-secondary hover:bg-[var(--btn-glass-hover)]'
             }`}
             title="セクション設定"
           >
@@ -352,7 +352,7 @@ export function SectionEditor({
             type="button"
             onClick={onMoveUp}
             disabled={isFirst}
-            className="p-1 hover:bg-white/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-1 hover:bg-[var(--btn-glass-hover)] rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             title="上へ移動"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,7 +365,7 @@ export function SectionEditor({
             type="button"
             onClick={onMoveDown}
             disabled={isLast}
-            className="p-1 hover:bg-white/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-1 hover:bg-[var(--btn-glass-hover)] rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             title="下へ移動"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

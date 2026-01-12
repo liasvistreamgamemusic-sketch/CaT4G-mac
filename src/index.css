@@ -39,9 +39,51 @@
     /* Selection */
     --selection-bg: rgba(168, 85, 247, 0.3);
 
-    /* Glass effect */
+    /* Glass effect (basic) */
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.08);
+
+    /* Premium Glassmorphism (Dark) */
+    --glass-premium-bg: linear-gradient(
+      135deg,
+      rgba(20, 20, 35, 0.92) 0%,
+      rgba(15, 15, 28, 0.95) 50%,
+      rgba(12, 12, 24, 0.92) 100%
+    );
+    --glass-premium-bg-solid: rgba(18, 18, 30, 0.95);
+    --glass-premium-border: rgba(255, 255, 255, 0.08);
+    --glass-premium-border-light: rgba(255, 255, 255, 0.12);
+    --glass-premium-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.3),
+      0 4px 16px rgba(0, 0, 0, 0.4),
+      0 12px 40px rgba(0, 0, 0, 0.3);
+    --glass-premium-shadow-elevated:
+      0 0 0 1px rgba(0, 0, 0, 0.4),
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      0 24px 60px rgba(0, 0, 0, 0.4);
+    --glass-premium-highlight: rgba(255, 255, 255, 0.06);
+    --glass-premium-highlight-strong: rgba(255, 255, 255, 0.1);
+    --glass-premium-inner-border: rgba(255, 255, 255, 0.1);
+    --glass-premium-divider: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+
+    /* Button states (Dark) */
+    --btn-glass-hover: rgba(255, 255, 255, 0.1);
+    --btn-glass-active: rgba(168, 85, 247, 0.25);
+    --btn-glass-active-border: rgba(168, 85, 247, 0.4);
+
+    /* Input states (Dark) */
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-border-focus: rgba(168, 85, 247, 0.5);
+    --input-shadow-focus: 0 0 0 3px rgba(168, 85, 247, 0.15);
+
+    /* Modal backdrop */
+    --backdrop-bg: rgba(0, 0, 0, 0.6);
   }
 
   /* Light Theme */
@@ -76,9 +118,51 @@
     /* Selection */
     --selection-bg: rgba(124, 58, 237, 0.3);
 
-    /* Glass effect */
+    /* Glass effect (basic) */
     --glass-bg: rgba(0, 0, 0, 0.02);
     --glass-border: rgba(0, 0, 0, 0.06);
+
+    /* Premium Glassmorphism (Light) */
+    --glass-premium-bg: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(250, 250, 255, 0.9) 50%,
+      rgba(245, 245, 250, 0.85) 100%
+    );
+    --glass-premium-bg-solid: rgba(255, 255, 255, 0.92);
+    --glass-premium-border: rgba(0, 0, 0, 0.08);
+    --glass-premium-border-light: rgba(0, 0, 0, 0.06);
+    --glass-premium-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.05),
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      0 12px 40px rgba(0, 0, 0, 0.06);
+    --glass-premium-shadow-elevated:
+      0 0 0 1px rgba(0, 0, 0, 0.06),
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      0 24px 60px rgba(0, 0, 0, 0.08);
+    --glass-premium-highlight: rgba(255, 255, 255, 0.8);
+    --glass-premium-highlight-strong: rgba(255, 255, 255, 1);
+    --glass-premium-inner-border: rgba(0, 0, 0, 0.06);
+    --glass-premium-divider: linear-gradient(
+      to right,
+      transparent,
+      rgba(0, 0, 0, 0.08),
+      transparent
+    );
+
+    /* Button states (Light) */
+    --btn-glass-hover: rgba(0, 0, 0, 0.06);
+    --btn-glass-active: rgba(124, 58, 237, 0.15);
+    --btn-glass-active-border: rgba(124, 58, 237, 0.3);
+
+    /* Input states (Light) */
+    --input-bg: rgba(0, 0, 0, 0.03);
+    --input-border: rgba(0, 0, 0, 0.1);
+    --input-border-focus: rgba(124, 58, 237, 0.5);
+    --input-shadow-focus: 0 0 0 3px rgba(124, 58, 237, 0.1);
+
+    /* Modal backdrop */
+    --backdrop-bg: rgba(0, 0, 0, 0.4);
   }
 
   * {
@@ -128,10 +212,293 @@
 }
 
 @layer components {
+  /* ============================================
+   * Basic Glass Effect
+   * ============================================ */
   .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
+  }
+
+  /* ============================================
+   * Premium Glassmorphism System
+   * ============================================ */
+  .glass-premium {
+    background: var(--glass-premium-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-premium-border);
+    box-shadow: var(--glass-premium-shadow);
+  }
+
+  .glass-premium-elevated {
+    background: var(--glass-premium-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-premium-border);
+    box-shadow: var(--glass-premium-shadow-elevated);
+  }
+
+  .glass-premium-solid {
+    background: var(--glass-premium-bg-solid);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-premium-border);
+    box-shadow: var(--glass-premium-shadow);
+  }
+
+  .shadow-premium {
+    box-shadow: var(--glass-premium-shadow);
+  }
+
+  .shadow-premium-elevated {
+    box-shadow: var(--glass-premium-shadow-elevated);
+  }
+
+  /* Highlight line at top of containers */
+  .highlight-line {
+    position: relative;
+  }
+
+  .highlight-line::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--glass-premium-highlight-strong),
+      transparent
+    );
+    pointer-events: none;
+    border-radius: 1px;
+  }
+
+  /* Inset highlight for depth */
+  .inset-highlight {
+    box-shadow:
+      var(--glass-premium-shadow),
+      inset 0 1px 0 var(--glass-premium-highlight),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  /* Divider line */
+  .divider-premium {
+    height: 1px;
+    background: var(--glass-premium-divider);
+    border: none;
+    margin: 0;
+  }
+
+  /* ============================================
+   * Premium Button System
+   * ============================================ */
+  .btn-glass {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-text-primary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .btn-glass:hover:not(:disabled) {
+    background: var(--btn-glass-hover);
+    transform: scale(1.02);
+  }
+
+  .btn-glass:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .btn-glass:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-glass.active,
+  .btn-glass[data-active="true"] {
+    background: var(--btn-glass-active);
+    border-color: var(--btn-glass-active-border);
+    color: var(--color-accent-primary-light);
+  }
+
+  .btn-glass-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 10px;
+  }
+
+  .btn-glass-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
+
+  .btn-glass-icon {
+    padding: 0.5rem;
+    border-radius: 10px;
+  }
+
+  .btn-glass-icon-sm {
+    padding: 0.375rem;
+    border-radius: 8px;
+  }
+
+  /* Primary button with gradient */
+  .btn-glass-primary {
+    background: linear-gradient(
+      135deg,
+      var(--color-accent-primary) 0%,
+      var(--color-accent-primary-hover) 100%
+    );
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 2px 8px rgba(168, 85, 247, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-glass-primary:hover:not(:disabled) {
+    background: linear-gradient(
+      135deg,
+      var(--color-accent-primary-hover) 0%,
+      var(--color-accent-primary) 100%
+    );
+    box-shadow:
+      0 4px 16px rgba(168, 85, 247, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: scale(1.02) translateY(-1px);
+  }
+
+  /* Ghost button */
+  .btn-glass-ghost {
+    background: transparent;
+    border: 1px solid var(--glass-premium-border);
+  }
+
+  .btn-glass-ghost:hover:not(:disabled) {
+    background: var(--btn-glass-hover);
+    border-color: var(--glass-premium-border-light);
+  }
+
+  /* Danger button */
+  .btn-glass-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-glass-danger:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  /* ============================================
+   * Premium Input System
+   * ============================================ */
+  .input-glass {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    outline: none;
+    transition: all 200ms ease-out;
+  }
+
+  .input-glass::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .input-glass:focus {
+    border-color: var(--input-border-focus);
+    box-shadow: var(--input-shadow-focus);
+  }
+
+  .input-glass:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .input-glass-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    border-radius: 10px;
+  }
+
+  /* ============================================
+   * Premium Tab System
+   * ============================================ */
+  .tab-glass {
+    position: relative;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 200ms ease-out;
+  }
+
+  .tab-glass:hover {
+    color: var(--color-text-primary);
+  }
+
+  .tab-glass.active,
+  .tab-glass[data-active="true"] {
+    color: var(--color-accent-primary);
+  }
+
+  .tab-glass.active::after,
+  .tab-glass[data-active="true"]::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-accent-primary);
+    border-radius: 1px 1px 0 0;
+    box-shadow: 0 0 8px var(--color-accent-primary);
+  }
+
+  /* ============================================
+   * Premium Badge System
+   * ============================================ */
+  .badge-glass {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--input-bg);
+    border: 1px solid var(--glass-premium-border);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    box-shadow: inset 0 1px 0 var(--glass-premium-highlight);
+  }
+
+  .badge-glass-primary {
+    background: var(--btn-glass-active);
+    border-color: var(--btn-glass-active-border);
+    color: var(--color-accent-primary-light);
   }
 
   .glow {
@@ -204,5 +571,113 @@
   /* Animate on mount */
   .animate-in {
     animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Premium animation utilities */
+  .animate-modal-in {
+    animation: modalIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-modal-out {
+    animation: modalOut 200ms ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-slide-out-left {
+    animation: slideOutLeft 250ms ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 250ms ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 200ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
+}
+
+/* ============================================
+ * Animation Keyframes
+ * ============================================ */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(168, 85, 247, 0);
   }
 }

@@ -966,7 +966,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                     return [...prev, newSection];
                   });
                 }}
-                className="w-full py-3 border-2 border-dashed border-white/10 rounded-xl text-text-muted hover:text-accent-primary hover:border-accent-primary/30 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 border-2 border-dashed border-[var(--color-border-default)] rounded-xl text-text-muted hover:text-accent-primary hover:border-accent-primary/30 transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1017,7 +1017,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                             scrollToLine(String(line.id));
                           }
                         }}
-                        className="cursor-pointer hover:bg-white/5 rounded transition-colors -mx-2 px-2 py-1"
+                        className="cursor-pointer hover:bg-[var(--btn-glass-hover)] rounded transition-colors -mx-2 px-2 py-1"
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
@@ -1080,7 +1080,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
 
       {/* キャンセル確認ダイアログ */}
       {showCancelConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--backdrop-bg)] backdrop-blur-sm">
           <div className="bg-background-surface border border-border rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold text-text-primary mb-2">
               変更を破棄しますか？

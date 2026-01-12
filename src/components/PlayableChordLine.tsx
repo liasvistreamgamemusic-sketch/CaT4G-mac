@@ -164,7 +164,7 @@ export function PlayableChordLine({
             <div
               key={chordIndex}
               className={`absolute top-0 flex flex-col select-none
-                border border-white/10 rounded bg-background-surface/50 p-1
+                border border-[var(--glass-premium-border)] rounded bg-background-surface/50 p-1
                 hover:border-accent-primary/30 transition-colors
                 overflow-visible
                 ${onChordClick ? 'cursor-pointer hover:bg-accent-primary/10' : ''}`}
@@ -277,7 +277,7 @@ export function PlayableChordLine({
 
           {/* 歌詞テキスト */}
           <div
-            className="w-full bg-[#1a1a25] border border-white/10 rounded-b px-3 py-1.5 text-sm font-mono text-white"
+            className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono text-text-primary"
             style={{ letterSpacing: '0.35em', minHeight: '32px' }}
           >
             {lyrics || <span className="text-text-muted/30">&nbsp;</span>}

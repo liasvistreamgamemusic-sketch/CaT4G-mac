@@ -189,7 +189,7 @@ export function VoicingSelector({
             className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
               index === selectedIndex
                 ? 'bg-accent-primary text-white'
-                : 'bg-white/10 text-text-secondary hover:bg-white/20'
+                : 'bg-[var(--btn-glass-hover)] text-text-secondary hover:bg-[var(--glass-premium-hover)]'
             }`}
             title={`${fingering.id} - ${getDifficultyLabel(fingering.difficulty)}`}
           >
@@ -234,7 +234,7 @@ export function VoicingSelector({
                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                   index === selectedIndex
                     ? 'bg-accent-primary text-white'
-                    : 'bg-white/10 text-text-secondary hover:bg-white/20'
+                    : 'bg-[var(--btn-glass-hover)] text-text-secondary hover:bg-[var(--glass-premium-hover)]'
                 }`}
                 title={fingering.id}
               >

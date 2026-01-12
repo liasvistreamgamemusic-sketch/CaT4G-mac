@@ -173,11 +173,31 @@ export function FloatingControlBar({
         transition-all duration-200 ease-out
         hover:scale-105 active:scale-95
         disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100
-        ${active
-          ? 'bg-gradient-to-br from-purple-500/30 to-purple-600/20 text-purple-300 shadow-lg shadow-purple-500/20'
-          : 'hover:bg-white/10 text-gray-300 hover:text-white'}
         ${className}
       `}
+      style={active
+        ? {
+            background: 'var(--btn-glass-active)',
+            borderColor: 'var(--btn-glass-active-border)',
+            color: 'var(--color-accent-primary-light)',
+            boxShadow: '0 4px 12px rgba(168, 85, 247, 0.2)',
+          }
+        : {
+            color: 'var(--color-text-secondary)',
+          }
+      }
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'var(--btn-glass-hover)';
+          e.currentTarget.style.color = 'var(--color-text-primary)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.color = 'var(--color-text-secondary)';
+        }
+      }}
     >
       {children}
     </button>
@@ -188,7 +208,7 @@ export function FloatingControlBar({
     <div
       className="w-px self-stretch my-1 opacity-0 transition-opacity duration-300"
       style={{
-        background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.15), transparent)',
+        background: 'var(--glass-premium-divider)',
         opacity: effectiveIsExpanded ? 1 : 0,
       }}
     />
@@ -224,24 +244,16 @@ export function FloatingControlBar({
       <div
         className="relative flex items-center overflow-hidden"
         style={{
-          // Premium glassmorphism
-          background: `
-            linear-gradient(135deg,
-              rgba(20, 20, 35, 0.92) 0%,
-              rgba(15, 15, 28, 0.95) 50%,
-              rgba(12, 12, 24, 0.92) 100%
-            )
-          `,
+          // Premium glassmorphism with CSS variables for theme support
+          background: 'var(--glass-premium-bg)',
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           // Layered borders for depth
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--glass-premium-border)',
           boxShadow: `
-            0 0 0 1px rgba(0, 0, 0, 0.3),
-            0 4px 16px rgba(0, 0, 0, 0.4),
-            0 12px 40px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.06),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+            var(--glass-premium-shadow),
+            inset 0 1px 0 var(--glass-premium-highlight),
+            inset 0 -1px 0 var(--glass-premium-inner-border)
           `,
           borderRadius: '24px',
           padding: effectiveIsExpanded ? '12px 24px' : '10px 18px',
@@ -253,7 +265,7 @@ export function FloatingControlBar({
         <div
           className="absolute top-0 left-4 right-4 h-px pointer-events-none"
           style={{
-            background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent)',
+            background: 'var(--glass-premium-divider)',
           }}
         />
 
@@ -321,26 +333,45 @@ export function FloatingControlBar({
               transitionDelay: '50ms',
             }}
           >
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Capo</span>
-            <div className="flex items-center gap-0.5 bg-white/5 rounded-lg px-1">
+            <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>Capo</span>
+            <div className="flex items-center gap-0.5 rounded-lg px-1" style={{ background: 'var(--input-bg)' }}>
               <button
-                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
+                className="w-6 h-6 flex items-center justify-center rounded transition-all disabled:opacity-40"
+                style={{ color: 'var(--color-text-muted)' }}
                 onClick={handleCapoDown}
                 disabled={capo <= -2}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                  e.currentTarget.style.background = 'var(--btn-glass-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-muted)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
                 <span className="text-sm">−</span>
               </button>
               <span
-                className={`w-8 text-center font-mono text-sm ${
-                  capo > 0 ? 'text-orange-400 font-semibold' : capo < 0 ? 'text-blue-400 font-semibold' : 'text-gray-300'
-                }`}
+                className={`w-8 text-center font-mono text-sm font-semibold`}
+                style={{
+                  color: capo > 0 ? '#fb923c' : capo < 0 ? '#60a5fa' : 'var(--color-text-secondary)',
+                }}
               >
                 {capo === -1 ? '半↓' : capo === -2 ? '全↓' : capo}
               </span>
               <button
-                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
+                className="w-6 h-6 flex items-center justify-center rounded transition-all disabled:opacity-40"
+                style={{ color: 'var(--color-text-muted)' }}
                 onClick={handleCapoUp}
                 disabled={capo >= 12}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                  e.currentTarget.style.background = 'var(--btn-glass-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-muted)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
                 <span className="text-sm">+</span>
               </button>
@@ -356,26 +387,45 @@ export function FloatingControlBar({
               transitionDelay: '100ms',
             }}
           >
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">移調</span>
-            <div className="flex items-center gap-0.5 bg-white/5 rounded-lg px-1">
+            <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>移調</span>
+            <div className="flex items-center gap-0.5 rounded-lg px-1" style={{ background: 'var(--input-bg)' }}>
               <button
-                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
+                className="w-6 h-6 flex items-center justify-center rounded transition-all disabled:opacity-40"
+                style={{ color: 'var(--color-text-muted)' }}
                 onClick={handleTransposeDown}
                 disabled={transpose <= -12}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                  e.currentTarget.style.background = 'var(--btn-glass-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-muted)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
                 <span className="text-sm">−</span>
               </button>
               <span
-                className={`w-8 text-center font-mono text-sm ${
-                  transpose !== 0 ? 'text-purple-400 font-semibold' : 'text-gray-300'
-                }`}
+                className="w-8 text-center font-mono text-sm font-semibold"
+                style={{
+                  color: transpose !== 0 ? 'var(--color-accent-primary-light)' : 'var(--color-text-secondary)',
+                }}
               >
                 {transpose > 0 ? `+${transpose}` : transpose}
               </span>
               <button
-                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded transition-all"
+                className="w-6 h-6 flex items-center justify-center rounded transition-all disabled:opacity-40"
+                style={{ color: 'var(--color-text-muted)' }}
                 onClick={handleTransposeUp}
                 disabled={transpose >= 12}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                  e.currentTarget.style.background = 'var(--btn-glass-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-muted)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
                 <span className="text-sm">+</span>
               </button>
@@ -385,13 +435,22 @@ export function FloatingControlBar({
           {/* Reset Button */}
           {(capo !== 0 || transpose !== 0) && (
             <button
-              className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 hover:bg-white/5 rounded transition-all"
+              className="text-xs px-2 py-1 rounded transition-all"
               onClick={() => {
                 onCapoChange?.(0);
                 onTransposeChange?.(0);
               }}
               style={{
+                color: 'var(--color-text-muted)',
                 transitionDelay: '150ms',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--color-text-secondary)';
+                e.currentTarget.style.background = 'var(--btn-glass-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--color-text-muted)';
+                e.currentTarget.style.background = 'transparent';
               }}
             >
               Reset
@@ -409,17 +468,27 @@ export function FloatingControlBar({
               transitionDelay: '200ms',
             }}
           >
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">BPM</span>
+            <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>BPM</span>
             <input
               type="number"
               value={bpm}
               onChange={(e) => onBpmChange?.(parseInt(e.target.value) || 120)}
               min={40}
               max={240}
-              className="w-14 px-2 py-1 bg-white/5 rounded-lg border border-white/10
-                         text-center font-mono text-sm text-gray-200
-                         focus:border-purple-500/50 focus:bg-white/10 focus:outline-none
-                         transition-all duration-200"
+              className="w-14 px-2 py-1 rounded-lg text-center font-mono text-sm transition-all duration-200"
+              style={{
+                background: 'var(--input-bg)',
+                border: '1px solid var(--input-border)',
+                color: 'var(--color-text-secondary)',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--input-border-focus)';
+                e.currentTarget.style.boxShadow = 'var(--input-shadow-focus)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--input-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
@@ -435,9 +504,18 @@ export function FloatingControlBar({
             <select
               value={timeSignature}
               onChange={(e) => onTimeSignatureChange?.(e.target.value as TimeSignature)}
-              className="bg-white/5 rounded-lg px-2 py-1 text-sm text-gray-200 border border-white/10
-                         focus:border-purple-500/50 focus:outline-none cursor-pointer
-                         transition-all duration-200"
+              className="rounded-lg px-2 py-1 text-sm cursor-pointer transition-all duration-200"
+              style={{
+                background: 'var(--input-bg)',
+                border: '1px solid var(--input-border)',
+                color: 'var(--color-text-secondary)',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--input-border-focus)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--input-border)';
+              }}
             >
               <option value="4/4">4/4</option>
               <option value="3/4">3/4</option>
@@ -477,7 +555,7 @@ export function FloatingControlBar({
               transitionDelay: '350ms',
             }}
           >
-            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
             </svg>
             <input
@@ -487,7 +565,7 @@ export function FloatingControlBar({
               step="0.1"
               value={metronomeVolume}
               onChange={(e) => onMetronomeVolumeChange?.(parseFloat(e.target.value))}
-              className="w-16 h-1 bg-white/10 rounded-full appearance-none cursor-pointer
+              className="w-16 h-1 rounded-full appearance-none cursor-pointer
                          [&::-webkit-slider-thumb]:appearance-none
                          [&::-webkit-slider-thumb]:w-3
                          [&::-webkit-slider-thumb]:h-3
@@ -497,6 +575,9 @@ export function FloatingControlBar({
                          [&::-webkit-slider-thumb]:shadow-purple-500/30
                          [&::-webkit-slider-thumb]:transition-transform
                          [&::-webkit-slider-thumb]:hover:scale-125"
+              style={{
+                background: 'var(--input-border)',
+              }}
               title="メトロノーム音量"
             />
           </div>

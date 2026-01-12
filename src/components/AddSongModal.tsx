@@ -107,18 +107,18 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/70 backdrop-blur-[8px]"
         onClick={handleClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl max-h-[90vh] bg-background-surface rounded-xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-2xl max-h-[90vh] glass-premium-elevated rounded-[24px] overflow-hidden highlight-line animate-modal-in">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="text-xl font-semibold">曲を追加</h2>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="btn-glass btn-glass-icon-sm"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -129,21 +129,13 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
         {/* Tabs */}
         <div className="flex border-b border-white/10">
           <button
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${
-              activeTab === 'url'
-                ? 'text-accent-primary border-b-2 border-accent-primary'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
+            className={`tab-glass flex-1 py-3 text-sm ${activeTab === 'url' ? 'active' : ''}`}
             onClick={() => setActiveTab('url')}
           >
             URLから取得
           </button>
           <button
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${
-              activeTab === 'manual'
-                ? 'text-accent-primary border-b-2 border-accent-primary'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
+            className={`tab-glass flex-1 py-3 text-sm ${activeTab === 'manual' ? 'active' : ''}`}
             onClick={() => setActiveTab('manual')}
           >
             手動入力
@@ -156,21 +148,21 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
             <div className="space-y-4">
               {/* URL Input */}
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-text-secondary">
                   コード譜サイトのURL
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <input
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://www.ufret.jp/song.php?data=..."
-                    className="flex-1 bg-background-primary border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-accent-primary"
+                    className="input-glass flex-1"
                   />
                   <button
                     onClick={handleUrlFetch}
                     disabled={isLoading}
-                    className="btn-primary px-4 disabled:opacity-50"
+                    className="btn-glass btn-glass-primary px-5 disabled:opacity-50"
                   >
                     {isLoading ? '取得中...' : '取得'}
                   </button>
@@ -182,20 +174,20 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
 
               {/* Error */}
               {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-4 py-3 text-red-400 text-sm">
+                <div className="bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
                   {error}
                 </div>
               )}
 
               {/* Preview */}
               {preview && (
-                <div className="bg-background-primary rounded-lg p-4 space-y-3">
+                <div className="rounded-2xl p-4 space-y-3 bg-white/[0.03] border border-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-1px_0_rgba(0,0,0,0.1)]">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-lg">{preview.title || '無題'}</h3>
                       <p className="text-text-secondary">{preview.artist || '不明'}</p>
                     </div>
-                    <span className="text-xs bg-accent-primary/20 text-accent-primary px-2 py-1 rounded">
+                    <span className="badge-glass-primary">
                       {getSiteName(preview.source_url)}
                     </span>
                   </div>
@@ -205,7 +197,7 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
                     <span>{preview.sections.length} セクション</span>
                   </div>
                   {/* Preview content */}
-                  <div className="mt-3 p-3 bg-background-surface rounded border border-white/5 max-h-40 overflow-y-auto">
+                  <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] max-h-40 overflow-y-auto">
                     <pre className="text-xs text-text-muted font-mono">
                       {preview.sections.slice(0, 2).map((s, i) => (
                         <div key={i}>
@@ -232,27 +224,27 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
             <div className="space-y-4">
               {/* Manual Input */}
               <div>
-                <label className="block text-sm font-medium mb-2">曲名 *</label>
+                <label className="block text-sm font-medium mb-2 text-text-secondary">曲名 *</label>
                 <input
                   type="text"
                   value={manualTitle}
                   onChange={(e) => setManualTitle(e.target.value)}
                   placeholder="曲名を入力"
-                  className="w-full bg-background-primary border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-accent-primary"
+                  className="input-glass"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">アーティスト</label>
+                <label className="block text-sm font-medium mb-2 text-text-secondary">アーティスト</label>
                 <input
                   type="text"
                   value={manualArtist}
                   onChange={(e) => setManualArtist(e.target.value)}
                   placeholder="アーティスト名"
-                  className="w-full bg-background-primary border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-accent-primary"
+                  className="input-glass"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-text-secondary">
                   コード譜（[セクション名]で区切り）
                 </label>
                 <textarea
@@ -260,7 +252,7 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
                   onChange={(e) => setManualContent(e.target.value)}
                   placeholder={`[Intro]\nC  G  Am  F\n\n[Verse]\nC        G\n歌詞を入力\nAm       F\n続きの歌詞`}
                   rows={10}
-                  className="w-full bg-background-primary border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-accent-primary font-mono text-sm"
+                  className="input-glass font-mono text-sm resize-none"
                 />
               </div>
             </div>
@@ -271,14 +263,14 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-white/10">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors"
+            className="btn-glass btn-glass-ghost px-5"
           >
             キャンセル
           </button>
           <button
             onClick={handleSave}
             disabled={!canSave}
-            className="btn-primary px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-glass btn-glass-primary px-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             保存
           </button>

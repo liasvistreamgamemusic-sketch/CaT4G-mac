@@ -20,7 +20,10 @@ import {
   Undo2,
   Redo2,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '@/hooks';
 import type { SongWithDetails } from '@/types/database';
 
 // ============================================
@@ -75,15 +78,15 @@ interface MetadataBadgeProps {
 
 function MetadataBadge({ label, value, color = 'default' }: MetadataBadgeProps) {
   const colorClasses = {
-    default: 'bg-background-surface border-border text-text-secondary',
-    orange: 'bg-orange-500/20 border-orange-500/30 text-orange-400',
-    blue: 'bg-blue-500/20 border-blue-500/30 text-blue-400',
-    green: 'bg-green-500/20 border-green-500/30 text-green-400',
-    purple: 'bg-purple-500/20 border-purple-500/30 text-purple-400',
+    default: 'badge-glass',
+    orange: 'badge-glass bg-orange-500/15 border-orange-500/30 text-orange-400',
+    blue: 'badge-glass bg-blue-500/15 border-blue-500/30 text-blue-400',
+    green: 'badge-glass bg-green-500/15 border-green-500/30 text-green-400',
+    purple: 'badge-glass bg-purple-500/15 border-purple-500/30 text-purple-400',
   };
 
   return (
-    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-medium ${colorClasses[color]}`}>
+    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium shadow-[inset_0_1px_0_var(--glass-premium-highlight)] ${colorClasses[color]}`}>
       <span className="text-text-muted">{label}</span>
       <span>{value}</span>
     </div>
@@ -103,10 +106,10 @@ function ViewModeButton({ mode, currentMode, onClick, icon, tooltip }: ViewModeB
   return (
     <button
       onClick={onClick}
-      className={`p-1.5 rounded-md transition-colors ${
+      className={`btn-glass btn-glass-icon-sm transition-all ${
         isActive
-          ? 'bg-accent-primary/20 text-accent-primary'
-          : 'text-text-muted hover:text-text-primary hover:bg-background-hover'
+          ? 'active'
+          : 'text-text-muted hover:text-text-primary'
       }`}
       title={tooltip}
     >
@@ -137,6 +140,7 @@ export function SongTopBar({
   onCancel,
 }: SongTopBarProps) {
   const { song: songData, artist } = song;
+  const { toggleTheme, isDark } = useTheme();
 
   // 編集モードへの切り替え
   const handleEditClick = useCallback(() => {
@@ -153,7 +157,7 @@ export function SongTopBar({
   }, [hasUnsavedChanges, onSave, onModeChange]);
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-background-surface border-b border-border">
+    <div className="flex items-center justify-between px-6 py-4 glass-premium border-b border-[var(--glass-premium-border)] rounded-xl">
       {/* 左側: タイトル・アーティスト */}
       <div className="flex items-center gap-4 min-w-0 flex-1">
         <div className="min-w-0">
@@ -224,7 +228,7 @@ export function SongTopBar({
       {/* 右側: ビューモード・モード切り替え */}
       <div className="flex items-center gap-3">
         {/* ビューモードトグル */}
-        <div className="flex items-center gap-1 bg-background-primary rounded-lg p-1">
+        <div className="flex items-center gap-0.5 bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-xl p-1">
           <ViewModeButton
             mode="compact"
             currentMode={viewMode}
@@ -248,6 +252,30 @@ export function SongTopBar({
           />
         </div>
 
+        {/* テーマ切り替えボタン */}
+        <button
+          onClick={toggleTheme}
+          className="btn-glass btn-glass-icon-sm hover:bg-[var(--btn-glass-hover)] transition-all duration-300"
+          title={isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
+        >
+          <div className="relative w-4 h-4">
+            <Sun
+              className={`
+                absolute inset-0 w-4 h-4 text-yellow-400
+                transition-all duration-300
+                ${isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-0'}
+              `}
+            />
+            <Moon
+              className={`
+                absolute inset-0 w-4 h-4 text-blue-400
+                transition-all duration-300
+                ${isDark ? 'opacity-0 -rotate-90 scale-0' : 'opacity-100 rotate-0 scale-100'}
+              `}
+            />
+          </div>
+        </button>
+
         {/* 再生中インジケーター */}
         {isPlaying && mode === 'play' && (
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30">
@@ -263,7 +291,7 @@ export function SongTopBar({
               type="button"
               onClick={onUndo}
               disabled={!canUndo}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-background-hover transition-colors"
+              className="btn-glass btn-glass-icon-sm text-text-secondary"
               title="元に戻す (Ctrl+Z)"
               aria-label="元に戻す"
             >
@@ -273,7 +301,7 @@ export function SongTopBar({
               type="button"
               onClick={onRedo}
               disabled={!canRedo}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-background-hover transition-colors"
+              className="btn-glass btn-glass-icon-sm text-text-secondary"
               title="やり直す (Ctrl+Y)"
               aria-label="やり直す"
             >
@@ -288,7 +316,7 @@ export function SongTopBar({
             type="button"
             onClick={onCancel}
             disabled={isSaving}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:text-text-primary hover:bg-background-hover transition-colors disabled:opacity-50"
+            className="btn-glass btn-glass-ghost btn-glass-sm text-text-muted"
             title="保存せずに戻る"
           >
             <X className="w-4 h-4" />
@@ -301,10 +329,10 @@ export function SongTopBar({
           <button
             onClick={onSave}
             disabled={!hasUnsavedChanges || isSaving}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            className={`btn-glass btn-glass-sm ${
               hasUnsavedChanges
-                ? 'bg-gradient-to-r from-accent-primary to-purple-600 text-white hover:opacity-90'
-                : 'bg-background-hover text-text-muted cursor-not-allowed'
+                ? 'btn-glass-primary'
+                : 'bg-[var(--input-bg)] text-text-muted cursor-not-allowed'
             }`}
           >
             {isSaving ? '保存中...' : '保存'}
@@ -315,18 +343,18 @@ export function SongTopBar({
         {mode === 'play' ? (
           <button
             onClick={handleEditClick}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent-primary/10 border border-accent-primary/30 text-accent-primary hover:bg-accent-primary/20 transition-colors"
+            className="btn-glass btn-glass-sm btn-glass-primary"
           >
             <Edit3 className="w-4 h-4" />
-            <span className="text-sm font-medium">編集</span>
+            <span>編集</span>
           </button>
         ) : (
           <button
             onClick={handleDoneClick}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 transition-colors"
+            className="btn-glass btn-glass-sm bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 shadow-[0_2px_8px_rgba(34,197,94,0.2),inset_0_1px_0_rgba(255,255,255,0.1)]"
           >
             <Check className="w-4 h-4" />
-            <span className="text-sm font-medium">完了</span>
+            <span>完了</span>
           </button>
         )}
       </div>

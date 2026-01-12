@@ -467,26 +467,41 @@ function App() {
   // Empty state (no song selected)
   const emptyState = (
     <div className="flex-1 flex items-center justify-center bg-background-primary">
-      <div className="text-center">
-        <svg
-          className="w-16 h-16 mx-auto mb-4 text-text-muted opacity-50"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+      <div className="glass-premium highlight-line rounded-3xl p-12 text-center animate-fade-in max-w-md">
+        {/* Music icon with purple glow */}
+        <div className="relative inline-block mb-6">
+          <div
+            className="absolute inset-0 blur-xl opacity-40"
+            style={{
+              background: 'radial-gradient(circle, rgba(168, 85, 247, 0.6) 0%, transparent 70%)',
+              transform: 'scale(1.5)'
+            }}
           />
-        </svg>
-        <p className="text-text-muted mb-4">曲を選択してください</p>
+          <svg
+            className="w-20 h-20 mx-auto text-accent-primary relative animate-fade-in"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+            />
+          </svg>
+        </div>
+
+        {/* Text content */}
+        <h2 className="text-xl font-semibold text-text-primary mb-2">曲を選択してください</h2>
+        <p className="text-text-secondary mb-6">サイドバーから曲を選択するか、新しい曲を追加してください</p>
+
+        {/* Add song button with glass-primary style */}
         <button
           onClick={handleAddClick}
-          className="btn-primary px-6 py-2 flex items-center gap-2 mx-auto"
+          className="btn-glass-primary px-6 py-3 flex items-center gap-2 mx-auto rounded-xl font-medium"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           曲を追加

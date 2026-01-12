@@ -210,7 +210,7 @@ export function AnnotationDisplay({
 
             {/* クリックヒント（onClick がある場合） */}
             {onClick && (
-              <p className="text-text-muted text-[10px] text-center pt-1 border-t border-white/10">
+              <p className="text-text-muted text-[10px] text-center pt-1 border-t border-[var(--glass-premium-border)]">
                 クリックで編集
               </p>
             )}

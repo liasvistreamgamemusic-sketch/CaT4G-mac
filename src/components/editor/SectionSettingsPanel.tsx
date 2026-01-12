@@ -87,7 +87,7 @@ function CapoDropdown({ value, songCapo, onChange }: CapoDropdownProps) {
             <button
               type="button"
               onClick={handleReset}
-              className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-text-muted hover:text-text-secondary hover:bg-white/5 rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-text-muted hover:text-text-secondary hover:bg-[var(--btn-glass-hover)] rounded transition-colors"
               title="リセット"
             >
               <RotateCcw className="w-3 h-3" />
@@ -107,7 +107,7 @@ function CapoDropdown({ value, songCapo, onChange }: CapoDropdownProps) {
                 handleCapoSelect(parseInt(val, 10));
               }
             }}
-            className="flex-1 px-3 py-2 bg-background border border-white/10 rounded-lg
+            className="flex-1 px-3 py-2 bg-background border border-[var(--glass-premium-border)] rounded-lg
                        text-center font-mono text-sm text-text-primary
                        focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30
                        transition-all duration-200 cursor-pointer"
@@ -133,7 +133,7 @@ function CapoDropdown({ value, songCapo, onChange }: CapoDropdownProps) {
 
       {/* 確認ダイアログ */}
       {showConfirmDialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--backdrop-bg)] backdrop-blur-sm">
           <div className="bg-background-surface border border-border rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold text-text-primary mb-2">
               コードを移調しますか？
@@ -232,7 +232,7 @@ function BpmInput({ value, songBpm, onChange }: BpmInputProps) {
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-text-muted hover:text-text-secondary hover:bg-white/5 rounded transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-text-muted hover:text-text-secondary hover:bg-[var(--btn-glass-hover)] rounded transition-colors"
             title="リセット"
           >
             <RotateCcw className="w-3 h-3" />
@@ -250,7 +250,7 @@ function BpmInput({ value, songBpm, onChange }: BpmInputProps) {
           onChange={handleInputChange}
           onBlur={handleBlur}
           placeholder={songBpm?.toString() ?? '120'}
-          className="flex-1 px-3 py-2 bg-background border border-white/10 rounded-lg
+          className="flex-1 px-3 py-2 bg-background border border-[var(--glass-premium-border)] rounded-lg
                      text-center font-mono text-sm text-text-primary
                      placeholder:text-text-muted/50
                      focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30
@@ -293,14 +293,14 @@ export function SectionSettingsPanel({
   onClose,
 }: SectionSettingsPanelProps) {
   return (
-    <div className="w-72 bg-background-surface border border-white/10 rounded-xl shadow-xl overflow-hidden animate-scale-in">
+    <div className="w-72 bg-background-surface border border-[var(--glass-premium-border)] rounded-xl shadow-xl overflow-hidden animate-scale-in">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--glass-premium-border)]">
         <h3 className="text-sm font-medium text-text-primary">セクション設定</h3>
         <button
           type="button"
           onClick={onClose}
-          className="p-1 rounded-lg hover:bg-white/10 transition-colors"
+          className="p-1 rounded-lg hover:bg-[var(--btn-glass-hover)] transition-colors"
           title="閉じる"
         >
           <X className="w-4 h-4 text-text-muted" />
@@ -317,7 +317,7 @@ export function SectionSettingsPanel({
         />
 
         {/* 区切り線 */}
-        <div className="border-t border-white/5" />
+        <div className="border-t border-[var(--glass-premium-border)]" />
 
         {/* BPM設定 */}
         <BpmInput
@@ -328,7 +328,7 @@ export function SectionSettingsPanel({
       </div>
 
       {/* Footer hint */}
-      <div className="px-4 py-2 border-t border-white/5 bg-background/50">
+      <div className="px-4 py-2 border-t border-[var(--glass-premium-border)] bg-background/50">
         <p className="text-[10px] text-text-muted text-center">
           各設定をリセットすると曲全体の設定が適用されます
         </p>

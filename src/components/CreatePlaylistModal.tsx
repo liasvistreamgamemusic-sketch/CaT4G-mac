@@ -38,23 +38,45 @@ export function CreatePlaylistModal({
   const isValid = name.trim().length > 0;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-background-surface rounded-lg max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="glass-premium-elevated highlight-line rounded-[24px] max-w-md w-full mx-4 animate-modal-in">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-border">
+        <div className="px-6 py-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-text-primary">
             新規プレイリスト
           </h2>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="btn-glass btn-glass-icon"
+            aria-label="閉じる"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
+        <hr className="divider-premium" />
+
         {/* Body */}
-        <div className="px-6 py-4 space-y-4">
+        <div className="px-6 py-5 space-y-4">
           <div>
             <label
               htmlFor="playlist-name"
-              className="block text-sm font-medium text-text-secondary mb-1"
+              className="block text-sm font-medium text-text-secondary mb-2"
             >
-              プレイリスト名 <span className="text-red-500">*</span>
+              プレイリスト名 <span className="text-red-400">*</span>
             </label>
             <input
               id="playlist-name"
@@ -62,7 +84,7 @@ export function CreatePlaylistModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="プレイリスト名を入力"
-              className="w-full px-3 py-2 bg-background-primary rounded border border-border focus:border-accent-primary focus:outline-none text-text-primary placeholder-text-secondary/50"
+              className="input-glass"
               autoFocus
             />
           </div>
@@ -70,7 +92,7 @@ export function CreatePlaylistModal({
           <div>
             <label
               htmlFor="playlist-description"
-              className="block text-sm font-medium text-text-secondary mb-1"
+              className="block text-sm font-medium text-text-secondary mb-2"
             >
               説明
             </label>
@@ -80,17 +102,19 @@ export function CreatePlaylistModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="説明を入力（任意）"
               rows={3}
-              className="w-full px-3 py-2 bg-background-primary rounded border border-border focus:border-accent-primary focus:outline-none text-text-primary placeholder-text-secondary/50 resize-none"
+              className="input-glass resize-none"
             />
           </div>
         </div>
 
+        <hr className="divider-premium" />
+
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
+        <div className="px-6 py-4 flex justify-end gap-3">
           <button
             type="button"
             onClick={handleClose}
-            className="px-4 py-2 bg-background-surface hover:bg-border rounded text-text-primary transition-colors"
+            className="btn-glass btn-glass-ghost"
           >
             キャンセル
           </button>
@@ -98,7 +122,7 @@ export function CreatePlaylistModal({
             type="button"
             onClick={handleSave}
             disabled={!isValid}
-            className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/80 rounded text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-glass btn-glass-primary"
           >
             作成
           </button>

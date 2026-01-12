@@ -747,7 +747,7 @@ export function LineEditor({
                 key={chordIndex}
                 data-chord-element="true"
                 className={`absolute top-0 flex flex-col cursor-grab select-none
-                  border border-white/10 rounded bg-background-surface/50 p-1
+                  border border-[var(--glass-premium-border)] rounded bg-background-surface/50 p-1
                   hover:border-accent-primary/30 transition-colors
                   overflow-visible
                   ${isActuallyMoving ? 'cursor-grabbing opacity-70 border-accent-primary/50' : ''}
@@ -891,7 +891,7 @@ export function LineEditor({
               type="text"
               value={line.lyrics}
               onChange={handleLyricsChange}
-              className="w-full bg-[#1a1a25] border border-white/10 rounded-b px-3 py-1.5 text-sm font-mono text-white tracking-wider focus:outline-none focus:border-primary transition-colors"
+              className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono text-text-primary tracking-wider focus:outline-none focus:border-primary transition-colors"
               style={{ letterSpacing: '0.35em' }}
               placeholder="歌詞を入力..."
             />
@@ -929,7 +929,7 @@ export function LineEditor({
               }}
               disabled={(line.measures ?? 4) <= 1}
               className="w-5 h-5 flex items-center justify-center text-xs text-text-muted
-                       hover:text-text-primary hover:bg-white/10 rounded
+                       hover:text-text-primary hover:bg-[var(--btn-glass-hover)] rounded
                        disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="小節数を減らす"
             >
@@ -946,7 +946,7 @@ export function LineEditor({
               }}
               disabled={(line.measures ?? 4) >= 16}
               className="w-5 h-5 flex items-center justify-center text-xs text-text-muted
-                       hover:text-text-primary hover:bg-white/10 rounded
+                       hover:text-text-primary hover:bg-[var(--btn-glass-hover)] rounded
                        disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="小節数を増やす"
             >
@@ -956,7 +956,7 @@ export function LineEditor({
           </div>
 
           {/* 区切り */}
-          <div className="w-px h-4 bg-white/10" />
+          <div className="w-px h-4 bg-[var(--glass-premium-border)]" />
 
           {/* メモ */}
           {line.memo !== undefined ? (

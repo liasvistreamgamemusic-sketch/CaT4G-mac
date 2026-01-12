@@ -210,7 +210,7 @@ export function AnnotationEditor({
               onChange={(e) => setNewContent(e.target.value)}
               onKeyDown={(e) => handleKeyDown(e, 'add')}
               placeholder="メモを追加..."
-              className="flex-1 bg-background-primary border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-accent-primary transition-colors"
+              className="flex-1 bg-background-primary border border-[var(--glass-premium-border)] rounded px-2 py-1 text-sm focus:outline-none focus:border-accent-primary transition-colors"
               disabled={isLoading}
             />
             <button
@@ -229,7 +229,7 @@ export function AnnotationEditor({
 
   // 通常モード（フル機能）
   return (
-    <div className="bg-background-surface border border-white/10 rounded-lg p-4 space-y-4">
+    <div className="bg-background-surface border border-[var(--glass-premium-border)] rounded-lg p-4 space-y-4">
       {/* ヘッダー */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -244,7 +244,7 @@ export function AnnotationEditor({
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded transition-colors"
+            className="p-1 hover:bg-[var(--btn-glass-hover)] rounded transition-colors"
           >
             <svg className="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -277,7 +277,7 @@ export function AnnotationEditor({
           {annotations.map((annotation) => (
             <div
               key={annotation.id}
-              className="bg-background-primary rounded-lg border border-white/5 overflow-hidden"
+              className="bg-background-primary rounded-lg border border-[var(--glass-premium-border)] overflow-hidden"
             >
               {editingId === annotation.id ? (
                 // 編集モード
@@ -286,7 +286,7 @@ export function AnnotationEditor({
                     value={editingContent}
                     onChange={(e) => setEditingContent(e.target.value)}
                     onKeyDown={(e) => handleKeyDown(e, 'edit')}
-                    className="w-full bg-background-surface border border-white/10 rounded px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-primary resize-none"
+                    className="w-full bg-background-surface border border-[var(--glass-premium-border)] rounded px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-primary resize-none"
                     rows={3}
                     autoFocus
                     disabled={isLoading}
@@ -361,7 +361,7 @@ export function AnnotationEditor({
 
       {/* 新規追加フォーム */}
       {!readOnly && (
-        <div className="pt-2 border-t border-white/10">
+        <div className="pt-2 border-t border-[var(--glass-premium-border)]">
           <label className="block text-xs text-text-secondary mb-2">
             新しい注釈を追加
           </label>
@@ -370,7 +370,7 @@ export function AnnotationEditor({
             onChange={(e) => setNewContent(e.target.value)}
             onKeyDown={(e) => handleKeyDown(e, 'add')}
             placeholder="演奏のヒント、練習メモなど..."
-            className="w-full bg-background-primary border border-white/10 rounded px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-primary resize-none"
+            className="w-full bg-background-primary border border-[var(--glass-premium-border)] rounded px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-primary resize-none"
             rows={2}
             disabled={isLoading}
           />
