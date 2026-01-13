@@ -733,3 +733,16 @@
 .animate-float-delayed {
   animation: float-delayed 8s ease-in-out infinite 2s;
 }
+
+/* ============================================
+ * Volume Slider Thumb Styles
+ * ============================================ */
+.volume-slider::-webkit-slider-thumb {
+  width: var(--thumb-w, 12px);
+  height: var(--thumb-h, 12px);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: var(--thumb-w, 12px);
+  height: var(--thumb-h, 12px);
+}

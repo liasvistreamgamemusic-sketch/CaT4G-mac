@@ -190,7 +190,7 @@ export function ArpeggioOrderInput({
     <div className="flex flex-col gap-3">
       {/* Template selector */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-text-secondary">テンプレート</span>
+        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>テンプレート</span>
         <div className="flex flex-wrap gap-1">
           {ARPEGGIO_TEMPLATES.map((template) => (
             <button
@@ -200,10 +200,15 @@ export function ArpeggioOrderInput({
                 text-xs px-2 py-1 rounded border
                 transition-colors duration-150
                 ${disabled
-                  ? 'opacity-50 cursor-not-allowed border-[var(--glass-premium-border)] bg-background-surface text-text-muted'
-                  : 'border-[var(--glass-premium-border)] bg-background-surface hover:bg-accent-primary/20 hover:border-accent-primary/50 text-text-secondary hover:text-text-primary'
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:border-[var(--color-accent-primary)]'
                 }
               `}
+              style={{
+                borderColor: 'var(--glass-premium-border)',
+                backgroundColor: 'var(--color-bg-surface)',
+                color: disabled ? 'var(--color-text-muted)' : 'var(--color-text-secondary)',
+              }}
               onClick={() => handleApplyTemplate(template)}
               disabled={disabled}
               title={template.description}
@@ -215,15 +220,16 @@ export function ArpeggioOrderInput({
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-xs text-text-secondary">
-          弦順序 {isGroupMode && <span className="text-accent-primary">(同時弾きグループ作成中)</span>}
+        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+          弦順序 {isGroupMode && <span style={{ color: 'var(--color-accent-primary)' }}>(同時弾きグループ作成中)</span>}
         </span>
         <div className="flex items-center gap-1">
           {isGroupMode && (
             <>
               <button
                 type="button"
-                className="text-xs px-2 py-0.5 rounded bg-accent-primary/20 text-accent-primary hover:bg-accent-primary/30 transition-colors"
+                className="text-xs px-2 py-0.5 rounded transition-colors"
+                style={{ backgroundColor: 'rgba(var(--color-accent-primary-rgb), 0.2)', color: 'var(--color-accent-primary)' }}
                 onClick={() => finishGroup()}
                 disabled={disabled}
               >
@@ -231,7 +237,8 @@ export function ArpeggioOrderInput({
               </button>
               <button
                 type="button"
-                className="text-xs px-2 py-0.5 rounded text-text-secondary hover:text-text-primary hover:bg-background-surface/50 transition-colors"
+                className="text-xs px-2 py-0.5 rounded transition-colors"
+                style={{ color: 'var(--color-text-secondary)' }}
                 onClick={cancelGroup}
                 disabled={disabled}
               >
@@ -246,11 +253,9 @@ export function ArpeggioOrderInput({
                 className={`
                   text-xs px-2 py-0.5 rounded
                   transition-colors duration-150
-                  ${disabled
-                    ? 'text-text-muted cursor-not-allowed'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-background-surface/50'
-                  }
+                  ${disabled ? 'cursor-not-allowed' : ''}
                 `}
+                style={{ color: disabled ? 'var(--color-text-muted)' : 'var(--color-text-secondary)' }}
                 onClick={handleUndo}
                 disabled={disabled}
               >
@@ -261,11 +266,9 @@ export function ArpeggioOrderInput({
                 className={`
                   text-xs px-2 py-0.5 rounded
                   transition-colors duration-150
-                  ${disabled
-                    ? 'text-text-muted cursor-not-allowed'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-background-surface/50'
-                  }
+                  ${disabled ? 'cursor-not-allowed' : ''}
                 `}
+                style={{ color: disabled ? 'var(--color-text-muted)' : 'var(--color-text-secondary)' }}
                 onClick={handleClear}
                 disabled={disabled}
               >
@@ -280,7 +283,8 @@ export function ArpeggioOrderInput({
       <svg
         width={svgWidth}
         height={svgHeight}
-        className="bg-background-surface rounded border border-border"
+        className="rounded border"
+        style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border-default)' }}
       >
         {/* 弦（縦線） */}
         {STRINGS.map((string, index) => {
@@ -401,7 +405,7 @@ export function ArpeggioOrderInput({
           <span className="text-sm font-mono text-green-400">
             [{currentGroup.sort((a, b) => b - a).join('')}]
           </span>
-          <span className="text-xs text-text-muted">
+          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
             (他の弦をShift+クリックで追加、通常クリックで確定)
           </span>
         </div>
@@ -409,29 +413,35 @@ export function ArpeggioOrderInput({
 
       {/* 現在の順序表示 */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-text-muted">順序:</span>
+        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>順序:</span>
         {order.length > 0 ? (
           <div className="flex items-center gap-1 flex-wrap">
             {order.map((element, idx) => (
               <span key={idx} className="flex items-center">
-                <span className={`text-sm font-mono ${Array.isArray(element) ? 'px-1 py-0.5 bg-accent-primary/20 rounded text-accent-primary' : 'text-accent-primary'}`}>
+                <span
+                  className={`text-sm font-mono ${Array.isArray(element) ? 'px-1 py-0.5 rounded' : ''}`}
+                  style={{
+                    color: 'var(--color-accent-primary)',
+                    backgroundColor: Array.isArray(element) ? 'rgba(var(--color-accent-primary-rgb), 0.2)' : undefined,
+                  }}
+                >
                   {Array.isArray(element) ? `[${element.join('')}]` : element}
                 </span>
                 {idx < order.length - 1 && (
-                  <span className="text-text-muted mx-0.5">→</span>
+                  <span className="mx-0.5" style={{ color: 'var(--color-text-muted)' }}>→</span>
                 )}
               </span>
             ))}
           </div>
         ) : (
-          <span className="text-xs text-text-muted italic">
+          <span className="text-xs italic" style={{ color: 'var(--color-text-muted)' }}>
             弦をクリックして順序を設定
           </span>
         )}
       </div>
 
       {/* ヘルプテキスト */}
-      <div className="text-xs text-text-muted space-y-0.5">
+      <div className="text-xs space-y-0.5" style={{ color: 'var(--color-text-muted)' }}>
         <div>6=低E, 5=A, 4=D, 3=G, 2=B, 1=高e</div>
         <div className="text-green-400">Shift+クリック: 同時弾きグループを作成</div>
       </div>

@@ -9,7 +9,7 @@ import { SongView } from '@/components/SongView';
 import { CountInOverlay } from '@/components/CountInOverlay';
 import type { ViewMode, AppMode } from '@/components/SongView';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useMeasureScroll, useKeyboardShortcuts, useMetronome, useTheme } from '@/hooks';
+import { useMeasureScroll, useKeyboardShortcuts, useMetronome, useTheme, useContainerScale } from '@/hooks';
 import { Sun, Moon } from 'lucide-react';
 import type { MeasureSectionInfo } from '@/hooks';
 import type { TimeSignature } from '@/hooks';
@@ -42,6 +42,10 @@ function App() {
 
   // Refs
   const mainAreaRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Container scale for responsive sizing
+  const { scale } = useContainerScale(containerRef);
   const scrollToLineRef = useRef<((lineId: string) => void) | null>(null);
 
   // App mode state
@@ -667,11 +671,12 @@ function App() {
             artistSongs={artistSongs}
             onArtistExpand={handleArtistExpand}
             onWidthChange={setSidebarWidth}
+            scale={scale}
           />
         )}
 
         {/* Main content area - flex structure mirrors sidebar for alignment */}
-        <div className="flex flex-1 flex-col min-w-0 h-full">
+        <div ref={containerRef} className="flex flex-1 flex-col min-w-0 h-full">
           {selectedSong ? (
             <>
               {/* Scrollable content area - takes remaining space */}
@@ -720,6 +725,7 @@ function App() {
                     onMetronomeVolumeChange={handleMetronomeVolumeChange}
                     currentBeat={currentBeat}
                     containerRef={mainAreaRef}
+                    scale={scale}
                   />
                 )}
               </div>

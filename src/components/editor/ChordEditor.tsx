@@ -295,32 +295,49 @@ export function ChordEditor({
     >
       <div
         ref={popoverRef}
-        className="bg-background-surface border border-[var(--glass-premium-border)] rounded-xl p-6 w-[900px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl"
-        style={anchorPosition ? {
-          position: 'absolute',
-          left: anchorPosition.x,
-          top: anchorPosition.y,
-        } : undefined}
+        className="border border-[var(--glass-premium-border)] rounded-xl p-6 w-[900px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl"
+        style={{
+          background: 'var(--glass-premium-bg)',
+          backgroundColor: 'var(--color-bg-surface)',
+          ...(anchorPosition ? {
+            position: 'absolute' as const,
+            left: anchorPosition.x,
+            top: anchorPosition.y,
+          } : {}),
+        }}
       >
         {/* ヘッダー */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-text-primary">
+            <h2
+              className="text-lg font-bold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               {chordIndex === -1 ? 'コード追加' : 'コード編集'}
             </h2>
             {chordIndex !== null && chordIndex >= 0 && (
-              <span className="text-xs text-text-muted px-1.5 py-0.5 bg-background-primary rounded">
+              <span
+                className="text-xs px-1.5 py-0.5 rounded"
+                style={{
+                  color: 'var(--color-text-muted)',
+                  backgroundColor: 'var(--color-bg-primary)',
+                }}
+              >
                 #{chordIndex + 1}
               </span>
             )}
             {/* コード名表示 */}
-            <span className="text-lg font-bold text-accent-primary ml-2">
+            <span
+              className="text-lg font-bold ml-2"
+              style={{ color: 'var(--color-accent-primary)' }}
+            >
               {editedChord.chord}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[var(--btn-glass-hover)] text-text-secondary hover:text-text-primary transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[var(--btn-glass-hover)] transition-colors"
+            style={{ color: 'var(--color-text-secondary)' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -329,37 +346,37 @@ export function ChordEditor({
         </div>
 
         {/* タブナビゲーション */}
-        <div className="flex mb-4 bg-background-primary rounded-lg p-1">
+        <div className="flex mb-4 rounded-lg p-1" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
           <button
             type="button"
             onClick={() => setActiveTab('voicing')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === 'voicing'
-                ? 'bg-accent-primary text-white'
-                : 'text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)]'
-            }`}
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-[var(--btn-glass-hover)]"
+            style={activeTab === 'voicing'
+              ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff' }
+              : { color: 'var(--color-text-secondary)' }
+            }
           >
             押さえ方
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('playing')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === 'playing'
-                ? 'bg-accent-primary text-white'
-                : 'text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)]'
-            }`}
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-[var(--btn-glass-hover)]"
+            style={activeTab === 'playing'
+              ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff' }
+              : { color: 'var(--color-text-secondary)' }
+            }
           >
             演奏方法
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('advanced')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === 'advanced'
-                ? 'bg-accent-primary text-white'
-                : 'text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)]'
-            }`}
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-[var(--btn-glass-hover)]"
+            style={activeTab === 'advanced'
+              ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff' }
+              : { color: 'var(--color-text-secondary)' }
+            }
           >
             詳細設定
           </button>
@@ -374,7 +391,12 @@ export function ChordEditor({
               <div className="flex-1 min-w-0">
                 {/* コード名入力 with サジェスト */}
                 <div className="mb-4 relative">
-                  <label className="block text-xs text-text-secondary mb-1">コード名（入力または選択）</label>
+                  <label
+                    className="block text-xs mb-1"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    コード名（入力または選択）
+                  </label>
                   <input
                     ref={chordInputRef}
                     type="text"
@@ -382,12 +404,19 @@ export function ChordEditor({
                     onChange={(e) => handleChordNameChange(e.target.value)}
                     onFocus={() => setShowChordSuggestions(editedChord.chord.length > 0)}
                     onBlur={() => setTimeout(() => setShowChordSuggestions(false), 150)}
-                    className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded px-3 py-2 text-lg font-bold text-accent-primary focus:outline-none focus:border-accent-primary transition-colors"
+                    className="w-full border border-[var(--glass-premium-border)] rounded px-3 py-2 text-lg font-bold focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
+                    style={{
+                      backgroundColor: 'var(--input-bg)',
+                      color: 'var(--color-accent-primary)',
+                    }}
                     placeholder="C, Am, G7..."
                   />
                   {/* コードサジェスト一覧 */}
                   {showChordSuggestions && chordSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-1 bg-background-surface border border-[var(--glass-premium-border)] rounded-lg shadow-xl z-10 max-h-48 overflow-y-auto">
+                    <div
+                      className="absolute left-0 right-0 top-full mt-1 border border-[var(--glass-premium-border)] rounded-lg shadow-xl z-10 max-h-48 overflow-y-auto"
+                      style={{ backgroundColor: 'var(--color-bg-surface)' }}
+                    >
                       {chordSuggestions.map((suggestion) => (
                         <button
                           key={suggestion}
@@ -396,9 +425,19 @@ export function ChordEditor({
                             e.preventDefault();
                             handleChordSelect(suggestion);
                           }}
-                          className={`w-full text-left px-3 py-2 text-sm hover:bg-accent-primary/20 transition-colors ${
-                            suggestion === editedChord.chord ? 'bg-accent-primary/10 text-accent-primary' : 'text-text-primary'
-                          }`}
+                          className="w-full text-left px-3 py-2 text-sm transition-colors"
+                          style={suggestion === editedChord.chord
+                            ? { backgroundColor: 'rgba(168, 85, 247, 0.1)', color: 'var(--color-accent-primary)' }
+                            : { color: 'var(--color-text-primary)' }
+                          }
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(168, 85, 247, 0.2)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = suggestion === editedChord.chord
+                              ? 'rgba(168, 85, 247, 0.1)'
+                              : 'transparent';
+                          }}
                         >
                           {suggestion}
                         </button>
@@ -409,37 +448,56 @@ export function ChordEditor({
 
                 {/* 位置調整 */}
                 <div className="mb-4">
-                  <label className="block text-xs text-text-secondary mb-1">位置</label>
+                  <label
+                    className="block text-xs mb-1"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    位置
+                  </label>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => handlePositionChange(-1)}
-                      className="px-3 py-1.5 bg-background-primary border border-[var(--glass-premium-border)] rounded hover:bg-[var(--btn-glass-hover)] transition-colors"
+                      className="px-3 py-1.5 border border-[var(--glass-premium-border)] rounded hover:bg-[var(--btn-glass-hover)] transition-colors"
+                      style={{ backgroundColor: 'var(--color-bg-primary)' }}
                       title="左に移動"
                     >
-                      <span className="text-text-primary">←</span>
+                      <span style={{ color: 'var(--color-text-primary)' }}>←</span>
                     </button>
-                    <span className="w-12 text-center font-mono text-text-primary">
+                    <span
+                      className="w-12 text-center font-mono"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
                       {editedChord.position}
                     </span>
                     <button
                       type="button"
                       onClick={() => handlePositionChange(1)}
-                      className="px-3 py-1.5 bg-background-primary border border-[var(--glass-premium-border)] rounded hover:bg-[var(--btn-glass-hover)] transition-colors"
+                      className="px-3 py-1.5 border border-[var(--glass-premium-border)] rounded hover:bg-[var(--btn-glass-hover)] transition-colors"
+                      style={{ backgroundColor: 'var(--color-bg-primary)' }}
                       title="右に移動"
                     >
-                      <span className="text-text-primary">→</span>
+                      <span style={{ color: 'var(--color-text-primary)' }}>→</span>
                     </button>
                   </div>
                 </div>
 
                 {/* 注釈入力 */}
                 <div className="mb-4">
-                  <label className="block text-xs text-text-secondary mb-1">メモ・注釈</label>
+                  <label
+                    className="block text-xs mb-1"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    メモ・注釈
+                  </label>
                   <textarea
                     value={editedChord.annotation || ''}
                     onChange={(e) => handleAnnotationChange(e.target.value)}
-                    className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-primary transition-colors resize-none"
+                    className="w-full border border-[var(--glass-premium-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors resize-none"
+                    style={{
+                      backgroundColor: 'var(--input-bg)',
+                      color: 'var(--color-text-primary)',
+                    }}
                     rows={2}
                     placeholder="演奏のヒントやメモを入力..."
                   />
@@ -448,8 +506,16 @@ export function ChordEditor({
 
               {/* 右側: 押さえ方表示 */}
               <div className="w-[280px] flex-shrink-0">
-                <label className="block text-xs text-text-secondary mb-1">押さえ方</label>
-                <div className="p-3 bg-background-primary/50 rounded-lg border border-[var(--glass-premium-border)]">
+                <label
+                  className="block text-xs mb-1"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  押さえ方
+                </label>
+                <div
+                  className="p-3 rounded-lg border border-[var(--glass-premium-border)]"
+                  style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                >
                   {currentFingering ? (
                     <div className="flex flex-col items-center gap-2">
                       <ChordDiagramHorizontal
@@ -459,7 +525,10 @@ export function ChordEditor({
                       />
                       {/* 押さえ方の情報 */}
                       <div className="text-center">
-                        <div className="text-xs text-text-muted">
+                        <div
+                          className="text-xs"
+                          style={{ color: 'var(--color-text-muted)' }}
+                        >
                           {currentFingering.baseFret === 1 ? 'オープン' : `${currentFingering.baseFret}フレット`}
                         </div>
                         <div
@@ -476,7 +545,10 @@ export function ChordEditor({
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-4 text-text-muted text-sm">
+                    <div
+                      className="text-center py-4 text-sm"
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
                       ダイアグラムなし
                     </div>
                   )}
@@ -484,18 +556,26 @@ export function ChordEditor({
 
                 {/* ボイシング選択パネル（常時表示） */}
                 {fingerings.length > 1 && (
-                  <div className="mt-2 p-2 bg-background-primary/50 rounded-lg border border-[var(--glass-premium-border)]">
-                    <div className="text-xs text-text-secondary mb-2">押さえ方を選択 ({fingerings.length}種類)</div>
+                  <div
+                    className="mt-2 p-2 rounded-lg border border-[var(--glass-premium-border)]"
+                    style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                  >
+                    <div
+                      className="text-xs mb-2"
+                      style={{ color: 'var(--color-text-secondary)' }}
+                    >
+                      押さえ方を選択 ({fingerings.length}種類)
+                    </div>
                     <div className="flex flex-wrap gap-1">
                       {fingerings.map((fingering, index) => (
                         <button
                           key={fingering.id}
                           onClick={() => handleVoicingSelect(index)}
-                          className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                            index === selectedFingeringIndex
-                              ? 'bg-accent-primary text-white'
-                              : 'bg-[var(--btn-glass-hover)] text-text-secondary hover:bg-[var(--btn-glass-active)]'
-                          }`}
+                          className="px-2 py-1 rounded text-xs font-medium transition-colors"
+                          style={index === selectedFingeringIndex
+                            ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff' }
+                            : { backgroundColor: 'var(--btn-glass-hover)', color: 'var(--color-text-secondary)' }
+                          }
                           title={fingering.id}
                         >
                           {fingering.baseFret === 1 ? 'オープン' : `${fingering.baseFret}f`}
@@ -521,7 +601,10 @@ export function ChordEditor({
 
               {/* ストロークパターン入力（ストロークの場合のみ） */}
               {editedChord.method === 'stroke' && (
-                <div className="p-3 bg-background-primary/50 rounded-lg border border-[var(--glass-premium-border)]">
+                <div
+                  className="p-3 rounded-lg border border-[var(--glass-premium-border)]"
+                  style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                >
                   <StrokePatternInput
                     value={editedChord.strokePattern}
                     onChange={handleStrokePatternChange}
@@ -532,7 +615,10 @@ export function ChordEditor({
 
               {/* アルペジオ順序入力（アルペジオの場合のみ） */}
               {editedChord.method === 'arpeggio' && (
-                <div className="p-3 bg-background-primary/50 rounded-lg border border-[var(--glass-premium-border)]">
+                <div
+                  className="p-3 rounded-lg border border-[var(--glass-premium-border)]"
+                  style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                >
                   <ArpeggioOrderInput
                     value={editedChord.arpeggioOrder}
                     onChange={handleArpeggioOrderChange}
@@ -542,7 +628,10 @@ export function ChordEditor({
 
               {/* 演奏方法未設定時のヒント */}
               {!editedChord.method && (
-                <div className="text-center py-8 text-text-muted">
+                <div
+                  className="text-center py-8"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
                   <p className="text-sm">演奏方法を選択してください</p>
                   <p className="text-xs mt-2">ストロークまたはアルペジオを選んで詳細なパターンを設定できます</p>
                 </div>
@@ -555,7 +644,12 @@ export function ChordEditor({
             <div className="grid grid-cols-2 gap-4">
               {/* 拍数入力 */}
               <div className="space-y-2">
-                <label className="block text-xs text-text-secondary">拍数</label>
+                <label
+                  className="block text-xs"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  拍数
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -574,7 +668,11 @@ export function ChordEditor({
                     step={0.25}
                     min={0.25}
                     max={16}
-                    className="w-20 bg-background-primary border border-[var(--glass-premium-border)] rounded px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:border-accent-primary transition-colors"
+                    className="w-20 border border-[var(--glass-premium-border)] rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-primary)',
+                      color: 'var(--color-text-primary)',
+                    }}
                     placeholder="-"
                   />
                   <div className="flex gap-1">
@@ -583,54 +681,76 @@ export function ChordEditor({
                         key={preset}
                         type="button"
                         onClick={() => handleDurationChange(preset)}
-                        className={`px-2 py-1 text-xs rounded border transition-colors ${
-                          editedChord.duration === preset
-                            ? 'bg-accent-primary text-white border-accent-primary'
-                            : 'bg-background-primary border-[var(--glass-premium-border)] text-text-secondary hover:border-accent-primary/50'
-                        }`}
+                        className="px-2 py-1 text-xs rounded border transition-colors"
+                        style={editedChord.duration === preset
+                          ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff', borderColor: 'var(--color-accent-primary)' }
+                          : { backgroundColor: 'var(--color-bg-primary)', borderColor: 'var(--glass-premium-border)', color: 'var(--color-text-secondary)' }
+                        }
                       >
                         {preset}
                       </button>
                     ))}
                   </div>
                 </div>
-                <p className="text-xs text-text-muted">0.25 ~ 16 (0.25刻み)</p>
+                <p
+                  className="text-xs"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
+                  0.25 ~ 16 (0.25刻み)
+                </p>
               </div>
 
               {/* タイ（繋ぎ） */}
               <div className="space-y-2">
-                <label className="block text-xs text-text-secondary">タイ</label>
+                <label
+                  className="block text-xs"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  タイ
+                </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editedChord.tieToNext ?? false}
                     onChange={handleTieToggle}
-                    className="w-4 h-4 rounded border-[var(--glass-premium-border)] bg-background-primary text-accent-primary focus:ring-accent-primary focus:ring-offset-0 cursor-pointer"
+                    className="w-4 h-4 rounded border-[var(--glass-premium-border)] text-[var(--color-accent-primary)] focus:ring-[var(--color-accent-primary)] focus:ring-offset-0 cursor-pointer"
+                    style={{ backgroundColor: 'var(--color-bg-primary)' }}
                   />
-                  <span className="text-sm text-text-primary">次のコードとタイで繋ぐ</span>
+                  <span
+                    className="text-sm"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    次のコードとタイで繋ぐ
+                  </span>
                 </label>
               </div>
 
               {/* テクニック選択 */}
               <div className="col-span-2 space-y-2">
-                <label className="block text-xs text-text-secondary">テクニック</label>
+                <label
+                  className="block text-xs"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  テクニック
+                </label>
                 <div className="grid grid-cols-3 gap-2">
                   {TECHNIQUE_OPTIONS.map((option) => {
                     const isSelected = (editedChord.techniques ?? []).includes(option.value);
                     return (
                       <label
                         key={option.value}
-                        className={`flex items-center gap-2 px-2 py-1.5 rounded border cursor-pointer transition-colors ${
-                          isSelected
-                            ? 'bg-accent-primary/20 border-accent-primary text-accent-primary'
-                            : 'bg-background-primary border-[var(--glass-premium-border)] text-text-secondary hover:border-[var(--glass-premium-border-hover)]'
-                        }`}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded border cursor-pointer transition-colors"
+                        style={isSelected
+                          ? { backgroundColor: 'rgba(168, 85, 247, 0.2)', borderColor: 'var(--color-accent-primary)', color: 'var(--color-accent-primary)' }
+                          : { backgroundColor: 'var(--color-bg-primary)', borderColor: 'var(--glass-premium-border)', color: 'var(--color-text-secondary)' }
+                        }
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleTechniqueToggle(option.value)}
-                          className="w-3 h-3 rounded border-[var(--glass-premium-border)] bg-background-primary text-accent-primary focus:ring-accent-primary focus:ring-offset-0 cursor-pointer"
+                          className="w-3 h-3 rounded border-[var(--glass-premium-border)] text-[var(--color-accent-primary)] focus:ring-[var(--color-accent-primary)] focus:ring-offset-0 cursor-pointer"
+                          style={{ backgroundColor: 'var(--color-bg-primary)' }}
                         />
                         <span className="text-xs">{option.label}</span>
                       </label>
@@ -641,24 +761,35 @@ export function ChordEditor({
 
               {/* ダイナミクス選択 */}
               <div className="col-span-2 space-y-2">
-                <label className="block text-xs text-text-secondary">強弱</label>
-                <div className="flex items-center bg-background-primary rounded-lg p-1 border border-[var(--glass-premium-border)]">
+                <label
+                  className="block text-xs"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  強弱
+                </label>
+                <div
+                  className="flex items-center rounded-lg p-1 border border-[var(--glass-premium-border)]"
+                  style={{ backgroundColor: 'var(--color-bg-primary)' }}
+                >
                   {DYNAMICS_OPTIONS.map((dyn) => (
                     <button
                       key={dyn}
                       type="button"
                       onClick={() => handleDynamicsChange(editedChord.dynamics === dyn ? null : dyn)}
-                      className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${
-                        editedChord.dynamics === dyn
-                          ? 'bg-accent-primary text-white'
-                          : 'text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)]'
-                      }`}
+                      className="flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors hover:bg-[var(--btn-glass-hover)]"
+                      style={editedChord.dynamics === dyn
+                        ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff' }
+                        : { color: 'var(--color-text-secondary)' }
+                      }
                     >
                       {dyn}
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-text-muted text-center">
+                <p
+                  className="text-xs text-center"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
                   ppp (最弱) → fff (最強)
                 </p>
               </div>
@@ -687,14 +818,16 @@ export function ChordEditor({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 text-sm text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)] rounded transition-colors"
+              className="px-4 py-1.5 text-sm hover:bg-[var(--btn-glass-hover)] rounded transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
             >
               キャンセル
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-1.5 text-sm bg-accent-primary text-white rounded hover:bg-accent-hover transition-colors"
+              className="px-4 py-1.5 text-sm text-white rounded hover:opacity-90 transition-colors"
+              style={{ backgroundColor: 'var(--color-accent-primary)' }}
             >
               保存
             </button>

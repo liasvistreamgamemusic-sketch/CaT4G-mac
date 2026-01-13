@@ -10,7 +10,9 @@ interface NumberStepperProps {
   suffix?: string;
   className?: string;
   disabled?: boolean;
-  editable?: boolean;  // 新規追加
+  editable?: boolean;
+  /** スケール係数（0.6〜1.0、デフォルト1.0） */
+  scale?: number;
 }
 
 export function NumberStepper({
@@ -22,7 +24,8 @@ export function NumberStepper({
   suffix,
   className = '',
   disabled = false,
-  editable = false,  // 新規追加
+  editable = false,
+  scale = 1.0,
 }: NumberStepperProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value.toString());
@@ -91,17 +94,22 @@ export function NumberStepper({
   const isDecrementDisabled = disabled || value <= min;
   const isIncrementDisabled = disabled || value >= max;
 
+  // スケーリングされたサイズ
+  const btnSize = 28 * scale;
+  const iconSize = 14 * scale;
+  const fontSize = 14 * scale;
+
   return (
     <div
       className={`
-        flex items-center gap-2
+        flex items-center
         bg-background
         border border-[var(--glass-premium-border)]
         rounded-lg
-        px-1 py-1
         ${disabled ? 'opacity-50' : ''}
         ${className}
       `}
+      style={{ gap: `${8 * scale}px`, padding: `${4 * scale}px` }}
     >
       {/* Decrement button */}
       <button
@@ -110,7 +118,6 @@ export function NumberStepper({
         disabled={isDecrementDisabled}
         className={`
           flex items-center justify-center
-          w-7 h-7
           rounded-md
           transition-colors duration-150
           ${isDecrementDisabled
@@ -118,9 +125,10 @@ export function NumberStepper({
             : 'text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)]'
           }
         `}
+        style={{ width: `${btnSize}px`, height: `${btnSize}px` }}
         aria-label="Decrease value"
       >
-        <Minus size={14} />
+        <Minus size={iconSize} />
       </button>
 
       {/* Value display / input */}
@@ -132,15 +140,17 @@ export function NumberStepper({
           onChange={handleInputChange}
           onBlur={commitValue}
           onKeyDown={handleKeyDown}
-          className="w-12 text-center text-sm font-medium bg-transparent border-none outline-none text-text-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="text-center font-medium bg-transparent border-none outline-none text-text-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          style={{ width: `${48 * scale}px`, fontSize: `${fontSize}px` }}
         />
       ) : (
         <span
           onClick={handleValueClick}
-          className={`text-text-primary text-sm font-medium min-w-[2.5rem] text-center select-none ${editable && !disabled ? 'cursor-pointer hover:text-accent-primary' : ''}`}
+          className={`text-text-primary font-medium text-center select-none ${editable && !disabled ? 'cursor-pointer hover:text-accent-primary' : ''}`}
+          style={{ minWidth: `${40 * scale}px`, fontSize: `${fontSize}px` }}
         >
           {value}
-          {suffix && <span className="text-text-secondary ml-0.5">{suffix}</span>}
+          {suffix && <span className="text-text-secondary" style={{ marginLeft: `${2 * scale}px` }}>{suffix}</span>}
         </span>
       )}
 
@@ -151,7 +161,6 @@ export function NumberStepper({
         disabled={isIncrementDisabled}
         className={`
           flex items-center justify-center
-          w-7 h-7
           rounded-md
           transition-colors duration-150
           ${isIncrementDisabled
@@ -159,9 +168,10 @@ export function NumberStepper({
             : 'text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)]'
           }
         `}
+        style={{ width: `${btnSize}px`, height: `${btnSize}px` }}
         aria-label="Increase value"
       >
-        <Plus size={14} />
+        <Plus size={iconSize} />
       </button>
     </div>
   );

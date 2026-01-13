@@ -2,15 +2,20 @@ interface MetronomeBeatIndicatorProps {
   beatsPerMeasure: number;
   currentBeat: number;
   isPlaying: boolean;
+  /** スケール係数（0.6〜1.0、デフォルト1.0） */
+  scale?: number;
 }
 
 export function MetronomeBeatIndicator({
   beatsPerMeasure,
   currentBeat,
   isPlaying,
+  scale = 1.0,
 }: MetronomeBeatIndicatorProps) {
+  const dotSize = 12 * scale;
+
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center" style={{ gap: `${4 * scale}px` }}>
       {Array.from({ length: beatsPerMeasure }, (_, index) => {
         const isCurrentBeat = isPlaying && currentBeat === index;
         const isFirstBeat = index === 0;
@@ -31,7 +36,8 @@ export function MetronomeBeatIndicator({
         return (
           <div
             key={index}
-            className={`w-3 h-3 rounded-full transition-all duration-75 ${colorClass} ${scaleClass}`}
+            className={`rounded-full transition-all duration-75 ${colorClass} ${scaleClass}`}
+            style={{ width: `${dotSize}px`, height: `${dotSize}px` }}
           />
         );
       })}

@@ -16,19 +16,11 @@ import { ChordDiagramHorizontal } from '@/components/ChordDiagramHorizontal';
 import { generateChordFingerings } from '@/lib/chords';
 import { transposeChord } from '@/lib/chords';
 import type { ChordFingering } from '@/lib/chords/types';
+import { getScaledValues, MAX_SCALE } from '@/lib/scaling';
 
 // ============================================
-// 定数（LineEditor と同期）
+// 定数はスケーリングモジュール（src/lib/scaling.ts）で管理
 // ============================================
-
-/** 文字幅（モノスペースフォント + レタースペーシング） */
-const CHAR_WIDTH = 22;
-
-/** コードコンポーネントの幅（ダイアグラムモード） */
-const CHORD_COMPONENT_WIDTH_DIAGRAM = 76;
-
-/** コードコンポーネントの幅（コンパクトモード） */
-const CHORD_COMPONENT_WIDTH_COMPACT = 52;
 
 // ============================================
 // 型定義
@@ -51,6 +43,8 @@ interface PlayableChordLineProps {
   memo?: string;
   /** 特定行から再生するコールバック */
   onPlayFromLine?: () => void;
+  /** スケール係数（0.6〜1.0、デフォルト1.0） */
+  scale?: number;
 }
 
 /**
@@ -64,11 +58,19 @@ export function PlayableChordLine({
   onChordClick,
   memo,
   onPlayFromLine,
+  scale = MAX_SCALE,
 }: PlayableChordLineProps) {
   // 表示設定
   const showDiagram = viewMode !== 'compact';
   const showPlayingMethod = viewMode !== 'compact';
   const showMemo = viewMode === 'detailed';
+
+  // スケーリングされた値を計算
+  const scaledValues = useMemo(() => getScaledValues(scale), [scale]);
+  const CHAR_WIDTH = scaledValues.charWidth;
+  const CHORD_COMPONENT_WIDTH_DIAGRAM = scaledValues.chordWidthDiagram;
+  const CHORD_COMPONENT_WIDTH_COMPACT = scaledValues.chordWidthCompact;
+  const scaledFontSize = scaledValues.fontSize;
 
   // コードコンポーネントの幅
   const componentWidth = showDiagram ? CHORD_COMPONENT_WIDTH_DIAGRAM : CHORD_COMPONENT_WIDTH_COMPACT;
@@ -139,10 +141,10 @@ export function PlayableChordLine({
     <div className="space-y-0 group">
       {/* コード行 */}
       <div
-        className={`relative font-mono text-sm bg-background-primary/30 rounded-t px-2 py-1 ${
+        className={`relative font-mono bg-background-primary/30 rounded-t px-2 py-1 ${
           chords.length > 0 ? (showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8') : 'min-h-[2rem]'
         }`}
-        style={{ minWidth: `${minChars}ch` }}
+        style={{ fontSize: `${scaledFontSize}px`, minWidth: `${minChars}ch` }}
       >
         {/* コード表示 */}
         {transposedChords.map((chord, chordIndex) => {
@@ -178,15 +180,21 @@ export function PlayableChordLine({
             >
               {/* ヘッダー: コード名 + メソッドバッジ */}
               <div className="flex items-center justify-between w-full">
-                <div className="px-1 rounded transition-colors whitespace-nowrap text-sm font-semibold flex items-center text-accent-primary hover:bg-accent-primary/20">
+                <div
+                  className="px-1 rounded transition-colors whitespace-nowrap font-semibold flex items-center text-accent-primary hover:bg-accent-primary/20"
+                  style={{ fontSize: `${scaledFontSize}px` }}
+                >
                   {chord.chord}
                 </div>
                 {methodIndicator && showPlayingMethod && (
-                  <span className={`text-[8px] px-1 py-0.5 rounded ${
-                    chord.method === 'stroke'
-                      ? 'bg-purple-500/20 text-purple-300'
-                      : 'bg-green-500/20 text-green-300'
-                  }`}>
+                  <span
+                    className={`px-1 py-0.5 rounded ${
+                      chord.method === 'stroke'
+                        ? 'bg-purple-500/20 text-purple-300'
+                        : 'bg-green-500/20 text-green-300'
+                    }`}
+                    style={{ fontSize: `${8 * scale}px` }}
+                  >
                     {methodIndicator}
                   </span>
                 )}
@@ -194,12 +202,13 @@ export function PlayableChordLine({
 
               {/* コードダイアグラム */}
               {showDiagram && (
-                <div className="flex items-center justify-center flex-shrink-0" style={{ height: '56px' }}>
+                <div className="flex items-center justify-center flex-shrink-0" style={{ height: `${56 * scale}px` }}>
                   {fingering && (
                     <ChordDiagramHorizontal
                       fingering={fingering}
                       size="xs"
                       showFingers={false}
+                      scale={scale}
                     />
                   )}
                 </div>
@@ -207,7 +216,11 @@ export function PlayableChordLine({
 
               {/* パターン表示 */}
               {hasPattern && (
-                <div className="text-[9px] text-center font-mono leading-tight truncate w-full px-0.5" title={patternDisplay}>
+                <div
+                  className="text-center font-mono leading-tight truncate w-full px-0.5"
+                  style={{ fontSize: `${9 * scale}px` }}
+                  title={patternDisplay}
+                >
                   <span className={chord.method === 'stroke' ? 'text-purple-300' : 'text-green-300'}>
                     {patternDisplay.length > 12 ? patternDisplay.slice(0, 12) + '...' : patternDisplay}
                   </span>
@@ -216,7 +229,11 @@ export function PlayableChordLine({
 
               {/* アノテーション表示 */}
               {hasAnnotation && (
-                <div className="text-[8px] text-yellow-400 leading-tight truncate w-full px-0.5 mt-0.5" title={chord.annotation}>
+                <div
+                  className="text-yellow-400 leading-tight truncate w-full px-0.5 mt-0.5"
+                  style={{ fontSize: `${8 * scale}px` }}
+                  title={chord.annotation}
+                >
                   {chord.annotation!.length > 12 ? chord.annotation!.slice(0, 12) + '...' : chord.annotation}
                 </div>
               )}
@@ -227,15 +244,17 @@ export function PlayableChordLine({
                 style={{
                   left: '0px',
                   top: '100%',
-                  height: showDiagram ? '24px' : '12px',
+                  height: `${(showDiagram ? 24 : 12) * scale}px`,
                 }}
               />
               {/* 下端のアンカーポイント */}
               <div
-                className="absolute w-2 h-2 bg-accent-primary/60 rounded-full pointer-events-none"
+                className="absolute bg-accent-primary/60 rounded-full pointer-events-none"
                 style={{
-                  left: '-3px',
-                  top: `calc(100% + ${showDiagram ? '22px' : '10px'})`,
+                  width: `${8 * scale}px`,
+                  height: `${8 * scale}px`,
+                  left: `${-3 * scale}px`,
+                  top: `calc(100% + ${(showDiagram ? 22 : 10) * scale}px)`,
                 }}
               />
             </div>
@@ -257,7 +276,7 @@ export function PlayableChordLine({
           {/* アンダーラインマーカー（コード位置） */}
           <div
             className="absolute inset-0 pointer-events-none px-3 py-1.5"
-            style={{ fontFamily: 'monospace', fontSize: '0.875rem', letterSpacing: '0.35em' }}
+            style={{ fontFamily: 'monospace', fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em' }}
           >
             {chords.map((chord, chordIndex) => {
               const pos = chord.position;
@@ -277,8 +296,8 @@ export function PlayableChordLine({
 
           {/* 歌詞テキスト */}
           <div
-            className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono font-semibold text-text-primary"
-            style={{ letterSpacing: '0.35em', minHeight: '32px' }}
+            className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 font-mono font-semibold text-text-primary"
+            style={{ fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em', minHeight: `${32 * scale}px` }}
           >
             {lyrics || <span className="text-text-muted/30">&nbsp;</span>}
           </div>

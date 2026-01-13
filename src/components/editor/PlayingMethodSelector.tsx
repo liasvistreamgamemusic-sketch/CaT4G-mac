@@ -18,15 +18,24 @@ export function PlayingMethodSelector({
 }: PlayingMethodSelectorProps) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-text-secondary">演奏</span>
-      <div className="flex items-center rounded-lg overflow-hidden border border-border">
+      <span
+        className="text-xs"
+        style={{ color: 'var(--color-text-secondary)' }}
+      >
+        演奏
+      </span>
+      <div
+        className="flex items-center rounded-lg overflow-hidden border"
+        style={{ borderColor: 'var(--color-border-default)' }}
+      >
         <button
           type="button"
-          className={`px-2 py-1 text-xs transition-colors ${
+          className={`px-2 py-1 text-xs transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          style={
             value === 'stroke'
-              ? 'bg-accent-primary text-white'
-              : 'bg-background-surface hover:bg-background-surface/80 text-text-secondary'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              ? { backgroundColor: 'var(--color-accent-primary)', color: 'white' }
+              : { backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-secondary)' }
+          }
           onClick={() => onChange?.('stroke')}
           disabled={disabled}
           title="ストローク奏法"
@@ -51,11 +60,12 @@ export function PlayingMethodSelector({
         </button>
         <button
           type="button"
-          className={`px-2 py-1 text-xs transition-colors ${
+          className={`px-2 py-1 text-xs transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          style={
             value === 'arpeggio'
-              ? 'bg-accent-primary text-white'
-              : 'bg-background-surface hover:bg-background-surface/80 text-text-secondary'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              ? { backgroundColor: 'var(--color-accent-primary)', color: 'white' }
+              : { backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-secondary)' }
+          }
           onClick={() => onChange?.('arpeggio')}
           disabled={disabled}
           title="アルペジオ奏法"

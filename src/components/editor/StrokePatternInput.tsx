@@ -104,14 +104,14 @@ export function StrokePatternInput({
     }
   };
 
-  // Get color class based on stroke direction
-  const getDirectionColorClass = (direction: StrokeDirection): string => {
+  // Get color style based on stroke direction
+  const getDirectionColorStyle = (direction: StrokeDirection): React.CSSProperties => {
     switch (direction) {
-      case 'down': return 'text-accent-primary';
-      case 'up': return 'text-green-400';
-      case 'mute': return 'text-orange-400';
-      case 'rest': return 'text-text-muted';
-      default: return 'text-text-primary';
+      case 'down': return { color: 'var(--color-accent-primary)' };
+      case 'up': return { color: '#4ade80' }; // green-400
+      case 'mute': return { color: '#fb923c' }; // orange-400
+      case 'rest': return { color: 'var(--color-text-muted)' };
+      default: return { color: 'var(--color-text-primary)' };
     }
   };
 
@@ -130,7 +130,7 @@ export function StrokePatternInput({
     <div className="flex flex-col gap-3">
       {/* Template selector */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-text-secondary">テンプレート</span>
+        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>テンプレート</span>
         <div className="flex flex-wrap gap-1">
           {STROKE_TEMPLATES.map((template) => (
             <button
@@ -140,10 +140,15 @@ export function StrokePatternInput({
                 text-xs px-2 py-1 rounded border
                 transition-colors duration-150
                 ${disabled
-                  ? 'opacity-50 cursor-not-allowed border-[var(--glass-premium-border)] bg-background-surface text-text-muted'
-                  : 'border-[var(--glass-premium-border)] bg-background-surface hover:bg-accent-primary/20 hover:border-accent-primary/50 text-text-secondary hover:text-text-primary'
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:opacity-80 cursor-pointer'
                 }
               `}
+              style={{
+                backgroundColor: 'var(--color-bg-surface)',
+                borderColor: 'var(--glass-premium-border)',
+                color: disabled ? 'var(--color-text-muted)' : 'var(--color-text-secondary)',
+              }}
               onClick={() => handleApplyTemplate(template)}
               disabled={disabled}
               title={template.description}
@@ -156,8 +161,8 @@ export function StrokePatternInput({
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-secondary">パターン</span>
-          <span className="text-xs text-text-muted">({pattern.length}拍)</span>
+          <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>パターン</span>
+          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>({pattern.length}拍)</span>
         </div>
         <div className="flex items-center gap-1">
           {pattern.length !== defaultBeats && (
@@ -167,10 +172,13 @@ export function StrokePatternInput({
                 text-xs px-2 py-0.5 rounded
                 transition-colors duration-150
                 ${disabled
-                  ? 'text-text-muted cursor-not-allowed'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-background-surface/50'
+                  ? 'cursor-not-allowed'
+                  : 'hover:opacity-80 cursor-pointer'
                 }
               `}
+              style={{
+                color: disabled ? 'var(--color-text-muted)' : 'var(--color-text-secondary)',
+              }}
               onClick={handleReset}
               disabled={disabled}
               title={`${defaultBeats}拍に戻す`}
@@ -187,16 +195,20 @@ export function StrokePatternInput({
             key={index}
             type="button"
             className={`
-              w-8 h-8 rounded border border-border
+              w-8 h-8 rounded border
               flex items-center justify-center
               text-lg font-bold
               transition-all duration-150
-              ${getDirectionColorClass(direction)}
               ${disabled
-                ? 'opacity-50 cursor-not-allowed bg-background-surface'
-                : 'hover:bg-background-surface/80 hover:border-accent-primary cursor-pointer bg-background-surface'
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:opacity-80 cursor-pointer'
               }
             `}
+            style={{
+              ...getDirectionColorStyle(direction),
+              backgroundColor: 'var(--color-bg-surface)',
+              borderColor: 'var(--color-border-default)',
+            }}
             onClick={() => handleBeatClick(index)}
             disabled={disabled}
             title={`${index + 1}拍目: ${getDirectionTooltip(direction)} (クリックで変更)`}
@@ -210,15 +222,20 @@ export function StrokePatternInput({
           <button
             type="button"
             className={`
-              w-6 h-4 rounded border border-border
+              w-6 h-4 rounded border
               flex items-center justify-center
               text-xs font-bold
               transition-all duration-150
               ${disabled || pattern.length >= MAX_STROKES
-                ? 'opacity-30 cursor-not-allowed bg-background-surface text-text-muted'
-                : 'hover:bg-accent-primary/20 hover:border-accent-primary cursor-pointer bg-background-surface text-accent-primary'
+                ? 'opacity-30 cursor-not-allowed'
+                : 'hover:opacity-80 cursor-pointer'
               }
             `}
+            style={{
+              backgroundColor: 'var(--color-bg-surface)',
+              borderColor: 'var(--color-border-default)',
+              color: disabled || pattern.length >= MAX_STROKES ? 'var(--color-text-muted)' : 'var(--color-accent-primary)',
+            }}
             onClick={handleAddBeat}
             disabled={disabled || pattern.length >= MAX_STROKES}
             title="拍を追加"
@@ -228,15 +245,20 @@ export function StrokePatternInput({
           <button
             type="button"
             className={`
-              w-6 h-4 rounded border border-border
+              w-6 h-4 rounded border
               flex items-center justify-center
               text-xs font-bold
               transition-all duration-150
               ${disabled || pattern.length <= 1
-                ? 'opacity-30 cursor-not-allowed bg-background-surface text-text-muted'
-                : 'hover:bg-red-500/20 hover:border-red-500 cursor-pointer bg-background-surface text-red-400'
+                ? 'opacity-30 cursor-not-allowed'
+                : 'hover:opacity-80 cursor-pointer'
               }
             `}
+            style={{
+              backgroundColor: 'var(--color-bg-surface)',
+              borderColor: 'var(--color-border-default)',
+              color: disabled || pattern.length <= 1 ? 'var(--color-text-muted)' : '#f87171', // red-400
+            }}
             onClick={handleRemoveBeat}
             disabled={disabled || pattern.length <= 1}
             title="拍を削除"
@@ -247,20 +269,20 @@ export function StrokePatternInput({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-3 text-xs text-text-muted flex-wrap">
+      <div className="flex items-center gap-3 text-xs flex-wrap" style={{ color: 'var(--color-text-muted)' }}>
         <span className="flex items-center gap-1">
-          <span className="text-accent-primary">↓</span> ダウン
+          <span style={{ color: 'var(--color-accent-primary)' }}>↓</span> ダウン
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-green-400">↑</span> アップ
+          <span style={{ color: '#4ade80' }}>↑</span> アップ
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-orange-400">×</span> ミュート
+          <span style={{ color: '#fb923c' }}>×</span> ミュート
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-text-muted">−</span> 休み
+          <span style={{ color: 'var(--color-text-muted)' }}>−</span> 休み
         </span>
-        <span className="text-text-muted/50 ml-2">
+        <span className="ml-2" style={{ opacity: 0.5 }}>
           (+/−で拍を追加/削除、最大{MAX_STROKES}拍)
         </span>
       </div>

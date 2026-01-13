@@ -50,6 +50,8 @@ interface SidebarProps {
   onArtistExpand?: (id: string) => void;
   // Width change callback for responsive positioning
   onWidthChange?: (width: number) => void;
+  /** スケール係数（0.6〜1.0、デフォルト1.0） */
+  scale?: number;
 }
 
 export function Sidebar({
@@ -74,7 +76,30 @@ export function Sidebar({
   artistSongs = [],
   onArtistExpand = () => {},
   onWidthChange,
+  scale = 1.0,
 }: SidebarProps) {
+  // スケーリング値の計算
+  const iconSizeLg = Math.round(20 * scale);
+  const iconSizeMd = Math.round(16 * scale);
+  const iconSizeSm = Math.round(12 * scale);
+  const fontSize = {
+    sm: 14 * scale,
+    xs: 12 * scale,
+  };
+  const spacing = {
+    xs: 4 * scale,
+    sm: 8 * scale,
+    md: 12 * scale,
+    lg: 16 * scale,
+  };
+  const logoSize = Math.round(40 * scale);
+  const buttonSize = Math.round(40 * scale);
+  // サイドバーの横幅（スケーリング対応）
+  const sidebarWidth = {
+    expanded: Math.round(288 * scale), // 18rem = 288px
+    collapsed: Math.round(64 * scale), // 4rem = 64px
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'songs' | 'favorites' | 'playlists' | 'artists'>('songs');
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -128,16 +153,16 @@ export function Sidebar({
   return (
     <aside
       ref={sidebarRef}
-      className={`
+      className="
         relative h-full glass-premium highlight-line flex flex-col
         border-r border-[var(--glass-premium-border)]
         rounded-r-[24px]
         transition-all duration-[350ms] cubic-bezier(0.34, 1.56, 0.64, 1)
         overflow-visible z-10
-        ${isCollapsed ? 'w-16' : 'w-72'}
-      `}
+      "
       style={{
         transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        width: `${isCollapsed ? sidebarWidth.collapsed : sidebarWidth.expanded}px`,
       }}
     >
       {/* Collapse Toggle Button */}
@@ -163,32 +188,47 @@ export function Sidebar({
       </button>
 
       {/* Header */}
-      <div className={`p-4 border-b border-[var(--glass-premium-border)] flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
+      <div
+        className={`border-b border-[var(--glass-premium-border)] flex items-center ${isCollapsed ? 'justify-center' : ''}`}
+        style={{ padding: `${spacing.lg}px`, gap: isCollapsed ? 0 : `${spacing.md}px` }}
+      >
         <img
           src="/icon.png"
           alt="CaT4G"
-          className="h-10 w-10 object-contain flex-shrink-0"
+          className="object-contain flex-shrink-0"
+          style={{ height: `${logoSize}px`, width: `${logoSize}px` }}
         />
         {!isCollapsed && (
           <img
             src="/logo.png"
             alt="CaT4G - Chords and Tabs for Guitar"
-            className="h-10 w-auto transition-opacity duration-300"
+            className="w-auto transition-opacity duration-300"
+            style={{ height: `${logoSize}px` }}
           />
         )}
       </div>
 
       {/* Search - Hidden when collapsed */}
       {!isCollapsed && (
-        <div className="p-3 transition-all duration-300">
+        <div className="transition-all duration-300" style={{ padding: `${spacing.md}px` }}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+              style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }}
+            />
             <input
               type="text"
               placeholder="曲を検索..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-glass w-full pl-9 pr-3 py-2 text-sm"
+              className="input-glass w-full"
+              style={{
+                paddingLeft: `${36 * scale}px`,
+                paddingRight: `${spacing.md}px`,
+                paddingTop: `${spacing.sm}px`,
+                paddingBottom: `${spacing.sm}px`,
+                fontSize: `${fontSize.sm}px`,
+              }}
             />
           </div>
         </div>
@@ -198,62 +238,78 @@ export function Sidebar({
       <div className={`flex border-b border-[var(--glass-premium-border)] ${isCollapsed ? 'flex-col' : ''}`}>
         <button
           className={`
-            ${isCollapsed ? 'py-3 px-0' : 'flex-1 py-2'}
-            text-sm font-medium transition-colors flex items-center justify-center gap-2
+            flex-1 font-medium transition-colors flex items-center justify-center
             ${activeTab === 'songs'
               ? 'text-accent-primary border-b-2 border-accent-primary'
               : 'text-text-secondary hover:text-text-primary'
             }
           `}
+          style={{
+            padding: isCollapsed ? `${spacing.md}px 0` : `${spacing.sm}px`,
+            fontSize: `${fontSize.sm}px`,
+            gap: `${spacing.sm}px`,
+          }}
           onClick={() => setActiveTab('songs')}
           title="すべて"
         >
-          <Music className="w-4 h-4" />
+          <Music style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
           {!isCollapsed && <span>すべて</span>}
         </button>
         <button
           className={`
-            ${isCollapsed ? 'py-3 px-0' : 'flex-1 py-2'}
-            text-sm font-medium transition-colors flex items-center justify-center gap-2
+            flex-1 font-medium transition-colors flex items-center justify-center
             ${activeTab === 'favorites'
               ? 'text-accent-primary border-b-2 border-accent-primary'
               : 'text-text-secondary hover:text-text-primary'
             }
           `}
+          style={{
+            padding: isCollapsed ? `${spacing.md}px 0` : `${spacing.sm}px`,
+            fontSize: `${fontSize.sm}px`,
+            gap: `${spacing.sm}px`,
+          }}
           onClick={() => setActiveTab('favorites')}
           title="お気に入り"
         >
-          <Star className="w-4 h-4" />
+          <Star style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
           {!isCollapsed && <span>★</span>}
         </button>
         <button
           className={`
-            ${isCollapsed ? 'py-3 px-0' : 'flex-1 py-2'}
-            text-sm font-medium transition-colors flex items-center justify-center gap-2
+            flex-1 font-medium transition-colors flex items-center justify-center
             ${activeTab === 'playlists'
               ? 'text-accent-primary border-b-2 border-accent-primary'
               : 'text-text-secondary hover:text-text-primary'
             }
           `}
+          style={{
+            padding: isCollapsed ? `${spacing.md}px 0` : `${spacing.sm}px`,
+            fontSize: `${fontSize.sm}px`,
+            gap: `${spacing.sm}px`,
+          }}
           onClick={() => setActiveTab('playlists')}
           title="リスト"
         >
-          <ListMusic className="w-4 h-4" />
+          <ListMusic style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
           {!isCollapsed && <span>リスト</span>}
         </button>
         <button
           className={`
-            ${isCollapsed ? 'py-3 px-0' : 'flex-1 py-2'}
-            text-sm font-medium transition-colors flex items-center justify-center gap-2
+            flex-1 font-medium transition-colors flex items-center justify-center
             ${activeTab === 'artists'
               ? 'text-accent-primary border-b-2 border-accent-primary'
               : 'text-text-secondary hover:text-text-primary'
             }
           `}
+          style={{
+            padding: isCollapsed ? `${spacing.md}px 0` : `${spacing.sm}px`,
+            fontSize: `${fontSize.sm}px`,
+            gap: `${spacing.sm}px`,
+          }}
           onClick={() => setActiveTab('artists')}
           title="アーティスト"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           {!isCollapsed && <span>人</span>}
@@ -291,48 +347,64 @@ export function Sidebar({
             onSongSelect={onSongSelect}
             onRemoveSongFromPlaylist={onRemoveSongFromPlaylist}
             onCreatePlaylist={onCreatePlaylist}
+            scale={scale}
           />
         )
       ) : activeTab === 'artists' ? (
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          <ul className="space-y-0.5">
+        <div className="flex-1 overflow-y-auto space-y-1" style={{ padding: `${spacing.sm}px` }}>
+          <ul style={{ gap: `${spacing.xs}px` }} className="flex flex-col">
             {artists.map((artist) => {
               const isExpanded = expandedArtistId === artist.id;
               return (
                 <li key={artist.id}>
                   <button
                     onClick={() => onArtistExpand(artist.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-text-primary hover:bg-[var(--btn-glass-hover)] transition-colors"
+                    className="w-full flex items-center rounded-xl text-text-primary hover:bg-[var(--btn-glass-hover)] transition-colors"
+                    style={{
+                      gap: `${spacing.sm}px`,
+                      padding: `${spacing.sm}px ${spacing.md}px`,
+                      fontSize: `${fontSize.sm}px`,
+                    }}
                   >
                     {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-text-muted" />
+                      <ChevronDown style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} className="text-text-muted" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-text-muted" />
+                      <ChevronRight style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} className="text-text-muted" />
                     )}
-                    <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} className="text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     <span className="flex-1 text-left truncate">{artist.name}</span>
                   </button>
                   {isExpanded && (
-                    <ul className="ml-6 mt-1 space-y-0.5">
+                    <ul style={{ marginLeft: `${24 * scale}px`, marginTop: `${spacing.xs}px`, gap: `${spacing.xs / 2}px` }} className="flex flex-col">
                       {artistSongs.map((song) => (
                         <li key={song.id}>
                           <button
                             onClick={() => onSongSelect(song.id)}
-                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                            className={`w-full flex items-center rounded-lg transition-colors ${
                               selectedSongId === song.id
                                 ? 'bg-accent-primary/20 text-accent-primary'
                                 : 'text-text-secondary hover:bg-[var(--btn-glass-hover)] hover:text-text-primary'
                             }`}
+                            style={{
+                              gap: `${spacing.sm}px`,
+                              padding: `${spacing.sm}px ${spacing.md}px`,
+                              fontSize: `${fontSize.xs}px`,
+                            }}
                           >
-                            <Music className="w-3 h-3" />
+                            <Music style={{ width: `${iconSizeSm}px`, height: `${iconSizeSm}px` }} />
                             <span className="truncate">{song.title}</span>
                           </button>
                         </li>
                       ))}
                       {artistSongs.length === 0 && (
-                        <li className="px-3 py-2 text-sm text-text-muted">曲がありません</li>
+                        <li
+                          className="text-text-muted"
+                          style={{ padding: `${spacing.sm}px ${spacing.md}px`, fontSize: `${fontSize.xs}px` }}
+                        >
+                          曲がありません
+                        </li>
                       )}
                     </ul>
                   )}
@@ -340,7 +412,12 @@ export function Sidebar({
               );
             })}
             {artists.length === 0 && (
-              <li className="px-3 py-4 text-sm text-center text-text-muted">アーティストがいません</li>
+              <li
+                className="text-center text-text-muted"
+                style={{ padding: `${spacing.md}px`, fontSize: `${fontSize.xs}px` }}
+              >
+                アーティストがいません
+              </li>
             )}
           </ul>
         </div>
@@ -413,6 +490,7 @@ export function Sidebar({
                     onEdit={() => onEditSong?.(song.id)}
                     playlists={playlists}
                     onAddToPlaylist={onAddSongToPlaylist}
+                    scale={scale}
                   />
                 ))}
               </ul>
@@ -420,21 +498,26 @@ export function Sidebar({
           </div>
 
           {/* Add Button */}
-          <div className="p-3 border-t border-[var(--glass-premium-border)]">
+          <div
+            className="border-t border-[var(--glass-premium-border)]"
+            style={{ padding: `${spacing.md}px` }}
+          >
             {isCollapsed ? (
               <button
                 onClick={onAddClick}
-                className="w-full h-10 btn-glass-primary rounded-lg flex items-center justify-center"
+                className="w-full btn-glass-primary rounded-lg flex items-center justify-center"
+                style={{ height: `${buttonSize}px` }}
                 title="曲を追加"
               >
-                <Plus className="w-5 h-5" />
+                <Plus style={{ width: `${iconSizeLg}px`, height: `${iconSizeLg}px` }} />
               </button>
             ) : (
               <button
                 onClick={onAddClick}
-                className="w-full btn-glass-primary py-2 flex items-center justify-center gap-2 rounded-lg"
+                className="w-full btn-glass-primary flex items-center justify-center rounded-lg"
+                style={{ padding: `${spacing.sm}px`, gap: `${spacing.sm}px` }}
               >
-                <Plus className="w-4 h-4" />
+                <Plus style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
                 曲を追加
               </button>
             )}
@@ -456,6 +539,7 @@ interface SongItemProps {
   onEdit?: () => void;
   playlists?: PlaylistWithCount[];
   onAddToPlaylist?: (songId: string, playlistId: string) => void;
+  scale?: number;
 }
 
 function SongItem({
@@ -467,7 +551,19 @@ function SongItem({
   onEdit,
   playlists,
   onAddToPlaylist,
+  scale = 1.0,
 }: SongItemProps) {
+  // スケーリング値
+  const iconSizeMd = Math.round(16 * scale);
+  const fontSize = {
+    sm: 14 * scale,
+    xs: 12 * scale,
+  };
+  const spacing = {
+    sm: 8 * scale,
+    md: 12 * scale,
+  };
+
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -499,18 +595,28 @@ function SongItem({
     >
       <button
         onClick={onSelect}
-        className="w-full text-left p-3"
+        className="w-full text-left"
+        style={{ padding: `${spacing.md}px` }}
       >
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <div className="font-medium truncate flex items-center gap-2">
+            <div
+              className="font-medium truncate flex items-center"
+              style={{ fontSize: `${fontSize.sm}px`, gap: `${spacing.sm}px` }}
+            >
               {song.isFavorite && (
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 flex-shrink-0" />
+                <Star
+                  className="text-yellow-400 fill-yellow-400 flex-shrink-0"
+                  style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }}
+                />
               )}
               {song.title}
             </div>
             {song.artistName && (
-              <div className="text-sm text-text-secondary truncate">
+              <div
+                className="text-text-secondary truncate"
+                style={{ fontSize: `${fontSize.xs}px`, marginTop: `${spacing.sm / 2}px` }}
+              >
                 {song.artistName}
               </div>
             )}
@@ -522,9 +628,10 @@ function SongItem({
       <button
         ref={menuButtonRef}
         onClick={handleMenuClick}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-opacity"
+        className="absolute top-1/2 -translate-y-1/2 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-opacity"
+        style={{ right: `${spacing.sm}px`, padding: `${spacing.sm / 2}px` }}
       >
-        <MoreVertical className="w-4 h-4" />
+        <MoreVertical style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
       </button>
 
       {/* Context menu - rendered via Portal */}

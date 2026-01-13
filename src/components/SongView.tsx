@@ -10,6 +10,7 @@
  */
 
 import { forwardRef, useMemo, useCallback, useState, useEffect, useRef, type SetStateAction } from 'react';
+import { useContainerScale } from '@/hooks/useContainerScale';
 import type {
   SongWithDetails,
   TimeSignature,
@@ -205,6 +206,9 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
 
   // コンテナ参照（スクロール操作用）
   const contentRef = useRef<HTMLElement>(null);
+
+  // レスポンシブスケーリング（コンテナ幅に応じて縮小）
+  const { scale } = useContainerScale(contentRef);
 
   // 基準線のY座標（ビューポート座標）
   const [baselineY, setBaselineY] = useState(0);
@@ -850,6 +854,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           onUndo={undo}
           onRedo={redo}
           onCancel={handleCancelClick}
+          scale={scale}
         />
 
         {/* オートスクロール時の基準線 */}
@@ -918,6 +923,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                   showPlayingMethod={viewMode !== 'compact'}
                   showMemo={viewMode === 'detailed'}
                   transpose={(editMetadata?.transpose ?? 0) - (editMetadata?.capo ?? 0)}
+                  scale={scale}
                   songBpm={editMetadata?.bpm ? parseInt(editMetadata.bpm, 10) : song.song.bpm}
                   songCapo={editMetadata?.capo ?? song.song.capo ?? 0}
                   onSectionSettingsChange={(settings) => {
@@ -1071,6 +1077,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                           viewMode={viewMode}
                           onChordClick={onChordClick}
                           onPlayFromLine={!isPlaying && onPlayFromLine ? () => onPlayFromLine(String(line.id)) : undefined}
+                          scale={scale}
                         />
                       </div>
                     ))}

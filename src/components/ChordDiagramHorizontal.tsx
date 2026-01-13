@@ -9,12 +9,14 @@ interface ChordDiagramHorizontalProps {
   fingering: ChordFingering;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   showFingers?: boolean;
+  /** スケール係数（0.6〜1.0、デフォルト1.0） */
+  scale?: number;
 }
 
-// サイズ設定（横向き）
+// サイズ設定（横向き）- 基準値（scale=1.0のとき）
 // xs: 極小サイズ（エディタ内のコード下表示用）- 88pxコンポーネント内に収まるサイズ
 // dotSizeはdiagramサイズに比例してスケーリング
-const SIZES = {
+const BASE_SIZES = {
   xs: { width: 72, height: 48, dotSize: 5, fontSize: 5 },
   sm: { width: 96, height: 64, dotSize: 8, fontSize: 8 },
   md: { width: 160, height: 100, dotSize: 12, fontSize: 10 },
@@ -25,15 +27,27 @@ export function ChordDiagramHorizontal({
   fingering,
   size = 'md',
   showFingers = true,
+  scale = 1.0,
 }: ChordDiagramHorizontalProps) {
-  const { width, height, dotSize, fontSize } = SIZES[size];
+  // スケーリングを適用
+  const baseSize = BASE_SIZES[size];
+  const width = baseSize.width * scale;
+  const height = baseSize.height * scale;
+  const dotSize = baseSize.dotSize * scale;
+  const fontSize = baseSize.fontSize * scale;
 
-  const padding = { top: 12, left: 24, right: 12, bottom: 12 };
+  // padding もスケーリング
+  const padding = {
+    top: 12 * scale,
+    left: 24 * scale,
+    right: 12 * scale,
+    bottom: 12 * scale,
+  };
   const gridWidth = width - padding.left - padding.right;
   const gridHeight = height - padding.top - padding.bottom;
   const fretSpacing = gridWidth / 4; // 4フレット
   const stringSpacing = gridHeight / 5; // 6弦
-  const nutWidth = 4;
+  const nutWidth = 4 * scale;
 
   // 横向き: Y座標が弦（上が1弦、下が6弦）
   const getStringY = (stringIndex: number) =>

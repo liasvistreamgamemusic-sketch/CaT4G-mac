@@ -135,13 +135,24 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
       className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-background-surface border border-white/10 rounded-xl p-6 min-w-[280px] max-w-md shadow-2xl">
+      <div
+        className="border border-white/10 rounded-xl p-6 min-w-[280px] max-w-md shadow-2xl"
+        style={{
+          background: 'var(--glass-premium-bg)',
+          backgroundColor: 'var(--color-bg-surface)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        }}
+      >
         {/* ヘッダー */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-text-primary">{chord}</h2>
+          <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{chord}</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-text-secondary hover:text-text-primary transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+            style={{ color: 'var(--color-text-secondary)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; }}
           >
             <svg
               className="w-5 h-5"
@@ -170,7 +181,7 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
 
             {/* 難易度表示 */}
             <div className="mt-4 flex items-center gap-2">
-              <span className="text-text-secondary text-sm">難易度:</span>
+              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>難易度:</span>
               <span
                 className={`text-sm font-medium px-2 py-0.5 rounded ${
                   currentFingering.difficulty === 'easy'
@@ -191,17 +202,31 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
             {/* 複数の押さえ方がある場合の切り替え（CAGEDフォーム名を表示） */}
             {fingerings.length > 1 && (
               <div className="mt-4 flex flex-col items-center gap-2">
-                <span className="text-text-secondary text-sm">ポジション:</span>
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>ポジション:</span>
                 <div className="flex flex-wrap justify-center gap-1">
                   {fingerings.map((fingering, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedFingeringIndex(index)}
-                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        index === selectedFingeringIndex
-                          ? 'bg-accent-primary text-white'
-                          : 'bg-white/10 text-text-secondary hover:bg-white/20'
-                      }`}
+                      className="px-2 py-1 rounded text-xs font-medium transition-colors"
+                      style={{
+                        background: index === selectedFingeringIndex
+                          ? 'var(--color-accent-primary)'
+                          : 'rgba(255, 255, 255, 0.1)',
+                        color: index === selectedFingeringIndex
+                          ? '#ffffff'
+                          : 'var(--color-text-secondary)',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (index !== selectedFingeringIndex) {
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (index !== selectedFingeringIndex) {
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                        }
+                      }}
                       title={fingering.id}
                     >
                       {getFormLabel(fingering.id, fingering.baseFret)}
@@ -212,7 +237,7 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-text-secondary">
+          <div className="text-center py-8" style={{ color: 'var(--color-text-secondary)' }}>
             <p>このコードのダイアグラムはまだ登録されていません</p>
             <p className="text-sm mt-2 opacity-70">
               将来のアップデートで追加予定です
@@ -222,7 +247,7 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
 
         {/* フッター */}
         <div className="mt-6 pt-4 border-t border-white/10 text-center">
-          <p className="text-xs text-text-secondary">
+          <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
             コードをクリックするとダイアグラムが表示されます
           </p>
         </div>

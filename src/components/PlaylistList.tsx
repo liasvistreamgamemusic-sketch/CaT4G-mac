@@ -17,6 +17,8 @@ interface PlaylistListProps {
   onRemoveSongFromPlaylist: (playlistId: string, songId: string) => void;
   onCreatePlaylist: () => void;
   isCollapsed?: boolean;
+  /** スケール係数（0.6〜1.0、デフォルト1.0） */
+  scale?: number;
 }
 
 function PlusIcon({ className }: { className?: string }) {
@@ -47,8 +49,21 @@ export function PlaylistList({
   onRemoveSongFromPlaylist,
   onCreatePlaylist,
   isCollapsed = false,
+  scale = 1.0,
 }: PlaylistListProps) {
   const [menuOpenSongId, setMenuOpenSongId] = useState<string | null>(null);
+
+  // スケーリング値の計算
+  const iconSizeMd = Math.round(16 * scale);
+  const fontSize = {
+    sm: 14 * scale,
+    xs: 12 * scale,
+  };
+  const spacing = {
+    xs: 4 * scale,
+    sm: 8 * scale,
+    md: 12 * scale,
+  };
 
   if (isCollapsed) {
     return null;
@@ -62,7 +77,7 @@ export function PlaylistList({
             プレイリストがありません
           </div>
         ) : (
-          <ul className="space-y-1 p-2">
+          <ul className="space-y-1" style={{ padding: `${spacing.sm}px` }}>
             {playlists.map((item) => {
               const isExpanded = expandedPlaylistId === item.playlist.id;
               return (
@@ -70,15 +85,20 @@ export function PlaylistList({
                   {/* Playlist header */}
                   <button
                     onClick={() => onPlaylistExpand(item.playlist.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-text-primary hover:bg-[var(--btn-glass-hover)] transition-colors"
+                    className="w-full flex items-center rounded-xl text-text-primary hover:bg-[var(--btn-glass-hover)] transition-colors"
+                    style={{
+                      gap: `${spacing.sm}px`,
+                      padding: `${spacing.sm}px ${spacing.md}px`,
+                      fontSize: `${fontSize.sm}px`,
+                    }}
                   >
                     {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-text-muted" />
+                      <ChevronDown style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} className="text-text-muted" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-text-muted" />
+                      <ChevronRight style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} className="text-text-muted" />
                     )}
                     <span className="flex-1 text-left truncate">{item.playlist.name}</span>
-                    <span className="text-xs text-text-muted">{item.songCount}曲</span>
+                    <span className="text-text-muted" style={{ fontSize: `${fontSize.xs}px` }}>{item.songCount}曲</span>
                   </button>
 
                   {/* Expanded songs list */}
@@ -147,10 +167,15 @@ export function PlaylistList({
         )}
       </div>
 
-      <div className="p-2 border-t border-background-surface">
+      <div className="border-t border-background-surface" style={{ padding: `${spacing.sm}px` }}>
         <button
           onClick={onCreatePlaylist}
-          className="w-full py-2 px-4 bg-accent-primary hover:bg-accent-primary/80 rounded-lg transition-colors flex items-center justify-center gap-2 text-text-primary"
+          className="w-full bg-accent-primary hover:bg-accent-primary/80 rounded-lg transition-colors flex items-center justify-center text-text-primary"
+          style={{
+            padding: `${spacing.sm}px ${spacing.md}px`,
+            gap: `${spacing.sm}px`,
+            fontSize: `${fontSize.sm}px`,
+          }}
         >
           <PlusIcon />
           <span>新規プレイリスト</span>

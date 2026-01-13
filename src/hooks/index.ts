@@ -41,3 +41,6 @@ export type {
   UseMeasureScrollOptions,
   UseMeasureScrollReturn,
 } from './useMeasureScroll';
+
+export { useContainerScale } from './useContainerScale';
+export type { ScaledValues } from './useContainerScale';

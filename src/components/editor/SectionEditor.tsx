@@ -70,6 +70,8 @@ interface SectionEditorProps {
   showMemo?: boolean;           // メモ
   // 移調量（表示用）
   transpose?: number;
+  // スケール係数（0.6〜1.0、デフォルト1.0）
+  scale?: number;
   // セクション設定用
   songBpm?: number | null;
   songCapo?: number;
@@ -152,6 +154,7 @@ export function SectionEditor({
   showPlayingMethod = true,
   showMemo = true,
   transpose = 0,
+  scale = 1.0,
   songBpm = null,
   songCapo = 0,
   onSectionSettingsChange,
@@ -436,6 +439,7 @@ export function SectionEditor({
                   showPlayingMethod={showPlayingMethod}
                   showMemo={showMemo}
                   transpose={transpose}
+                  scale={scale}
                 />
 
                 {/* 行の下に挿入ボタン */}

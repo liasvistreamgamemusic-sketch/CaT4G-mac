@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { generateChordFingerings } from '@/lib/chords';
 import { transposeChord } from '@/lib/chords/transpose';
 import type { ChordFingering } from '@/lib/chords/types';
+import { getScaledValues, MAX_SCALE } from '@/lib/scaling';
 
 // Editor state for a single line
 interface EditableLine {
@@ -47,6 +48,8 @@ interface LineEditorProps {
   showMemo?: boolean;           // メモ
   // 移調量（表示用）
   transpose?: number;
+  // スケール係数（0.6〜1.0、デフォルト1.0）
+  scale?: number;
 }
 
 /**
@@ -72,6 +75,7 @@ export function LineEditor({
   showPlayingMethod = true,
   showMemo = true,
   transpose = 0,
+  scale = MAX_SCALE,
 }: LineEditorProps) {
   const [selectedChordIndex, setSelectedChordIndex] = useState<number | null>(null);
   const [dragState, setDragState] = useState<ChordDragState | null>(null);
@@ -81,23 +85,24 @@ export function LineEditor({
   const lyricsRef = useRef<HTMLInputElement>(null);
   const hasSpreadRef = useRef<string | null>(null); // Track if we've spread chords for this line
 
+  // スケーリングされた値を計算
+  const scaledValues = useMemo(() => getScaledValues(scale), [scale]);
+
   // Character width for position calculations (monospace font with letter-spacing)
   // Must match the actual rendered width of characters in the lyrics input
-  // Increased from 14 to 22 for better chord placement spacing
-  const CHAR_WIDTH = 22;
+  const CHAR_WIDTH = scaledValues.charWidth;
 
   // Chord component width in pixels (varies by display mode)
   // xs diagram is 72x48, with small padding = 76px for diagram mode
-  const CHORD_COMPONENT_WIDTH = showDiagram ? 76 : 52;
+  const CHORD_COMPONENT_WIDTH = showDiagram ? scaledValues.chordWidthDiagram : scaledValues.chordWidthCompact;
 
-  // Maximum component width (diagram mode) - used for spacing calculations
-  // This ensures chords positioned in compact mode won't overlap when switching to standard mode
-  const MAX_CHORD_COMPONENT_WIDTH = 76;
+  // Scaled font size
+  const scaledFontSize = scaledValues.fontSize;
 
   // Minimum chord spacing (in character positions) to prevent diagram overlap
   // Use exact ratio to allow adjacent placement (touching) with half-position snapping
   // 76px / 22px = 3.45 positions - allows chords at positions like 0 and 3.5 to touch
-  const MIN_CHORD_SPACING = MAX_CHORD_COMPONENT_WIDTH / CHAR_WIDTH;
+  const MIN_CHORD_SPACING = scaledValues.minChordSpacing;
 
   // Find the nearest snap position for a given continuous position within lyrics
   // Snap positions: 0, 0.5, 1, 1.5, ... (before/center of each character)
@@ -704,12 +709,12 @@ export function LineEditor({
         {/* Chord Line - with space for chord diagrams below (height adjusts based on display settings) */}
         <div
           ref={chordAreaRef}
-          className={`relative font-mono text-sm cursor-crosshair bg-background-primary/30 rounded-t px-2 py-1 ${
+          className={`relative font-mono cursor-crosshair bg-background-primary/30 rounded-t px-2 py-1 ${
             dragState?.isDragging ? 'bg-accent-primary/10' : ''
           } ${line.chords.length > 0 ? (showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8') : 'min-h-[2rem]'}`}
           onClick={handleChordAreaClick}
           onDoubleClick={handleChordAreaDoubleClick}
-          style={{ minWidth: `${minChars}ch` }}
+          style={{ fontSize: `${scaledFontSize}px`, minWidth: `${minChars}ch` }}
           title="ダブルクリックでコードを追加"
         >
           {/* Existing chords - chord name, pattern, memo and diagram as single draggable unit */}
@@ -769,20 +774,24 @@ export function LineEditor({
                 {/* Header: Chord name + method badge */}
                 <div className="flex items-center justify-between w-full">
                   <div
-                    className={`px-1 rounded transition-colors whitespace-nowrap text-sm font-semibold flex items-center ${
+                    className={`px-1 rounded transition-colors whitespace-nowrap font-semibold flex items-center ${
                       isSelected
                         ? 'bg-accent-primary/30 text-accent-hover ring-1 ring-accent-primary'
                         : 'hover:bg-accent-primary/20 text-accent-primary'
                     }`}
+                    style={{ fontSize: `${scaledFontSize}px` }}
                   >
                     {transpose !== 0 ? transposeChord(chord.chord, transpose) : chord.chord}
                   </div>
                   {methodIndicator && showPlayingMethod && (
-                    <span className={`text-[8px] px-1 py-0.5 rounded ${
-                      chord.method === 'stroke'
-                        ? 'bg-purple-500/20 text-purple-300'
-                        : 'bg-green-500/20 text-green-300'
-                    }`}>
+                    <span
+                      className={`px-1 py-0.5 rounded ${
+                        chord.method === 'stroke'
+                          ? 'bg-purple-500/20 text-purple-300'
+                          : 'bg-green-500/20 text-green-300'
+                      }`}
+                      style={{ fontSize: `${8 * scale}px` }}
+                    >
                       {methodIndicator}
                     </span>
                   )}
@@ -790,12 +799,13 @@ export function LineEditor({
 
                 {/* Chord diagram - conditionally shown (compact size for inline display) */}
                 {showDiagram && (
-                  <div className="flex items-center justify-center flex-shrink-0" style={{ height: '56px' }}>
+                  <div className="flex items-center justify-center flex-shrink-0" style={{ height: `${56 * scale}px` }}>
                     {fingering && (
                       <ChordDiagramHorizontal
                         fingering={fingering}
                         size="xs"
                         showFingers={false}
+                        scale={scale}
                       />
                     )}
                   </div>
@@ -803,7 +813,11 @@ export function LineEditor({
 
                 {/* Pattern display (stroke arrows or arpeggio order) - conditionally shown */}
                 {hasPattern && (
-                  <div className="text-[9px] text-center font-mono leading-tight truncate w-full px-0.5" title={patternDisplay}>
+                  <div
+                    className="text-center font-mono leading-tight truncate w-full px-0.5"
+                    style={{ fontSize: `${9 * scale}px` }}
+                    title={patternDisplay}
+                  >
                     <span className={chord.method === 'stroke' ? 'text-purple-300' : 'text-green-300'}>
                       {patternDisplay.length > 12 ? patternDisplay.slice(0, 12) + '...' : patternDisplay}
                     </span>
@@ -812,7 +826,11 @@ export function LineEditor({
 
                 {/* Annotation/memo display - conditionally shown */}
                 {hasAnnotation && (
-                  <div className="text-[8px] text-yellow-400 leading-tight truncate w-full px-0.5 mt-0.5" title={chord.annotation}>
+                  <div
+                    className="text-yellow-400 leading-tight truncate w-full px-0.5 mt-0.5"
+                    style={{ fontSize: `${8 * scale}px` }}
+                    title={chord.annotation}
+                  >
                     {chord.annotation!.length > 12 ? chord.annotation!.slice(0, 12) + '...' : chord.annotation}
                   </div>
                 )}
@@ -868,7 +886,7 @@ export function LineEditor({
             {/* Underline markers for chord positions (overlay) */}
             <div
               className="absolute inset-0 pointer-events-none px-3 py-1.5"
-              style={{ fontFamily: 'monospace', fontSize: '0.875rem', letterSpacing: '0.35em' }}
+              style={{ fontFamily: 'monospace', fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em' }}
             >
               {line.chords.map((chord, chordIndex) => {
                 const pos = chord.position;
@@ -891,8 +909,8 @@ export function LineEditor({
               type="text"
               value={line.lyrics}
               onChange={handleLyricsChange}
-              className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 text-sm font-mono font-semibold text-text-primary tracking-wider focus:outline-none focus:border-primary transition-colors"
-              style={{ letterSpacing: '0.35em' }}
+              className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 font-mono font-semibold text-text-primary tracking-wider focus:outline-none focus:border-primary transition-colors"
+              style={{ fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em', minHeight: `${32 * scale}px` }}
               placeholder="歌詞を入力..."
             />
           </div>
