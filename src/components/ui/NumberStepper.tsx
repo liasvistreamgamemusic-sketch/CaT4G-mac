@@ -1,9 +1,5 @@
-/**
- * NumberStepper - Dark mode compatible number input with increment/decrement buttons
- * Uses CSS variables from the project theme system for consistent styling
- */
-
 import { Minus, Plus } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 interface NumberStepperProps {
   value: number;
@@ -14,6 +10,7 @@ interface NumberStepperProps {
   suffix?: string;
   className?: string;
   disabled?: boolean;
+  editable?: boolean;  // 新規追加
 }
 
 export function NumberStepper({
@@ -25,7 +22,27 @@ export function NumberStepper({
   suffix,
   className = '',
   disabled = false,
+  editable = false,  // 新規追加
 }: NumberStepperProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState(value.toString());
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // valueが外部から変更された場合にinputValueも更新
+  useEffect(() => {
+    if (!isEditing) {
+      setInputValue(value.toString());
+    }
+  }, [value, isEditing]);
+
+  // 編集モード開始時にフォーカス
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
   const handleDecrement = () => {
     if (disabled) return;
     const newValue = value - step;
@@ -39,6 +56,35 @@ export function NumberStepper({
     const newValue = value + step;
     if (newValue <= max) {
       onChange(newValue);
+    }
+  };
+
+  const handleValueClick = () => {
+    if (editable && !disabled) {
+      setIsEditing(true);
+      setInputValue(value.toString());
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const commitValue = useCallback(() => {
+    const parsed = parseInt(inputValue, 10);
+    if (!isNaN(parsed)) {
+      const clamped = Math.max(min === -Infinity ? -99999 : min, Math.min(max === Infinity ? 99999 : max, parsed));
+      onChange(clamped);
+    }
+    setIsEditing(false);
+  }, [inputValue, min, max, onChange]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      commitValue();
+    } else if (e.key === 'Escape') {
+      setInputValue(value.toString());
+      setIsEditing(false);
     }
   };
 
@@ -77,11 +123,26 @@ export function NumberStepper({
         <Minus size={14} />
       </button>
 
-      {/* Value display */}
-      <span className="text-text-primary text-sm font-medium min-w-[2.5rem] text-center select-none">
-        {value}
-        {suffix && <span className="text-text-secondary ml-0.5">{suffix}</span>}
-      </span>
+      {/* Value display / input */}
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          type="number"
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={commitValue}
+          onKeyDown={handleKeyDown}
+          className="w-12 text-center text-sm font-medium bg-transparent border-none outline-none text-text-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      ) : (
+        <span
+          onClick={handleValueClick}
+          className={`text-text-primary text-sm font-medium min-w-[2.5rem] text-center select-none ${editable && !disabled ? 'cursor-pointer hover:text-accent-primary' : ''}`}
+        >
+          {value}
+          {suffix && <span className="text-text-secondary ml-0.5">{suffix}</span>}
+        </span>
+      )}
 
       {/* Increment button */}
       <button

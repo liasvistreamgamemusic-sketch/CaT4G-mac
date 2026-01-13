@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ChevronDown,
   ChevronLeft,
@@ -47,6 +48,8 @@ interface SidebarProps {
   expandedArtistId?: string | null;
   artistSongs?: SongListItem[];
   onArtistExpand?: (id: string) => void;
+  // Width change callback for responsive positioning
+  onWidthChange?: (width: number) => void;
 }
 
 export function Sidebar({
@@ -70,6 +73,7 @@ export function Sidebar({
   expandedArtistId = null,
   artistSongs = [],
   onArtistExpand = () => {},
+  onWidthChange,
 }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'songs' | 'favorites' | 'playlists' | 'artists'>('songs');
@@ -77,10 +81,32 @@ export function Sidebar({
     const stored = localStorage.getItem(COLLAPSED_STORAGE_KEY);
     return stored === 'true';
   });
+
+  // Sidebar ref for width observation
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
   // Save collapsed state to localStorage
   useEffect(() => {
     localStorage.setItem(COLLAPSED_STORAGE_KEY, String(isCollapsed));
   }, [isCollapsed]);
+
+  // Observe sidebar width changes and notify parent
+  useEffect(() => {
+    if (!sidebarRef.current || !onWidthChange) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        onWidthChange(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(sidebarRef.current);
+
+    // Notify initial width
+    onWidthChange(sidebarRef.current.offsetWidth);
+
+    return () => observer.disconnect();
+  }, [onWidthChange]);
 
   // Filter songs
   const filteredSongs = songs.filter((song) => {
@@ -101,11 +127,13 @@ export function Sidebar({
 
   return (
     <aside
+      ref={sidebarRef}
       className={`
         relative h-full glass-premium highlight-line flex flex-col
         border-r border-[var(--glass-premium-border)]
         rounded-r-[24px]
         transition-all duration-[350ms] cubic-bezier(0.34, 1.56, 0.64, 1)
+        overflow-visible z-10
         ${isCollapsed ? 'w-16' : 'w-72'}
       `}
       style={{
@@ -116,7 +144,7 @@ export function Sidebar({
       <button
         onClick={handleToggleCollapse}
         className="
-          absolute -right-3 top-1/2 -translate-y-1/2 z-10
+          absolute -right-3 top-1/2 -translate-y-1/2 z-20
           w-6 h-12 rounded-full
           bg-[var(--glass-premium-bg-solid)]
           border border-[var(--glass-premium-border)]
@@ -441,6 +469,25 @@ function SongItem({
   onAddToPlaylist,
 }: SongItemProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Playlist submenu state
+  const [playlistSubmenuOpen, setPlaylistSubmenuOpen] = useState(false);
+  const [playlistSubmenuPosition, setPlaylistSubmenuPosition] = useState({ x: 0, y: 0 });
+  const playlistButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (menuButtonRef.current) {
+      const rect = menuButtonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        x: rect.right,
+        y: rect.bottom + 4,
+      });
+    }
+    setShowMenu(!showMenu);
+  };
 
   return (
     <li
@@ -473,23 +520,31 @@ function SongItem({
 
       {/* Context menu button */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowMenu(!showMenu);
-        }}
+        ref={menuButtonRef}
+        onClick={handleMenuClick}
         className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-opacity"
       >
         <MoreVertical className="w-4 h-4" />
       </button>
 
-      {/* Context menu */}
-      {showMenu && (
+      {/* Context menu - rendered via Portal */}
+      {showMenu && createPortal(
         <>
           <div
-            className="fixed inset-0 z-10"
-            onClick={() => setShowMenu(false)}
+            className="fixed inset-0 z-[9998]"
+            onClick={() => {
+              setShowMenu(false);
+              setPlaylistSubmenuOpen(false);
+            }}
           />
-          <div className="absolute right-0 top-full mt-1 z-20 glass-premium-elevated rounded-lg shadow-premium-elevated py-1 min-w-32">
+          <div
+            className="fixed z-[9999] glass-premium-elevated rounded-lg shadow-premium-elevated py-1 min-w-[180px]"
+            style={{
+              left: menuPosition.x,
+              top: menuPosition.y,
+              transform: 'translateX(-100%)',
+            }}
+          >
             <button
               onClick={() => {
                 onToggleFavorite?.();
@@ -518,40 +573,27 @@ function SongItem({
               編集
             </button>
             {/* プレイリストに追加 */}
-            <div className="relative group/playlist">
-              <button
-                className="w-full px-3 py-2 text-sm text-left hover:bg-[var(--btn-glass-hover)] flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                プレイリストに追加
-                <svg className="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-
-              {/* Submenu - appears on hover */}
-              <div className="absolute left-full top-0 ml-1 hidden group-hover/playlist:block min-w-[160px] glass-premium-elevated rounded-lg p-1 shadow-premium-elevated z-[60]">
-                {playlists && playlists.length > 0 ? (
-                  playlists.map((p) => (
-                    <button
-                      key={p.playlist.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAddToPlaylist?.(song.id, p.playlist.id);
-                        setShowMenu(false);
-                      }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-[var(--btn-glass-hover)] rounded-lg text-text-primary"
-                    >
-                      {p.playlist.name}
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-3 py-2 text-sm text-text-muted">
-                    プレイリストがありません
-                  </div>
-                )}
-              </div>
-            </div>
+            <button
+              ref={playlistButtonRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (playlistButtonRef.current) {
+                  const rect = playlistButtonRef.current.getBoundingClientRect();
+                  setPlaylistSubmenuPosition({
+                    x: rect.right + 4,
+                    y: rect.top,
+                  });
+                }
+                setPlaylistSubmenuOpen(!playlistSubmenuOpen);
+              }}
+              className="w-full px-3 py-2 text-sm text-left hover:bg-[var(--btn-glass-hover)] flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              プレイリストに追加
+              <svg className="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
             <button
               onClick={() => {
                 setShowMenu(false);
@@ -563,7 +605,49 @@ function SongItem({
               削除
             </button>
           </div>
-        </>
+        </>,
+        document.body
+      )}
+
+      {/* Playlist submenu - rendered via Portal */}
+      {playlistSubmenuOpen && createPortal(
+        <>
+          <div
+            className="fixed inset-0 z-[10000]"
+            onClick={() => {
+              setPlaylistSubmenuOpen(false);
+            }}
+          />
+          <div
+            className="fixed z-[10001] min-w-[160px] glass-premium-elevated rounded-lg p-1 shadow-premium-elevated"
+            style={{
+              left: playlistSubmenuPosition.x,
+              top: playlistSubmenuPosition.y,
+            }}
+          >
+            {playlists && playlists.length > 0 ? (
+              playlists.map((p) => (
+                <button
+                  key={p.playlist.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToPlaylist?.(song.id, p.playlist.id);
+                    setPlaylistSubmenuOpen(false);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-2 text-sm text-left hover:bg-[var(--btn-glass-hover)] rounded-lg text-text-primary"
+                >
+                  {p.playlist.name}
+                </button>
+              ))
+            ) : (
+              <div className="px-3 py-2 text-sm text-text-muted">
+                プレイリストがありません
+              </div>
+            )}
+          </div>
+        </>,
+        document.body
       )}
     </li>
   );

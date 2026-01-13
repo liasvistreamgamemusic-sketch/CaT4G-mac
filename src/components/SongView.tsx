@@ -42,6 +42,8 @@ interface SongViewProps {
   mode: AppMode;
   /** 表示モード */
   viewMode: ViewMode;
+  /** サイドバーの幅（px） */
+  sidebarWidth?: number;
   /** 移調量 */
   transpose: number;
   /** Capo位置 */
@@ -52,6 +54,10 @@ interface SongViewProps {
   isPlaying: boolean;
   /** 基準線の位置（0.0〜1.0、コンテンツエリア上部からの割合）デフォルト: 0.25（25%） */
   baselinePosition?: number;
+  /** 現在の繰り返し回数（1-based） */
+  currentRepeatIteration?: number;
+  /** 現在再生中のセクションインデックス（0-based） */
+  currentSectionIndex?: number;
   /** モード切り替えコールバック */
   onModeChange: (mode: AppMode) => void;
   /** ビューモード切り替えコールバック */
@@ -168,11 +174,14 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     song,
     mode,
     viewMode,
+    sidebarWidth,
     transpose,
     capo,
     playbackSpeed,
     isPlaying,
     baselinePosition = 0.25,
+    currentRepeatIteration,
+    currentSectionIndex,
     onModeChange,
     onViewModeChange,
     onChordClick,
@@ -847,7 +856,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
         {isPlaying && mode === 'play' && (
           <div
             className="fixed pointer-events-none z-50"
-            style={{ top: `${baselineY}px`, left: '280px', right: 0 }}
+            style={{ top: `${baselineY}px`, left: `${sidebarWidth ?? 280}px`, right: 0 }}
           >
             <div className="h-0.5 bg-cyan-400/50 shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
             {/* 基準線ラベル（右端に配置） */}
@@ -981,7 +990,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
               {/* 上部スペーサー: 常に表示（1行目の上辺が基準線位置になるよう押し下げ） */}
               <div style={{ height: `${baselineOffset}px` }} aria-hidden="true" />
 
-              {sections.map(({ section, lines }) => (
+              {sections.map(({ section, lines }, sectionIndex) => (
                 <section
                   key={section.id}
                   className="space-y-2"
@@ -1002,6 +1011,11 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-accent-primary/20 text-accent-primary">
                           <Repeat className="w-3 h-3" />
                           ×{section.repeatCount}
+                          {isPlaying && currentSectionIndex === sectionIndex && currentRepeatIteration !== undefined && (
+                            <span className="ml-1 text-accent-primary/80">
+                              ({currentRepeatIteration}/{section.repeatCount})
+                            </span>
+                          )}
                         </span>
                       )}
                       {section.transposeOverride !== null && (

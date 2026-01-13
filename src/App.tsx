@@ -9,7 +9,8 @@ import { SongView } from '@/components/SongView';
 import { CountInOverlay } from '@/components/CountInOverlay';
 import type { ViewMode, AppMode } from '@/components/SongView';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useMeasureScroll, useKeyboardShortcuts, useMetronome } from '@/hooks';
+import { useMeasureScroll, useKeyboardShortcuts, useMetronome, useTheme } from '@/hooks';
+import { Sun, Moon } from 'lucide-react';
 import type { MeasureSectionInfo } from '@/hooks';
 import type { TimeSignature } from '@/hooks';
 import {
@@ -22,6 +23,7 @@ import {
   getPlaylists,
   createPlaylist,
   getPlaylistById,
+  addSongToPlaylist,
   removeSongFromPlaylist,
   getArtists,
   getSongsByArtist,
@@ -35,6 +37,9 @@ import type {
 } from '@/types/database';
 
 function App() {
+  // Theme
+  const { toggleTheme, isDark } = useTheme();
+
   // Refs
   const mainAreaRef = useRef<HTMLElement>(null);
   const scrollToLineRef = useRef<((lineId: string) => void) | null>(null);
@@ -69,6 +74,9 @@ function App() {
   const [expandedArtistId, setExpandedArtistId] = useState<string | null>(null);
   const [artistSongs, setArtistSongs] = useState<SongListItem[]>([]);
 
+  // Sidebar width state for responsive positioning
+  const [sidebarWidth, setSidebarWidth] = useState(288);
+
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
@@ -101,11 +109,12 @@ function App() {
       })),
       bpmOverride: section.bpmOverride ?? null,
       playbackSpeedOverride: null, // Removed playback speed feature
+      repeatCount: section.repeatCount,
     }));
   }, [selectedSong]);
 
   // Measure-based scroll hook
-  const { reset: resetScroll, jumpToLine } = useMeasureScroll({
+  const { reset: resetScroll, jumpToLine, currentRepeatIteration, currentSectionIndex } = useMeasureScroll({
     containerRef: mainAreaRef,
     sections: measureScrollSections,
     songBpm: currentBpm,
@@ -508,6 +517,25 @@ function App() {
     }
   }, [expandedPlaylistId]);
 
+  // Handle add song to playlist
+  const handleAddSongToPlaylist = useCallback(async (songId: string, playlistId: string) => {
+    await addSongToPlaylist(playlistId, songId);
+    // Refresh playlists to update song count
+    const updatedPlaylists = await getPlaylists();
+    setPlaylists(updatedPlaylists);
+    // If this playlist is expanded, refresh its songs
+    if (expandedPlaylistId === playlistId) {
+      const playlistData = await getPlaylistById(playlistId);
+      if (playlistData) {
+        setExpandedPlaylistSongs(playlistData.songs.map(s => ({
+          id: s.id,
+          title: s.title,
+          artistName: s.artistName,
+        })));
+      }
+    }
+  }, [expandedPlaylistId]);
+
   // Handle remove song from playlist
   const handleRemoveSongFromPlaylist = useCallback(async (playlistId: string, songId: string) => {
     await removeSongFromPlaylist(playlistId, songId);
@@ -560,7 +588,15 @@ function App() {
 
   // Empty state (no song selected)
   const emptyState = (
-    <div className="flex-1 flex items-center justify-center bg-background-primary">
+    <div className="flex-1 flex items-center justify-center bg-background-primary relative">
+      {/* Theme toggle button */}
+      <button
+        onClick={toggleTheme}
+        className="absolute top-4 right-4 p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-[var(--btn-glass-hover)] transition-colors"
+        title={isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
+      >
+        {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
       <div className="glass-premium highlight-line rounded-3xl p-12 text-center animate-fade-in max-w-md">
         {/* Music icon with purple glow */}
         <div className="relative inline-block mb-6">
@@ -606,7 +642,7 @@ function App() {
 
   return (
     <Layout>
-      <div className="flex h-screen">
+      <div className="flex h-screen overflow-visible">
         {/* Left side: Sidebar (play mode only, edit mode has SettingsPanel in SongView) */}
         {mode === 'play' && (
           <Sidebar
@@ -621,6 +657,7 @@ function App() {
             selectedPlaylistId={selectedPlaylistId}
             onPlaylistSelect={handlePlaylistSelect}
             onCreatePlaylist={handleCreatePlaylistClick}
+            onAddSongToPlaylist={handleAddSongToPlaylist}
             expandedPlaylistId={expandedPlaylistId}
             expandedPlaylistSongs={expandedPlaylistSongs}
             onPlaylistExpand={handlePlaylistExpand}
@@ -629,6 +666,7 @@ function App() {
             expandedArtistId={expandedArtistId}
             artistSongs={artistSongs}
             onArtistExpand={handleArtistExpand}
+            onWidthChange={setSidebarWidth}
           />
         )}
 
@@ -641,6 +679,7 @@ function App() {
                 <SongView
                   ref={mainAreaRef}
                   song={selectedSong}
+                  sidebarWidth={sidebarWidth}
                   mode={mode}
                   viewMode={viewMode}
                   transpose={transpose}
@@ -657,6 +696,8 @@ function App() {
                   onLineClick={handleLineClick}
                   onScrollToLine={(fn) => { scrollToLineRef.current = fn; }}
                   onPlayFromLine={handlePlayFromLine}
+                  currentRepeatIteration={currentRepeatIteration}
+                  currentSectionIndex={currentSectionIndex}
                 />
 
                 {/* Floating control bar - positioned inside scrollable area */}

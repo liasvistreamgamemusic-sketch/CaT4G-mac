@@ -7,7 +7,7 @@
  * - カポ変更時にコード移調確認ダイアログ
  */
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { X, RotateCcw, Timer, Guitar } from 'lucide-react';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 
@@ -192,37 +192,15 @@ interface BpmInputProps {
 }
 
 function BpmInput({ value, songBpm, onChange }: BpmInputProps) {
-  const [inputValue, setInputValue] = useState<string>(value?.toString() ?? '');
+  // 表示用の値（nullの場合はsongBpmを使用）
+  const displayValue = value ?? songBpm ?? 120;
+  const isOverridden = value !== null;
 
-  // valueプロップが変更されたら入力も更新
-  useEffect(() => {
-    setInputValue(value?.toString() ?? '');
-  }, [value]);
-
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    // 数字のみ許可（空文字も許可）
-    if (val === '' || /^\d*$/.test(val)) {
-      setInputValue(val);
-    }
-  }, []);
-
-  const handleBlur = useCallback(() => {
-    if (inputValue === '') {
-      onChange(null);
-    } else {
-      const parsed = parseInt(inputValue, 10);
-      if (!isNaN(parsed)) {
-        // 40〜240の範囲に制限
-        const clamped = Math.max(40, Math.min(240, parsed));
-        setInputValue(clamped.toString());
-        onChange(clamped);
-      }
-    }
-  }, [inputValue, onChange]);
+  const handleChange = (newValue: number) => {
+    onChange(newValue);
+  };
 
   const handleReset = useCallback(() => {
-    setInputValue('');
     onChange(null);
   }, [onChange]);
 
@@ -232,8 +210,11 @@ function BpmInput({ value, songBpm, onChange }: BpmInputProps) {
         <div className="flex items-center gap-2 text-text-secondary">
           <Timer className="w-4 h-4" />
           <span className="text-xs font-medium">BPM</span>
+          {!isOverridden && songBpm && (
+            <span className="text-[10px] text-text-muted">(曲のBPM)</span>
+          )}
         </div>
-        {value !== null && (
+        {isOverridden && (
           <button
             type="button"
             onClick={handleReset}
@@ -245,37 +226,14 @@ function BpmInput({ value, songBpm, onChange }: BpmInputProps) {
           </button>
         )}
       </div>
-
-      <div className="flex items-center gap-3">
-        <input
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          placeholder={songBpm?.toString() ?? '120'}
-          className="flex-1 px-3 py-2 bg-background border border-[var(--glass-premium-border)] rounded-lg
-                     text-center font-mono text-sm text-text-primary
-                     placeholder:text-text-muted/50
-                     focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30
-                     transition-all duration-200"
-        />
-      </div>
-
-      {/* Helper text */}
-      <p className="text-[10px] text-text-muted">
-        {value === null ? (
-          <>
-            曲のBPMを使用
-            {songBpm !== null && (
-              <span className="ml-1 text-text-secondary">({songBpm})</span>
-            )}
-          </>
-        ) : (
-          '40〜240の範囲'
-        )}
-      </p>
+      <NumberStepper
+        value={displayValue}
+        onChange={handleChange}
+        min={40}
+        max={240}
+        step={10}
+        editable={true}
+      />
     </div>
   );
 }

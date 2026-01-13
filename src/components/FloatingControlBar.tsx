@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { MetronomeBeatIndicator } from './MetronomeBeatIndicator';
+import { NumberStepper } from '@/components/ui/NumberStepper';
 
 export type TimeSignature = '4/4' | '3/4' | '6/8' | '2/4';
 
@@ -401,26 +402,13 @@ export function FloatingControlBar({
         {/* BPM */}
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>BPM</span>
-          <input
-            type="number"
+          <NumberStepper
             value={bpm}
-            onChange={(e) => onBpmChange?.(parseInt(e.target.value) || 120)}
+            onChange={(value) => onBpmChange?.(value)}
             min={40}
             max={240}
-            className="w-14 px-2 py-1 rounded-lg text-center font-mono text-sm transition-all duration-200"
-            style={{
-              background: 'var(--input-bg)',
-              border: '1px solid var(--input-border)',
-              color: 'var(--color-text-secondary)',
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = 'var(--input-border-focus)';
-              e.currentTarget.style.boxShadow = 'var(--input-shadow-focus)';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = 'var(--input-border)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            step={10}
+            editable={true}
           />
         </div>
 
