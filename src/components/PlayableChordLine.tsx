@@ -75,13 +75,43 @@ export function PlayableChordLine({
   // コードコンポーネントの幅
   const componentWidth = showDiagram ? CHORD_COMPONENT_WIDTH_DIAGRAM : CHORD_COMPONENT_WIDTH_COMPACT;
 
-  // 移調済みコード名を計算
+  // 最小コード間隔（文字位置単位）
+  const MIN_CHORD_SPACING = scaledValues.minChordSpacing;
+
+  // 移調済みコード名を計算し、重なりを防止
   const transposedChords = useMemo(() => {
-    return chords.map((chord) => ({
+    // まず移調を適用
+    const transposed = chords.map((chord) => ({
       ...chord,
       chord: transposeChord(chord.chord, transpose),
     }));
-  }, [chords, transpose]);
+
+    // 表示用に重なりを防止（コードが1つ以下なら調整不要）
+    if (transposed.length <= 1) return transposed;
+
+    // 位置でソート
+    const sorted = [...transposed].sort((a, b) => a.position - b.position);
+    const result: ExtendedChordPosition[] = [];
+
+    for (let i = 0; i < sorted.length; i++) {
+      const chord = sorted[i];
+      if (i === 0) {
+        result.push({ ...chord });
+      } else {
+        const prevChord = result[i - 1];
+        const minPosition = prevChord.position + MIN_CHORD_SPACING;
+
+        if (chord.position < minPosition) {
+          // 前のコードに近すぎる場合、右にずらす
+          result.push({ ...chord, position: minPosition });
+        } else {
+          result.push({ ...chord });
+        }
+      }
+    }
+
+    return result;
+  }, [chords, transpose, MIN_CHORD_SPACING]);
 
   // コードのフィンガリングを生成
   const chordFingerings = useMemo(() => {

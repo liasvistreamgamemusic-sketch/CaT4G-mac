@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { fetchChordSheet, isSupportedUrl, getSiteName } from '@/lib/scraper';
+import {
+  fetchChordSheet,
+  parseChordSheetHtml,
+  isSupportedUrl,
+  requiresManualInput,
+  getSiteName,
+} from '@/lib/scraper';
 import type { FetchedChordSheet } from '@/lib/scraper';
 import type { CreateSongInput, CreateSectionInput } from '@/types/database';
 
@@ -9,7 +15,7 @@ interface AddSongModalProps {
   onSave: (song: CreateSongInput) => Promise<void>;
 }
 
-type TabType = 'url' | 'manual';
+type TabType = 'url' | 'chordwiki' | 'manual';
 
 export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('url');
@@ -23,6 +29,10 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
   const [manualArtist, setManualArtist] = useState('');
   const [manualContent, setManualContent] = useState('');
 
+  // ChordWiki HTML入力用
+  const [chordwikiUrl, setChordwikiUrl] = useState('');
+  const [chordwikiHtml, setChordwikiHtml] = useState('');
+
   if (!isOpen) return null;
 
   const handleUrlFetch = async () => {
@@ -31,8 +41,13 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
       return;
     }
 
+    if (requiresManualInput(url)) {
+      setError('ChordWikiはCloudflare保護のため、「ChordWiki」タブからHTML貼り付けで取得してください');
+      return;
+    }
+
     if (!isSupportedUrl(url)) {
-      setError('対応サイト: U-Fret, ChordWiki, J-Total');
+      setError('対応サイト: U-Fret, J-Total（ChordWikiはHTML貼り付けで対応）');
       return;
     }
 
@@ -44,6 +59,29 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
       setPreview(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : '取得に失敗しました');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChordwikiParse = async () => {
+    if (!chordwikiUrl.trim()) {
+      setError('ChordWikiのURLを入力してください');
+      return;
+    }
+    if (!chordwikiHtml.trim()) {
+      setError('HTMLを貼り付けてください');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await parseChordSheetHtml(chordwikiUrl, chordwikiHtml);
+      setPreview(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'パースに失敗しました');
     } finally {
       setIsLoading(false);
     }
@@ -95,12 +133,14 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
     setManualTitle('');
     setManualArtist('');
     setManualContent('');
+    setChordwikiUrl('');
+    setChordwikiHtml('');
     setActiveTab('url');
     onClose();
   };
 
   const canSave =
-    (activeTab === 'url' && preview) ||
+    ((activeTab === 'url' || activeTab === 'chordwiki') && preview) ||
     (activeTab === 'manual' && manualTitle.trim());
 
   return (
@@ -133,6 +173,12 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
             onClick={() => setActiveTab('url')}
           >
             URLから取得
+          </button>
+          <button
+            className={`tab-glass flex-1 py-3 text-sm ${activeTab === 'chordwiki' ? 'active' : ''}`}
+            onClick={() => setActiveTab('chordwiki')}
+          >
+            ChordWiki
           </button>
           <button
             className={`tab-glass flex-1 py-3 text-sm ${activeTab === 'manual' ? 'active' : ''}`}
@@ -168,7 +214,7 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
                   </button>
                 </div>
                 <p className="text-xs text-text-muted mt-2">
-                  対応: U-Fret, ChordWiki, J-Total
+                  対応: U-Fret, J-Total（ChordWikiは専用タブへ）
                 </p>
               </div>
 
@@ -216,6 +262,73 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
                       ))}
                       {preview.sections.length > 2 && '...'}
                     </pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : activeTab === 'chordwiki' ? (
+            <div className="space-y-4">
+              {/* ChordWiki HTML Input */}
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 text-amber-300 text-sm">
+                <p className="font-medium mb-1">ChordWikiはHTML貼り付けで対応</p>
+                <ol className="list-decimal list-inside text-xs text-amber-300/80 space-y-1">
+                  <li>ChordWikiの曲ページをブラウザで開く</li>
+                  <li>右クリック→「ページのソースを表示」</li>
+                  <li>全選択(Ctrl+A)してコピー</li>
+                  <li>下のテキストエリアに貼り付け</li>
+                </ol>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 text-text-secondary">
+                  ChordWikiのURL
+                </label>
+                <input
+                  type="url"
+                  value={chordwikiUrl}
+                  onChange={(e) => setChordwikiUrl(e.target.value)}
+                  placeholder="https://ja.chordwiki.org/wiki/曲名"
+                  className="input-glass"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 text-text-secondary">
+                  HTMLソース
+                </label>
+                <textarea
+                  value={chordwikiHtml}
+                  onChange={(e) => setChordwikiHtml(e.target.value)}
+                  placeholder="ページのHTMLソースを貼り付け..."
+                  rows={8}
+                  className="input-glass font-mono text-xs resize-none"
+                />
+              </div>
+              <button
+                onClick={handleChordwikiParse}
+                disabled={isLoading}
+                className="btn-glass btn-glass-primary w-full disabled:opacity-50"
+              >
+                {isLoading ? 'パース中...' : 'HTMLをパース'}
+              </button>
+
+              {/* Error */}
+              {error && (
+                <div className="bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+
+              {/* Preview */}
+              {preview && (
+                <div className="rounded-2xl p-4 space-y-3 bg-white/[0.03] border border-white/[0.06]">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-lg">{preview.title || '無題'}</h3>
+                      <p className="text-text-secondary">{preview.artist || '不明'}</p>
+                    </div>
+                    <span className="badge-glass-primary">ChordWiki</span>
+                  </div>
+                  <div className="flex gap-4 text-sm text-text-secondary">
+                    <span>{preview.sections.length} セクション</span>
                   </div>
                 </div>
               )}

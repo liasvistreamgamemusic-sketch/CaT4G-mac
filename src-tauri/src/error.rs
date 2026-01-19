@@ -3,7 +3,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum FetchError {
     #[error("HTTP request failed: {0}")]
-    HttpError(#[from] reqwest::Error),
+    HttpError(#[from] tauri_plugin_http::reqwest::Error),
 
     #[error("Unsupported site: {0}")]
     UnsupportedSite(String),

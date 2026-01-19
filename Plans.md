@@ -14,14 +14,17 @@
 ## フェーズ2: スクレイピング ✅ [04_backend_scraping.md](specs/04_backend_scraping.md)
 
 - [x] error.rs - FetchError型定義（HTTP, Parse, UnsupportedSite）
-- [x] http.rs - HTTPクライアント（User-Agent偽装, 30秒タイムアウト）
+- [x] http.rs - HTTPクライアント（User-Agent偽装, 30秒タイムアウト, tauri-plugin-http）
 - [x] parsers/mod.rs - FetchedChordSheet構造体とモジュール定義
 - [x] parsers/ufret.rs - U-Fretパーサー（セクション/行/コード位置）
-- [x] parsers/chordwiki.rs - ChordWikiパーサー（ChordPro形式対応）
+- [x] parsers/chordwiki.rs - ChordWikiパーサー（HTML span構造対応、手動入力専用）
 - [x] parsers/jtotal.rs - J-Totalパーサー
-- [x] lib.rs - Tauriコマンド統合（fetch_chord_sheet, get_supported_sites）
-- [x] scraper.ts - フロントエンドAPI（invoke ラッパー）
-- [x] Cargo.toml - regex依存追加
+- [x] lib.rs - Tauriコマンド統合（fetch_chord_sheet, parse_chord_sheet, get_supported_sites）
+- [x] scraper.ts - フロントエンドAPI（invoke ラッパー、parseChordSheetHtml追加）
+- [x] Cargo.toml - regex依存追加、tauri-plugin-http追加
+- [x] AddSongModal.tsx - ChordWiki専用タブ（HTML貼り付け方式）追加
+
+**注記**: ChordWikiはCloudflare保護のため自動取得不可。HTML手動入力で対応。
 
 ## フェーズ3: 曲管理 ✅ [03_frontend.md](specs/03_frontend.md)
 

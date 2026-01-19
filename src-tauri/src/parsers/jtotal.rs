@@ -133,18 +133,20 @@ fn is_valid_chord(token: &str) -> bool {
 
 fn parse_chord_positions(line: &str) -> Vec<FetchedChord> {
     let mut chords = Vec::new();
-    let mut char_pos = 0;
+    let mut byte_pos = 0;
 
     for segment in line.split_whitespace() {
-        // Find actual position in original line
-        if let Some(pos) = line[char_pos..].find(segment) {
-            let actual_pos = char_pos + pos;
+        // Find actual byte position in original line
+        if let Some(pos) = line[byte_pos..].find(segment) {
+            let actual_byte_pos = byte_pos + pos;
+            // Convert byte position to character position for proper Japanese text handling
+            let char_position = line[..actual_byte_pos].chars().count();
 
             if is_valid_chord(segment) {
-                chords.push(FetchedChord::new(segment, actual_pos as i32));
+                chords.push(FetchedChord::new(segment, char_position as i32));
             }
 
-            char_pos = actual_pos + segment.len();
+            byte_pos = actual_byte_pos + segment.len();
         }
     }
 
@@ -176,6 +178,46 @@ mod tests {
         let chords = parse_chord_positions("C    G    Am   F");
         assert_eq!(chords.len(), 4);
         assert_eq!(chords[0].chord, "C");
+        assert_eq!(chords[0].position, 0);
         assert_eq!(chords[1].chord, "G");
+        assert_eq!(chords[1].position, 5);
+        assert_eq!(chords[2].chord, "Am");
+        assert_eq!(chords[2].position, 10);
+        assert_eq!(chords[3].chord, "F");
+        assert_eq!(chords[3].position, 15);
+    }
+
+    #[test]
+    fn test_parse_chord_positions_with_japanese() {
+        // Test with Japanese text mixed with chords
+        // "あいう C えお G" - Japanese chars are 3 bytes each, but should count as 1 char
+        // Character breakdown:
+        //   0='あ', 1='い', 2='う', 3=' ', 4='C', 5=' ', 6='え', 7='お', 8=' ', 9='G'
+        let line = "あいう C えお G";
+        let chords = parse_chord_positions(line);
+
+        assert_eq!(chords.len(), 2);
+        // "あいう " = 4 chars (3 Japanese + 1 space), so C is at char position 4
+        assert_eq!(chords[0].chord, "C");
+        assert_eq!(chords[0].position, 4);
+        // "あいう C えお " = 9 chars, so G is at char position 9
+        assert_eq!(chords[1].chord, "G");
+        assert_eq!(chords[1].position, 9);
+    }
+
+    #[test]
+    fn test_parse_chord_positions_japanese_padding() {
+        // Simulate typical J-Total format with Japanese and spaced chords
+        // Full-width spaces or mixed padding
+        let line = "    Am      G       C";
+        let chords = parse_chord_positions(line);
+
+        assert_eq!(chords.len(), 3);
+        assert_eq!(chords[0].chord, "Am");
+        assert_eq!(chords[0].position, 4);
+        assert_eq!(chords[1].chord, "G");
+        assert_eq!(chords[1].position, 12);
+        assert_eq!(chords[2].chord, "C");
+        assert_eq!(chords[2].position, 20);
     }
 }

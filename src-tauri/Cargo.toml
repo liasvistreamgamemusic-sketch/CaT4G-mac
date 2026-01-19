@@ -17,11 +17,12 @@ tauri = { version = "2", features = [] }
 tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.12", features = ["json", "cookies", "gzip", "brotli", "deflate"] }
 scraper = "0.20"
 thiserror = "2"
 tokio = { version = "1", features = ["full"] }
 regex = "1.10"
+tauri-plugin-http = "2.5.6"
 
 [profile.release]
 panic = "abort"

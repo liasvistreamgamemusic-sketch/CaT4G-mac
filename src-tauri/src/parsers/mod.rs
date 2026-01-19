@@ -1,6 +1,7 @@
 pub mod ufret;
 pub mod chordwiki;
 pub mod jtotal;
+pub mod gakkime;
 
 use serde::{Deserialize, Serialize};
 
