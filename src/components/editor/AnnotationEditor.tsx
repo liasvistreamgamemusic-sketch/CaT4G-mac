@@ -6,12 +6,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import type { Annotation, UUID } from '@/types/database';
-import {
-  getAnnotations,
-  createAnnotation,
-  updateAnnotation,
-  deleteAnnotation,
-} from '@/lib/database';
+import { db } from '@/lib/api';
 
 interface AnnotationEditorProps {
   /** 対象の行ID */
@@ -58,7 +53,7 @@ export function AnnotationEditor({
     try {
       setIsLoading(true);
       setError(null);
-      const allAnnotations = await getAnnotations(lineId);
+      const allAnnotations = await db.getAnnotations(lineId);
       // chordIndex でフィルタリング
       const filtered = allAnnotations.filter(
         (a) => a.chordIndex === chordIndex
@@ -83,7 +78,7 @@ export function AnnotationEditor({
     try {
       setIsLoading(true);
       setError(null);
-      await createAnnotation(lineId, newContent.trim(), chordIndex ?? undefined);
+      await db.createAnnotation(lineId, newContent.trim(), chordIndex ?? undefined);
       setNewContent('');
       await loadAnnotations();
       onAnnotationChange?.();
@@ -114,7 +109,7 @@ export function AnnotationEditor({
     try {
       setIsLoading(true);
       setError(null);
-      await updateAnnotation(editingId, editingContent.trim());
+      await db.updateAnnotation(editingId, editingContent.trim());
       setEditingId(null);
       setEditingContent('');
       await loadAnnotations();
@@ -133,7 +128,7 @@ export function AnnotationEditor({
     try {
       setIsLoading(true);
       setError(null);
-      await deleteAnnotation(id);
+      await db.deleteAnnotation(id);
       await loadAnnotations();
       onAnnotationChange?.();
     } catch (err) {

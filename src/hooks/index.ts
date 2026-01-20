@@ -44,3 +44,9 @@ export type {
 
 export { useContainerScale } from './useContainerScale';
 export type { ScaledValues } from './useContainerScale';
+
+export { useRealtimeSync } from './useRealtimeSync';
+export type {
+  UseRealtimeSyncOptions,
+  UseRealtimeSyncReturn,
+} from './useRealtimeSync';

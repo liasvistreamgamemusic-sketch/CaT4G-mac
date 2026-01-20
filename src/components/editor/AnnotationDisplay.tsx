@@ -6,7 +6,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Annotation, UUID } from '@/types/database';
-import { getAnnotations } from '@/lib/database';
+import { db } from '@/lib/api';
 
 interface AnnotationDisplayProps {
   /** 対象の行ID（注釈をフェッチする場合） */
@@ -62,7 +62,7 @@ export function AnnotationDisplay({
 
     try {
       setIsLoading(true);
-      const allAnnotations = await getAnnotations(lineId);
+      const allAnnotations = await db.getAnnotations(lineId);
       setFetchedAnnotations(allAnnotations);
     } catch (err) {
       console.error('Failed to load annotations:', err);

@@ -27,7 +27,7 @@ import { SectionEditor } from '@/components/editor/SectionEditor';
 import type { EditableSection, EditableLine } from '@/components/editor/SectionEditor';
 import { ChordEditor } from '@/components/editor/ChordEditor';
 import { SettingsPanel } from '@/components/SettingsPanel';
-import { getSongById, updateSong } from '@/lib/database';
+import { db } from '@/lib/api';
 import { transposeChord } from '@/lib/chords/transpose';
 import type { UpdateSongInput, UpdateSectionInput, UpdateLineInput } from '@/types/database';
 import { Repeat, Guitar, Timer } from 'lucide-react';
@@ -482,10 +482,10 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
         })),
       };
 
-      await updateSong(songData.id, updateInput);
+      await db.updateSong(songData.id, updateInput);
 
       // 曲データを再読み込み
-      const updatedSong = await getSongById(songData.id);
+      const updatedSong = await db.getSongById(songData.id);
       if (updatedSong) {
         const { metadata, sections: newSections } = initializeEditState(updatedSong);
         // Reset history after successful save

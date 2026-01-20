@@ -9,25 +9,12 @@ import { SongView } from '@/components/SongView';
 import { CountInOverlay } from '@/components/CountInOverlay';
 import type { ViewMode, AppMode } from '@/components/SongView';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useMeasureScroll, useKeyboardShortcuts, useMetronome, useTheme, useContainerScale } from '@/hooks';
+import { AuthProvider, useAuth, LoginPage } from '@/components/Auth';
+import { useMeasureScroll, useKeyboardShortcuts, useMetronome, useTheme, useContainerScale, useRealtimeSync } from '@/hooks';
 import { Sun, Moon } from 'lucide-react';
 import type { MeasureSectionInfo } from '@/hooks';
 import type { TimeSignature } from '@/hooks';
-import {
-  initDatabase,
-  getSongs,
-  getSongById,
-  saveSong,
-  deleteSong,
-  updateSongFavorite,
-  getPlaylists,
-  createPlaylist,
-  getPlaylistById,
-  addSongToPlaylist,
-  removeSongFromPlaylist,
-  getArtists,
-  getSongsByArtist,
-} from '@/lib/database';
+import { initAPI, db } from '@/lib/api';
 import type {
   SongListItem,
   SongWithDetails,
@@ -36,7 +23,11 @@ import type {
   Artist,
 } from '@/types/database';
 
-function App() {
+/**
+ * メインアプリケーションコンテンツ
+ * 認証済みユーザー向けのUIを表示
+ */
+function AppContent() {
   // Theme
   const { toggleTheme, isDark } = useTheme();
 
@@ -188,11 +179,11 @@ function App() {
   useEffect(() => {
     async function init() {
       try {
-        await initDatabase();
+        await initAPI();
         setIsDbReady(true);
         const [songList, playlistList] = await Promise.all([
-          getSongs(),
-          getPlaylists(),
+          db.getSongs(),
+          db.getPlaylists(),
         ]);
         setSongs(songList);
         setPlaylists(playlistList);
@@ -207,7 +198,7 @@ function App() {
   useEffect(() => {
     async function loadSong() {
       if (selectedSongId) {
-        const song = await getSongById(selectedSongId);
+        const song = await db.getSongById(selectedSongId);
         setSelectedSong(song);
         // 曲に保存された設定を読み込む
         setTranspose(song?.song.transpose ?? 0);
@@ -227,7 +218,7 @@ function App() {
 
   // Load artists (including "その他" for songs without artist)
   const loadArtists = useCallback(async () => {
-    const dbArtists = await getArtists();
+    const dbArtists = await db.getArtists();
 
     // Check if there are songs without an artist
     const songsWithoutArtist = songs.filter(s => !s.artistName);
@@ -251,6 +242,57 @@ function App() {
       loadArtists();
     }
   }, [isDbReady, songs, loadArtists]);
+
+  // Refetch functions for realtime sync
+  const refetchSongs = useCallback(async () => {
+    try {
+      const songList = await db.getSongs();
+      setSongs(songList);
+      // If current song was updated, reload it
+      if (selectedSongId) {
+        const updatedSong = await db.getSongById(selectedSongId);
+        setSelectedSong(updatedSong);
+      }
+    } catch (error) {
+      console.error('Failed to refetch songs:', error);
+    }
+  }, [selectedSongId]);
+
+  const refetchPlaylists = useCallback(async () => {
+    try {
+      const playlistList = await db.getPlaylists();
+      setPlaylists(playlistList);
+      // Refresh expanded playlist if any
+      if (expandedPlaylistId) {
+        const playlistData = await db.getPlaylistById(expandedPlaylistId);
+        if (playlistData) {
+          setExpandedPlaylistSongs(playlistData.songs.map(s => ({
+            id: s.id,
+            title: s.title,
+            artistName: s.artistName,
+          })));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refetch playlists:', error);
+    }
+  }, [expandedPlaylistId]);
+
+  const refetchArtists = useCallback(async () => {
+    try {
+      await loadArtists();
+    } catch (error) {
+      console.error('Failed to refetch artists:', error);
+    }
+  }, [loadArtists]);
+
+  // Supabase Realtime sync - refetch data when changes occur on other devices
+  useRealtimeSync({
+    onSongsChange: refetchSongs,
+    onPlaylistsChange: refetchPlaylists,
+    onArtistsChange: refetchArtists,
+    enabled: isDbReady,
+  });
 
   // Mode change handler with unsaved changes check
   const handleModeChange = useCallback((newMode: AppMode) => {
@@ -288,16 +330,16 @@ function App() {
   }, []);
 
   const handleSaveSong = useCallback(async (input: CreateSongInput) => {
-    const newId = await saveSong(input);
-    const updatedSongs = await getSongs();
+    const newId = await db.saveSong(input);
+    const updatedSongs = await db.getSongs();
     setSongs(updatedSongs);
     setSelectedSongId(newId);
   }, []);
 
   const handleDeleteSong = useCallback(
     async (id: string) => {
-      await deleteSong(id);
-      const updatedSongs = await getSongs();
+      await db.deleteSong(id);
+      const updatedSongs = await db.getSongs();
       setSongs(updatedSongs);
       if (selectedSongId === id) {
         setSelectedSongId(null);
@@ -310,11 +352,11 @@ function App() {
     async (id: string) => {
       const song = songs.find((s) => s.id === id);
       if (song) {
-        await updateSongFavorite(id, !song.isFavorite);
-        const updatedSongs = await getSongs();
+        await db.updateSongFavorite(id, !song.isFavorite);
+        const updatedSongs = await db.getSongs();
         setSongs(updatedSongs);
         if (selectedSongId === id) {
-          const updatedSong = await getSongById(id);
+          const updatedSong = await db.getSongById(id);
           setSelectedSong(updatedSong);
         }
       }
@@ -330,10 +372,10 @@ function App() {
 
   // Song updated callback
   const handleSongUpdated = useCallback(async () => {
-    const updatedSongs = await getSongs();
+    const updatedSongs = await db.getSongs();
     setSongs(updatedSongs);
     if (selectedSongId) {
-      const updatedSong = await getSongById(selectedSongId);
+      const updatedSong = await db.getSongById(selectedSongId);
       setSelectedSong(updatedSong);
       // 編集後の設定を同期（保存された値を読み込む）
       if (updatedSong) {
@@ -495,8 +537,8 @@ function App() {
   }, []);
 
   const handleCreatePlaylistSave = useCallback(async (name: string, description?: string) => {
-    await createPlaylist({ name, description });
-    const updatedPlaylists = await getPlaylists();
+    await db.createPlaylist({ name, description });
+    const updatedPlaylists = await db.getPlaylists();
     setPlaylists(updatedPlaylists);
     setIsCreatePlaylistModalOpen(false);
   }, []);
@@ -510,7 +552,7 @@ function App() {
     } else {
       // Expand
       setExpandedPlaylistId(playlistId);
-      const playlistData = await getPlaylistById(playlistId);
+      const playlistData = await db.getPlaylistById(playlistId);
       if (playlistData) {
         setExpandedPlaylistSongs(playlistData.songs.map(s => ({
           id: s.id,
@@ -523,13 +565,13 @@ function App() {
 
   // Handle add song to playlist
   const handleAddSongToPlaylist = useCallback(async (songId: string, playlistId: string) => {
-    await addSongToPlaylist(playlistId, songId);
+    await db.addSongToPlaylist(playlistId, songId);
     // Refresh playlists to update song count
-    const updatedPlaylists = await getPlaylists();
+    const updatedPlaylists = await db.getPlaylists();
     setPlaylists(updatedPlaylists);
     // If this playlist is expanded, refresh its songs
     if (expandedPlaylistId === playlistId) {
-      const playlistData = await getPlaylistById(playlistId);
+      const playlistData = await db.getPlaylistById(playlistId);
       if (playlistData) {
         setExpandedPlaylistSongs(playlistData.songs.map(s => ({
           id: s.id,
@@ -542,9 +584,9 @@ function App() {
 
   // Handle remove song from playlist
   const handleRemoveSongFromPlaylist = useCallback(async (playlistId: string, songId: string) => {
-    await removeSongFromPlaylist(playlistId, songId);
+    await db.removeSongFromPlaylist(playlistId, songId);
     // Refresh playlist songs
-    const playlistData = await getPlaylistById(playlistId);
+    const playlistData = await db.getPlaylistById(playlistId);
     if (playlistData) {
       setExpandedPlaylistSongs(playlistData.songs.map(s => ({
         id: s.id,
@@ -553,7 +595,7 @@ function App() {
       })));
     }
     // Refresh playlists to update song count
-    const updatedPlaylists = await getPlaylists();
+    const updatedPlaylists = await db.getPlaylists();
     setPlaylists(updatedPlaylists);
   }, []);
 
@@ -572,7 +614,7 @@ function App() {
         const songsWithoutArtist = songs.filter(s => !s.artistName);
         setArtistSongs(songsWithoutArtist);
       } else {
-        const songsByArtist = await getSongsByArtist(artistId);
+        const songsByArtist = await db.getSongsByArtist(artistId);
         setArtistSongs(songsByArtist);
       }
     }
@@ -775,6 +817,45 @@ function App() {
       />
     </Layout>
   );
+}
+
+/**
+ * アプリケーションルートコンポーネント
+ * AuthProviderでラップし、認証状態に応じて表示を切り替える
+ */
+function App() {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
+  );
+}
+
+/**
+ * 認証状態に応じたコンテンツ切り替え
+ */
+function AuthenticatedApp() {
+  const { isAuthenticated, loading } = useAuth();
+
+  // ローディング中
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 未認証の場合はログインページを表示
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
+  // 認証済みの場合はメインコンテンツを表示
+  return <AppContent />;
 }
 
 export default App;

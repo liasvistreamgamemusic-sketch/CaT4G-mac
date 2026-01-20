@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import {
-  fetchChordSheet,
-  parseChordSheetHtml,
+  scraper,
   isSupportedUrl,
   requiresManualInput,
   getSiteName,
-} from '@/lib/scraper';
-import type { FetchedChordSheet } from '@/lib/scraper';
+} from '@/lib/api';
+import type { FetchedChordSheet } from '@/lib/api';
 import type { CreateSongInput, CreateSectionInput } from '@/types/database';
 
 interface AddSongModalProps {
@@ -55,7 +54,7 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
     setError(null);
 
     try {
-      const result = await fetchChordSheet(url);
+      const result = await scraper.fetchChordSheet(url);
       setPreview(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : '取得に失敗しました');
@@ -78,7 +77,7 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
     setError(null);
 
     try {
-      const result = await parseChordSheetHtml(chordwikiUrl, chordwikiHtml);
+      const result = await scraper.parseChordSheetHtml(chordwikiUrl, chordwikiHtml);
       setPreview(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'パースに失敗しました');
