@@ -26,7 +26,7 @@ import { getScaledValues, MAX_SCALE } from '@/lib/scaling';
 // 型定義
 // ============================================
 
-export type ViewMode = 'compact' | 'standard' | 'detailed';
+export type ViewMode = 'compact' | 'standard' | 'detailed' | 'lyrics-only';
 
 interface PlayableChordLineProps {
   /** 歌詞テキスト */
@@ -61,9 +61,11 @@ export function PlayableChordLine({
   scale = MAX_SCALE,
 }: PlayableChordLineProps) {
   // 表示設定
-  const showDiagram = viewMode !== 'compact';
-  const showPlayingMethod = viewMode !== 'compact';
-  const showMemo = viewMode === 'detailed';
+  const isLyricsOnly = viewMode === 'lyrics-only';
+  const showChords = !isLyricsOnly;
+  const showDiagram = viewMode !== 'compact' && !isLyricsOnly;
+  const showPlayingMethod = viewMode !== 'compact' && !isLyricsOnly;
+  const showMemo = viewMode === 'detailed' && !isLyricsOnly;
 
   // スケーリングされた値を計算
   const scaledValues = useMemo(() => getScaledValues(scale), [scale]);
@@ -169,7 +171,8 @@ export function PlayableChordLine({
 
   return (
     <div className="space-y-0 group">
-      {/* コード行 */}
+      {/* コード行（lyrics-onlyモードでは非表示） */}
+      {showChords && (
       <div
         className={`relative font-mono bg-background-primary/30 rounded-t px-2 py-1 ${
           chords.length > 0 ? (showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8') : 'min-h-[2rem]'
@@ -298,12 +301,14 @@ export function PlayableChordLine({
           </span>
         )}
       </div>
+      )}
 
       {/* 歌詞行を囲む flex コンテナ */}
       <div className="flex items-center gap-2">
         {/* 既存の歌詞表示 */}
         <div className="flex-1 relative">
-          {/* アンダーラインマーカー（コード位置） */}
+          {/* アンダーラインマーカー（コード位置） - 歌詞のみモードでは非表示 */}
+          {showChords && (
           <div
             className="absolute inset-0 pointer-events-none px-3 py-1.5"
             style={{ fontFamily: 'monospace', fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em' }}
@@ -323,10 +328,11 @@ export function PlayableChordLine({
               );
             })}
           </div>
+          )}
 
           {/* 歌詞テキスト */}
           <div
-            className="w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] rounded-b px-3 py-1.5 font-mono font-semibold text-text-primary"
+            className={`w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] px-3 py-1.5 font-mono font-semibold text-text-primary ${showChords ? 'rounded-b' : 'rounded'}`}
             style={{ fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em', minHeight: `${32 * scale}px` }}
           >
             {lyrics || <span className="text-text-muted/30">&nbsp;</span>}

@@ -16,6 +16,8 @@ import {
   LayoutList,
   Layout,
   LayoutGrid,
+  Type,
+  FileText,
   ExternalLink,
   Undo2,
   Redo2,
@@ -30,7 +32,7 @@ import type { SongWithDetails } from '@/types/database';
 // 型定義
 // ============================================
 
-export type ViewMode = 'compact' | 'standard' | 'detailed';
+export type ViewMode = 'compact' | 'standard' | 'detailed' | 'lyrics-only';
 export type AppMode = 'play' | 'edit';
 
 interface SongTopBarProps {
@@ -66,6 +68,8 @@ interface SongTopBarProps {
   onCancel?: () => void;
   /** スケール係数（0.6〜1.0、デフォルト1.0） */
   scale?: number;
+  /** 歌詞全文モーダルを開くコールバック */
+  onOpenLyricsModal?: () => void;
 }
 
 // ============================================
@@ -155,6 +159,7 @@ export function SongTopBar({
   onRedo,
   onCancel,
   scale = 1.0,
+  onOpenLyricsModal,
 }: SongTopBarProps) {
   const { song: songData, artist } = song;
   const { toggleTheme, isDark } = useTheme();
@@ -296,7 +301,31 @@ export function SongTopBar({
             tooltip="詳細（全情報表示）"
             scale={scale}
           />
+          <ViewModeButton
+            mode="lyrics-only"
+            currentMode={viewMode}
+            onClick={() => onViewModeChange('lyrics-only')}
+            icon={<Type style={{ width: `${iconSize}px`, height: `${iconSize}px` }} />}
+            tooltip="歌詞のみ表示"
+            scale={scale}
+          />
         </div>
+
+        {/* 歌詞全文表示ボタン */}
+        {onOpenLyricsModal && (
+          <button
+            onClick={onOpenLyricsModal}
+            className="btn-glass hover:bg-[var(--btn-glass-hover)] transition-all"
+            style={{
+              width: `${btnHeight}px`,
+              height: `${btnHeight}px`,
+              padding: `${6 * scale}px`,
+            }}
+            title="歌詞全文を表示"
+          >
+            <FileText style={{ width: `${iconSize}px`, height: `${iconSize}px` }} />
+          </button>
+        )}
 
         {/* テーマ切り替えボタン */}
         <button

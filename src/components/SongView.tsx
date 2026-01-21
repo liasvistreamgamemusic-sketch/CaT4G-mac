@@ -81,6 +81,8 @@ interface SongViewProps {
   onScrollToLine?: (scrollFn: (lineId: string) => void) => void;
   /** 特定行から再生するコールバック */
   onPlayFromLine?: (lineId: string) => void;
+  /** 歌詞全文モーダルを開くコールバック */
+  onOpenLyricsModal?: () => void;
 }
 
 // ============================================
@@ -191,6 +193,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     onLineClick,
     onScrollToLine,
     onPlayFromLine,
+    onOpenLyricsModal,
     // These will be used when edit mode is fully implemented
     onTransposeChange: _onTransposeChange,
     onCapoChange: _onCapoChange,
@@ -855,6 +858,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           onRedo={redo}
           onCancel={handleCancelClick}
           scale={scale}
+          onOpenLyricsModal={onOpenLyricsModal}
         />
 
         {/* オートスクロール時の基準線 */}

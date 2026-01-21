@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { FloatingControlBar } from '@/components/FloatingControlBar';
 import { AddSongModal } from '@/components/AddSongModal';
 import { ChordDiagramModal } from '@/components/ChordDiagramModal';
+import { LyricsFullViewModal } from '@/components/LyricsFullViewModal';
 import { CreatePlaylistModal } from '@/components/CreatePlaylistModal';
 import { SongView } from '@/components/SongView';
 import { CountInOverlay } from '@/components/CountInOverlay';
@@ -54,6 +55,9 @@ function AppContent() {
   const [transpose, setTranspose] = useState(0);
   const [capo, setCapo] = useState(0);
   const [selectedChord, setSelectedChord] = useState<string | null>(null);
+
+  // Lyrics full view modal state
+  const [isLyricsModalOpen, setIsLyricsModalOpen] = useState(false);
 
   // Playlist state
   const [playlists, setPlaylists] = useState<PlaylistWithCount[]>([]);
@@ -409,6 +413,15 @@ function AppContent() {
     setSelectedChord(null);
   }, []);
 
+  // Lyrics modal handlers
+  const handleOpenLyricsModal = useCallback(() => {
+    setIsLyricsModalOpen(true);
+  }, []);
+
+  const handleCloseLyricsModal = useCallback(() => {
+    setIsLyricsModalOpen(false);
+  }, []);
+
   // Play/Pause handler with count-in support
   const handlePlayPause = useCallback(() => {
     if (isPlaying) {
@@ -745,6 +758,7 @@ function AppContent() {
                   onPlayFromLine={handlePlayFromLine}
                   currentRepeatIteration={currentRepeatIteration}
                   currentSectionIndex={currentSectionIndex}
+                  onOpenLyricsModal={handleOpenLyricsModal}
                 />
 
                 {/* Floating control bar - positioned inside scrollable area */}
@@ -786,6 +800,14 @@ function AppContent() {
       />
 
       <ChordDiagramModal chord={selectedChord} onClose={handleChordModalClose} />
+
+      {/* Lyrics full view modal */}
+      {isLyricsModalOpen && (
+        <LyricsFullViewModal
+          song={selectedSong}
+          onClose={handleCloseLyricsModal}
+        />
+      )}
 
       <CreatePlaylistModal
         isOpen={isCreatePlaylistModalOpen}
