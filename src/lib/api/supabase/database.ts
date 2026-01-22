@@ -25,6 +25,8 @@ import type {
   TimeSignature,
   Difficulty,
   Tuning,
+  ChordPreference,
+  ChordFingering,
 } from '@/types/database';
 import type { DatabaseAPI } from '../types';
 
@@ -228,7 +230,7 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
       .select('id')
       .eq('name', input.artistName)
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (existingArtist) {
       artistId = existingArtist.id;
@@ -372,7 +374,7 @@ export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void
         .select('id')
         .eq('name', input.artistName)
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (existingArtist) {
         artistId = existingArtist.id;
@@ -785,6 +787,90 @@ export async function deleteAnnotation(_id: UUID): Promise<void> {
 }
 
 // ============================================
+// Chord Preferences
+// ============================================
+
+export async function getChordPreferences(): Promise<ChordPreference[]> {
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+
+  const { data, error } = await supabase
+    .from('chord_preferences')
+    .select('*')
+    .eq('user_id', userId)
+    .order('chord_name');
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    chordName: row.chord_name,
+    fingering: row.fingering_json as ChordFingering,
+    isDefault: row.is_default,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function getChordPreference(chordName: string): Promise<ChordPreference | null> {
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+
+  const { data, error } = await supabase
+    .from('chord_preferences')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('chord_name', chordName)
+    .eq('is_default', true)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    chordName: data.chord_name,
+    fingering: data.fingering_json as ChordFingering,
+    isDefault: data.is_default,
+    createdAt: data.created_at,
+  };
+}
+
+export async function setChordPreference(
+  chordName: string,
+  fingering: ChordFingering
+): Promise<void> {
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+
+  const { error } = await supabase.from('chord_preferences').upsert(
+    {
+      user_id: userId,
+      chord_name: chordName,
+      fingering_json: fingering,
+      is_default: true,
+    },
+    {
+      onConflict: 'user_id,chord_name,is_default',
+    }
+  );
+
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteChordPreference(chordName: string): Promise<void> {
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+
+  const { error } = await supabase
+    .from('chord_preferences')
+    .delete()
+    .eq('user_id', userId)
+    .eq('chord_name', chordName);
+
+  if (error) throw new Error(error.message);
+}
+
+// ============================================
 // Export as DatabaseAPI implementation
 // ============================================
 
@@ -814,4 +900,8 @@ export const supabaseDatabase: DatabaseAPI = {
   createAnnotation,
   updateAnnotation,
   deleteAnnotation,
+  getChordPreferences,
+  getChordPreference,
+  setChordPreference,
+  deleteChordPreference,
 };

@@ -357,20 +357,37 @@ export const CHORD_DATABASE: Record<string, ChordDefinition> = {
   // ============================================
   // マイナーセブンス
   // ============================================
-  Am7: {
-    root: 'A',
+  Cm7: {
+    root: 'C',
     quality: 'm7',
     fingerings: [
       {
-        id: 'Am7-open',
-        frets: [0, 1, 0, 2, 0, null],
-        fingers: [null, 1, null, 2, null, null],
-        barreAt: null,
-        barreStrings: null,
-        baseFret: 1,
+        id: 'Cm7-barre',
+        frets: [3, 4, 3, 5, 3, null],
+        fingers: [1, 2, 1, 4, 1, null],
+        barreAt: 3,
+        barreStrings: [0, 4],
+        baseFret: 3,
         muted: [false, false, false, false, false, true],
         isDefault: true,
-        difficulty: 'easy',
+        difficulty: 'medium',
+      },
+    ],
+  },
+  'C#m7': {
+    root: 'C#',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'C#m7-barre',
+        frets: [4, 4, 4, 4, 6, 4],
+        fingers: [1, 1, 1, 1, 3, 1],
+        barreAt: 4,
+        barreStrings: [0, 5],
+        baseFret: 4,
+        muted: [false, false, false, false, false, false],
+        isDefault: true,
+        difficulty: 'medium',
       },
     ],
   },
@@ -391,6 +408,23 @@ export const CHORD_DATABASE: Record<string, ChordDefinition> = {
       },
     ],
   },
+  'D#m7': {
+    root: 'D#',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'D#m7-barre',
+        frets: [6, 6, 6, 6, 8, 6],
+        fingers: [1, 1, 1, 1, 3, 1],
+        barreAt: 6,
+        barreStrings: [0, 5],
+        baseFret: 6,
+        muted: [false, false, false, false, false, false],
+        isDefault: true,
+        difficulty: 'medium',
+      },
+    ],
+  },
   Em7: {
     root: 'E',
     quality: 'm7',
@@ -405,6 +439,125 @@ export const CHORD_DATABASE: Record<string, ChordDefinition> = {
         muted: [false, false, false, false, false, false],
         isDefault: true,
         difficulty: 'easy',
+      },
+    ],
+  },
+  Fm7: {
+    root: 'F',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'Fm7-barre',
+        frets: [1, 1, 1, 1, 3, 1],
+        fingers: [1, 1, 1, 1, 3, 1],
+        barreAt: 1,
+        barreStrings: [0, 5],
+        baseFret: 1,
+        muted: [false, false, false, false, false, false],
+        isDefault: true,
+        difficulty: 'hard',
+      },
+    ],
+  },
+  'F#m7': {
+    root: 'F#',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'F#m7-barre',
+        frets: [2, 2, 2, 2, 4, 2],
+        fingers: [1, 1, 1, 1, 3, 1],
+        barreAt: 2,
+        barreStrings: [0, 5],
+        baseFret: 2,
+        muted: [false, false, false, false, false, false],
+        isDefault: true,
+        difficulty: 'medium',
+      },
+    ],
+  },
+  Gm7: {
+    root: 'G',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'Gm7-barre',
+        frets: [3, 3, 3, 3, 5, 3],
+        fingers: [1, 1, 1, 1, 3, 1],
+        barreAt: 3,
+        barreStrings: [0, 5],
+        baseFret: 3,
+        muted: [false, false, false, false, false, false],
+        isDefault: true,
+        difficulty: 'medium',
+      },
+    ],
+  },
+  'G#m7': {
+    root: 'G#',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'G#m7-barre',
+        frets: [4, 4, 4, 4, 6, 4],
+        fingers: [1, 1, 1, 1, 3, 1],
+        barreAt: 4,
+        barreStrings: [0, 5],
+        baseFret: 4,
+        muted: [false, false, false, false, false, false],
+        isDefault: true,
+        difficulty: 'medium',
+      },
+    ],
+  },
+  Am7: {
+    root: 'A',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'Am7-open',
+        frets: [0, 1, 0, 2, 0, null],
+        fingers: [null, 1, null, 2, null, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: 1,
+        muted: [false, false, false, false, false, true],
+        isDefault: true,
+        difficulty: 'easy',
+      },
+    ],
+  },
+  'A#m7': {
+    root: 'A#',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'A#m7-barre',
+        frets: [1, 1, 1, 1, 3, 1],
+        fingers: [1, 1, 1, 1, 3, 1],
+        barreAt: 1,
+        barreStrings: [0, 5],
+        baseFret: 1,
+        muted: [false, false, false, false, false, false],
+        isDefault: true,
+        difficulty: 'medium',
+      },
+    ],
+  },
+  Bm7: {
+    root: 'B',
+    quality: 'm7',
+    fingerings: [
+      {
+        id: 'Bm7-barre',
+        frets: [2, 3, 2, 4, 2, null],
+        fingers: [1, 2, 1, 4, 1, null],
+        barreAt: 2,
+        barreStrings: [0, 4],
+        baseFret: 2,
+        muted: [false, false, false, false, false, true],
+        isDefault: true,
+        difficulty: 'medium',
       },
     ],
   },
@@ -713,10 +866,85 @@ export function getDefaultFingering(
 }
 
 /**
- * 利用可能な全コード名のリストを取得
+ * 利用可能な全コード名のリストを取得（データベースに定義があるもののみ）
  */
 export function getAllChordNames(): string[] {
   return Object.keys(CHORD_DATABASE);
+}
+
+/**
+ * 全ての一般的なコード名のリストを取得（Genkhord基準: 40種類 × 12ルート = 480コード）
+ * データベースに押さえ方がないコードも含む（動的に生成可能）
+ */
+export function getAllCommonChordNames(): string[] {
+  const roots = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+  // Genkhord準拠の30品質（分数コード以外）+ m7
+  const qualities = [
+    // 基本 (5種)
+    '', 'm', '7', 'm7', 'M7',
+    // ハーフディミニッシュ系 (2種)
+    'm7-5', 'm-5',
+    // ディミニッシュ/オーギュメント (3種)
+    'dim', 'dim7', 'aug',
+    // サスペンド系 (3種)
+    'sus2', 'sus4', '7sus4',
+    // シックス系 (2種)
+    '6', 'm6',
+    // マイナーメジャー (1種)
+    'mM7',
+    // ナインス系 (5種)
+    '9', 'm9', 'M9', '9sus4', 'add9',
+    // シックスナインス系 (2種)
+    '69', 'm69',
+    // オルタード系 (6種)
+    '-5', '7-5', '7+5', 'M7-5', 'm7+5', '7+9',
+    // 特殊 (2種)
+    '4.4', 'blk',
+  ];
+
+  const chords: string[] = [];
+
+  // 基本コード（30品質 × 12ルート = 360）
+  for (const root of roots) {
+    for (const quality of qualities) {
+      chords.push(root + quality);
+    }
+  }
+
+  // 分数コード（10種 × 12ルート = 120）
+  const intervals = {
+    major: [2, 4, 5, 7, 9, 10],  // 全音上, 長3度, 完全4度, 完全5度, 長6度, 短7度
+    minor: [3, 7],               // 短3度, 完全5度
+    minor7: [5, 10],             // 完全4度, 短7度
+  };
+
+  for (const root of roots) {
+    const rootIndex = roots.indexOf(root);
+
+    // メジャー分数コード (6種)
+    for (const interval of intervals.major) {
+      const bassIndex = (rootIndex + interval) % 12;
+      const bass = roots[bassIndex];
+      chords.push(`${root}/${bass}`);
+    }
+
+    // マイナー分数コード (2種)
+    for (const interval of intervals.minor) {
+      const bassIndex = (rootIndex + interval) % 12;
+      const bass = roots[bassIndex];
+      chords.push(`${root}m/${bass}`);
+    }
+
+    // マイナー7分数コード (2種)
+    for (const interval of intervals.minor7) {
+      const bassIndex = (rootIndex + interval) % 12;
+      const bass = roots[bassIndex];
+      chords.push(`${root}m7/${bass}`);
+    }
+  }
+
+  return chords;
 }
 
 /**

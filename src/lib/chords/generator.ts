@@ -5,6 +5,10 @@
  * 優先順位:
  * 1. データベース（database.ts） - 分数コード等の定義済みフィンガリング
  * 2. CAGEDシステム（cagedChords.ts） - バレーコードの動的生成
+ * 2.5. 対称コード（symmetricChords.ts） - dim, dim7, aug, aug7
+ * 2.6. パワーコード（powerChords.ts） - 5コード
+ * 2.7. ハーフディミニッシュ（m7b5Chords.ts） - m7b5, ø
+ * 2.8. 拡張コード（extendedChords.ts） - 9, M9, m9, madd9, 7sus4, 7sus2, add系
  * 3. 標準コードライブラリ（standardChords.ts） - 実用的で検証済みの押さえ方
  * 4. 動的生成 - 上記にない場合のフォールバック
  */
@@ -14,6 +18,11 @@ import { getStandardChordFingerings } from './standardChords';
 import { getCAGEDChordFingerings, isCAGEDSupported } from './cagedChords';
 import { getChordDefinition } from './database';
 import { normalizeQuality, isFingeringDisplayable } from './utils';
+import { isSymmetricChord, getSymmetricChordFingerings } from './symmetricChords';
+import { isExtendedChord, getExtendedChordFingerings } from './extendedChords';
+import { isPowerChord, getPowerChordFingerings } from './powerChords';
+import { isHalfDiminished, getHalfDiminishedFingerings } from './m7b5Chords';
+import { isSus2Chord, getSus2ChordFingerings } from './sus2Chords';
 
 // 開放弦の音（標準チューニング）
 // [1弦(E4), 2弦(B3), 3弦(G3), 4弦(D3), 5弦(A2), 6弦(E2)]
@@ -28,7 +37,9 @@ const NOTE_TO_MIDI: Record<string, number> = {
   'D#': 3,
   Eb: 3,
   E: 4,
+  Fb: 4, // E と同じ（異名同音）
   F: 5,
+  'E#': 5, // F と同じ（異名同音）
   'F#': 6,
   Gb: 6,
   G: 7,
@@ -38,6 +49,8 @@ const NOTE_TO_MIDI: Record<string, number> = {
   'A#': 10,
   Bb: 10,
   B: 11,
+  Cb: 11, // B と同じ（異名同音）
+  'B#': 0, // C と同じ（異名同音）
 };
 
 // コード構成音のインターバル定義
@@ -95,6 +108,7 @@ const CHORD_INTERVALS: Record<string, number[]> = {
   sus2: [0, 2, 7],
   sus4: [0, 5, 7],
   sus: [0, 5, 7],
+  '7sus2': [0, 2, 7, 10], // ルート, M2, P5, m7
   '7sus4': [0, 5, 7, 10],
   '7sus': [0, 5, 7, 10],
   '9sus4': [0, 5, 7, 10, 14],
@@ -119,8 +133,16 @@ const CHORD_INTERVALS: Record<string, number[]> = {
   '+': [0, 4, 8],
   aug7: [0, 4, 8, 10],
   '+7': [0, 4, 8, 10],
+  augM7: [0, 4, 8, 11], // aug + Major7
+  'aug(M7)': [0, 4, 8, 11],
+  '+M7': [0, 4, 8, 11],
   'M7#5': [0, 4, 8, 11],
   'maj7#5': [0, 4, 8, 11],
+  'M7#11': [0, 4, 7, 11, 18], // Major7 + Sharp11
+  'maj7#11': [0, 4, 7, 11, 18],
+  'M7(#11)': [0, 4, 7, 11, 18],
+  'augM7#11': [0, 4, 8, 11, 18], // aug + Major7 + Sharp11
+  'augM7(#11)': [0, 4, 8, 11, 18],
 
   // アルタード
   '7#5': [0, 4, 8, 10],
@@ -133,6 +155,30 @@ const CHORD_INTERVALS: Record<string, number[]> = {
   '7b13': [0, 4, 7, 10, 20],
   'alt': [0, 4, 8, 10, 13], // Altered dominant (7#5b9)
   '7alt': [0, 4, 8, 10, 13],
+
+  // 特殊コード
+  '4.4': [0, 5, 10], // クォータルコード (C-F-Bb)
+  'blk': [0, 2, 6, 10], // ブラックアダーコード（分数aug）: Root + M2 + #4 + m7
+
+  // フラット5系（エイリアス追加）
+  '-5': [0, 4, 6], // フラット5
+  'm-5': [0, 3, 6], // マイナーフラット5
+
+  // メジャー7フラット5
+  'M7-5': [0, 4, 6, 11], // メジャーセブンフラット5
+  'maj7-5': [0, 4, 6, 11], // エイリアス
+  'M7b5': [0, 4, 6, 11], // エイリアス
+
+  // マイナー7シャープ5
+  'm7+5': [0, 3, 8, 10], // マイナーセブンシャープ5
+  'm7#5': [0, 3, 8, 10], // エイリアス
+
+  // 7シャープ9のエイリアス
+  '7+9': [0, 4, 7, 10, 15], // 7#9のエイリアス
+
+  // シックスナインス（エイリアス追加）
+  '6/9': [0, 4, 7, 9, 14], // エイリアス
+  'm6/9': [0, 3, 7, 9, 14], // エイリアス
 };
 
 /**
@@ -286,6 +332,19 @@ function buildIntervalsFromQuality(quality: string): number[] {
     base[2] = 8; // 5thを#5に
   }
 
+  // #11判定
+  if (q.includes('#11') || q.includes('(#11)')) {
+    extensions.push(18); // #11 = 18 semitones (P5 + M6)
+  }
+
+  // M7判定（augM7などの複合コード用）
+  if ((q.includes('m7') && q.includes('aug')) || q.includes('+m7')) {
+    // augM7 の場合: aug + Major7
+    if (!extensions.includes(11) && !extensions.includes(10)) {
+      extensions.push(11);
+    }
+  }
+
   return [...base, ...extensions];
 }
 
@@ -343,6 +402,50 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
   if (isCAGEDSupported(chordName)) {
     const cagedFingerings = getCAGEDChordFingerings(chordName);
     for (const fingering of cagedFingerings) {
+      addIfUnique(fingering);
+    }
+  }
+
+  // コード名をパースしてqualityを取得
+  const parsed = parseChordName(chordName);
+  const quality = parsed?.quality ?? '';
+
+  // 2.5 対称コードシステム（dim, dim7, aug, aug7）
+  if (isSymmetricChord(quality)) {
+    const symmetricFingerings = getSymmetricChordFingerings(chordName);
+    for (const fingering of symmetricFingerings) {
+      addIfUnique(fingering);
+    }
+  }
+
+  // 2.6 パワーコード
+  if (isPowerChord(quality)) {
+    const powerFingerings = getPowerChordFingerings(chordName);
+    for (const fingering of powerFingerings) {
+      addIfUnique(fingering);
+    }
+  }
+
+  // 2.7 ハーフディミニッシュ
+  if (isHalfDiminished(quality)) {
+    const halfDimFingerings = getHalfDiminishedFingerings(chordName);
+    for (const fingering of halfDimFingerings) {
+      addIfUnique(fingering);
+    }
+  }
+
+  // 2.8 拡張コード（9, M9, m9, madd9, 7sus4, 7sus2, add系）
+  if (isExtendedChord(quality)) {
+    const extendedFingerings = getExtendedChordFingerings(chordName);
+    for (const fingering of extendedFingerings) {
+      addIfUnique(fingering);
+    }
+  }
+
+  // 2.9 sus2コード
+  if (isSus2Chord(quality)) {
+    const sus2Fingerings = getSus2ChordFingerings(chordName);
+    for (const fingering of sus2Fingerings) {
       addIfUnique(fingering);
     }
   }

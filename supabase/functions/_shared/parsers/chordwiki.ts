@@ -52,6 +52,16 @@ export function parse(html: string, sourceUrl: string): FetchedChordSheet {
     sheet.artist = extractArtist(subtitleEl.textContent || "");
   }
 
+  // Key: p.key - extract from "Key: Eb" format
+  const keyEl = doc.querySelector("p.key");
+  if (keyEl) {
+    const keyText = (keyEl.textContent || "").trim();
+    const keyMatch = keyText.match(/^Key[：:]\s*(.+)$/);
+    if (keyMatch) {
+      sheet.key = keyMatch[1].trim();
+    }
+  }
+
   // Parse main content
   const mainDiv = doc.querySelector("div.main");
   if (!mainDiv) {
@@ -154,8 +164,14 @@ function parseLineContent(el: Element): { lyrics: string; chords: FetchedChord[]
       if (child.classList.contains("chord")) {
         // Chord span - extract chord name
         const chordName = text.trim();
-        // Skip bar lines and empty chords
-        if (chordName && chordName !== "|" && !chordName.startsWith("|")) {
+        // Skip bar lines, accent marks, and empty chords
+        if (
+          chordName &&
+          chordName !== "|" &&
+          chordName !== ">" &&
+          chordName !== "<" &&
+          !chordName.startsWith("|")
+        ) {
           const position = [...lyrics].length;
           chords.push({ chord: chordName, position });
         }

@@ -3,9 +3,10 @@
  * クリックしたコードの押さえ方を表示
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ChordDiagramHorizontal } from './ChordDiagramHorizontal';
 import { getChordDefinition, getDefaultFingering, generateChordFingerings } from '@/lib/chords';
+import { useChordPreferencesContextSafe } from '@/contexts/ChordPreferencesContext';
 import type { ChordFingering } from '@/lib/chords/types';
 
 interface ChordDiagramModalProps {
@@ -67,6 +68,15 @@ function getFormLabel(fingeringId: string, baseFret: number): string {
 export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
   const [selectedFingeringIndex, setSelectedFingeringIndex] = useState(0);
   const [fingerings, setFingerings] = useState<ChordFingering[]>([]);
+  const [isSettingDefault, setIsSettingDefault] = useState(false);
+
+  // Get chord preferences context (may be null if not wrapped in provider)
+  const chordPreferencesContext = useChordPreferencesContextSafe();
+
+  const { getPreferred, setDefault } = chordPreferencesContext ?? {
+    getPreferred: () => null,
+    setDefault: async () => {},
+  };
 
   // コードが変わったらフィンガリングを取得
   // データベースのフィンガリングとCAGED生成のフィンガリングを結合
@@ -85,6 +95,20 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
 
     if (allFingerings.length > 0) {
       setFingerings(allFingerings);
+
+      // ユーザー設定を優先
+      const userPref = getPreferred(chord);
+      if (userPref) {
+        // ユーザーの好みのフィンガリングをリストから検索
+        const prefIndex = allFingerings.findIndex(
+          (f) => JSON.stringify(f.frets) === JSON.stringify(userPref.frets)
+        );
+        if (prefIndex >= 0) {
+          setSelectedFingeringIndex(prefIndex);
+          return;
+        }
+      }
+
       // デフォルトを選択（最初のものがデフォルト）
       const defaultIndex = allFingerings.findIndex((f) => f.isDefault);
       setSelectedFingeringIndex(defaultIndex >= 0 ? defaultIndex : 0);
@@ -102,7 +126,7 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
         setSelectedFingeringIndex(0);
       }
     }
-  }, [chord]);
+  }, [chord, getPreferred]);
 
   // ESCキーで閉じる
   useEffect(() => {
@@ -125,10 +149,28 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
     [onClose]
   );
 
+  // 現在のフィンガリングがユーザーのデフォルトかどうかチェック
+  const currentFingering = fingerings[selectedFingeringIndex];
+  const isCurrentDefault = useMemo(() => {
+    if (!currentFingering || !chord) return false;
+    const userPref = getPreferred(chord);
+    if (!userPref) return false;
+    return JSON.stringify(userPref.frets) === JSON.stringify(currentFingering.frets);
+  }, [currentFingering, chord, getPreferred]);
+
+  // デフォルト設定ハンドラ
+  const handleSetDefault = useCallback(async () => {
+    if (!currentFingering || !chord) return;
+    setIsSettingDefault(true);
+    try {
+      await setDefault(chord, currentFingering);
+    } finally {
+      setIsSettingDefault(false);
+    }
+  }, [currentFingering, chord, setDefault]);
+
   // モーダルが閉じている場合は何も表示しない
   if (!chord) return null;
-
-  const currentFingering = fingerings[selectedFingeringIndex];
 
   return (
     <div
@@ -181,14 +223,14 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
 
             {/* 難易度表示 */}
             <div className="mt-4 flex items-center gap-2">
-              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>難易度:</span>
+              <span className="text-sm text-text-secondary">難易度:</span>
               <span
                 className={`text-sm font-medium px-2 py-0.5 rounded ${
                   currentFingering.difficulty === 'easy'
-                    ? 'bg-green-500/20 text-green-400'
+                    ? 'bg-accent-green/20 text-accent-green'
                     : currentFingering.difficulty === 'medium'
-                      ? 'bg-yellow-500/20 text-yellow-400'
-                      : 'bg-red-500/20 text-red-400'
+                      ? 'bg-accent-yellow/20 text-accent-yellow'
+                      : 'bg-accent-red/20 text-accent-red'
                 }`}
               >
                 {currentFingering.difficulty === 'easy'
@@ -234,6 +276,21 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* デフォルト設定ボタン */}
+            {chordPreferencesContext && currentFingering && (
+              <button
+                onClick={handleSetDefault}
+                disabled={isSettingDefault}
+                className={`mt-4 text-xs px-3 py-1.5 rounded-lg transition-all ${
+                  isCurrentDefault
+                    ? 'bg-accent-green/20 text-accent-green border border-accent-green/30'
+                    : 'bg-background-hover/50 text-text-secondary hover:text-text-primary hover:bg-background-hover'
+                } ${isSettingDefault ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isCurrentDefault ? '\u2713 デフォルト設定済み' : 'デフォルトに設定'}
+              </button>
             )}
           </div>
         ) : (

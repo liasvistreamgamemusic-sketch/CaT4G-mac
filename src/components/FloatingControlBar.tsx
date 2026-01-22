@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { MetronomeBeatIndicator } from './MetronomeBeatIndicator';
 import { NumberStepper } from '@/components/ui/NumberStepper';
+import { ChevronsDown } from 'lucide-react';
 
 export type TimeSignature = '4/4' | '3/4' | '6/8' | '2/4';
 
@@ -24,6 +25,16 @@ interface FloatingControlBarProps {
   containerRef?: React.RefObject<HTMLElement>;
   /** スケール係数（0.6〜1.0、デフォルト1.0） */
   scale?: number;
+  /** シンプルスクロール中かどうか */
+  isSimpleScrolling?: boolean;
+  /** シンプルスクロールトグル */
+  onSimpleScrollToggle?: () => void;
+  /** シンプルスクロール速度 */
+  simpleScrollSpeed?: number;
+  /** シンプルスクロール速度変更 */
+  onSimpleScrollSpeedChange?: (value: number) => void;
+  /** ヘッダーが表示されているかどうか */
+  headerVisible?: boolean;
 }
 
 export function FloatingControlBar({
@@ -45,6 +56,11 @@ export function FloatingControlBar({
   currentBeat = 0,
   containerRef,
   scale = 1.0,
+  isSimpleScrolling = false,
+  onSimpleScrollToggle,
+  simpleScrollSpeed = 1.0,
+  onSimpleScrollSpeedChange,
+  headerVisible = true,
 }: FloatingControlBarProps) {
   const beatsPerMeasure = parseInt(timeSignature.split('/')[0], 10);
 
@@ -302,12 +318,15 @@ export function FloatingControlBar({
     />
   );
 
+  // ヘッダーが非表示の場合はより上に配置できるようにする
+  const topOffset = headerVisible ? 80 : 16;
+
   return (
     <div
       ref={barRef}
       className="absolute select-none"
       style={{
-        top: `${80 + position.y}px`,
+        top: `${topOffset + position.y}px`,
         left: '50%',
         transform: `translateX(calc(-50% + ${position.x}px))`,
         cursor: isDragging ? 'grabbing' : 'grab',
@@ -632,6 +651,48 @@ export function FloatingControlBar({
               Reset
             </button>
           )}
+
+          <Divider />
+
+          {/* Simple Scroll Controls */}
+          <div className="flex items-center" style={{ gap: `${spacing.sm}px` }}>
+            <span
+              className="font-medium uppercase tracking-wider"
+              style={{ color: 'var(--color-text-muted)', fontSize: `${fontSize.xs}px` }}
+            >
+              Scroll
+            </span>
+            <select
+              value={simpleScrollSpeed}
+              onChange={(e) => onSimpleScrollSpeedChange?.(parseFloat(e.target.value))}
+              className="rounded-lg cursor-pointer transition-all duration-200"
+              style={{
+                background: 'var(--input-bg)',
+                border: '1px solid var(--input-border)',
+                color: 'var(--color-text-secondary)',
+                fontSize: `${fontSize.sm}px`,
+                padding: `${spacing.xs}px ${spacing.sm}px`,
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--input-border-focus)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--input-border)';
+              }}
+            >
+              <option value="0.5">0.5x</option>
+              <option value="1.0">1.0x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2.0">2.0x</option>
+            </select>
+            <ControlButton
+              onClick={onSimpleScrollToggle}
+              active={isSimpleScrolling}
+              title={isSimpleScrolling ? 'スクロール停止' : 'シンプルスクロール開始'}
+            >
+              <ChevronsDown style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
+            </ControlButton>
+          </div>
         </div>
       </div>
     </div>

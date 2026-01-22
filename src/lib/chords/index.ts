@@ -33,6 +33,7 @@ export {
   getChordDefinition,
   getDefaultFingering,
   getAllChordNames,
+  getAllCommonChordNames,
   buildChordName,
 } from './database';
 
@@ -92,6 +93,13 @@ export {
 // Dynamic chord generator
 export { generateChordFingering, generateChordFingerings } from './generator';
 
+// Power chord generator
+export {
+  generatePowerChordFingerings,
+  isPowerChord,
+  getPowerChordFingerings,
+} from './powerChords';
+
 // Shared utilities
 export {
   normalizeQuality,
@@ -99,3 +107,42 @@ export {
   filterDisplayableFingerings,
   DISPLAYED_FRET_COUNT,
 } from './utils';
+
+// Half diminished (m7b5) chord generator
+export {
+  generatem7b5Fingerings,
+  isHalfDiminished,
+  getHalfDiminishedFingerings,
+} from './m7b5Chords';
+
+// Symmetric chord generator (dim/dim7/aug/aug7)
+export {
+  generateDimFingerings,
+  generateDim7Fingerings,
+  generateAugFingerings,
+  generateAug7Fingerings,
+  isSymmetricChord,
+  getSymmetricChordFingerings,
+} from './symmetricChords';
+
+// Extended chord generator (9/M9/m9/madd9/7sus4/7sus2/add9/add2/add4)
+export {
+  generate9Fingerings,
+  generateM9Fingerings,
+  generatem9Fingerings,
+  generatemadd9Fingerings,
+  generate7sus4Fingerings,
+  generate7sus2Fingerings,
+  generateadd9Fingerings,
+  generateadd2Fingerings,
+  generateadd4Fingerings,
+  isExtendedChord,
+  getExtendedChordFingerings,
+} from './extendedChords';
+
+// Sus2 chord generator
+export {
+  generateSus2Fingerings,
+  isSus2Chord,
+  getSus2ChordFingerings,
+} from './sus2Chords';

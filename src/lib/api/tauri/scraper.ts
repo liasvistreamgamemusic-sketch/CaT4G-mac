@@ -5,7 +5,12 @@
 
 import { invoke } from '@tauri-apps/api/core';
 import type { ScraperAPI } from '../types';
-import type { FetchedChordSheet, SupportedSite } from '@/lib/scraper';
+import type {
+  FetchedChordSheet,
+  SupportedSite,
+  UfretSearchResponse,
+  UfretSearchResult,
+} from '@/lib/scraper';
 
 /**
  * Fetch and parse chord sheet from URL
@@ -36,6 +41,29 @@ export async function parseChordSheetHtml(
  */
 export async function getSupportedSites(): Promise<SupportedSite[]> {
   return await invoke<SupportedSite[]>('get_supported_sites');
+}
+
+/**
+ * Search songs on U-Fret
+ * @param query - Search query (song title or artist name)
+ * @param page - Page number (optional, defaults to 1)
+ * @returns Search results with pagination info
+ */
+export async function searchUfret(query: string, page?: number): Promise<UfretSearchResponse> {
+  return await invoke<UfretSearchResponse>('search_ufret', { query, page: page ?? 1 });
+}
+
+/**
+ * Fetch artist's song list from U-Fret
+ * @param artistUrl - Artist page URL on U-Fret
+ * @param artistName - Artist name for result enrichment
+ * @returns Array of search results for the artist's songs
+ */
+export async function fetchArtistSongs(
+  artistUrl: string,
+  artistName: string
+): Promise<UfretSearchResult[]> {
+  return await invoke<UfretSearchResult[]>('fetch_artist_songs', { artistUrl, artistName });
 }
 
 // ============================================
@@ -81,4 +109,6 @@ export const tauriScraper: ScraperAPI = {
   fetchChordSheet,
   parseChordSheetHtml,
   getSupportedSites,
+  searchUfret,
+  fetchArtistSongs,
 };

@@ -50,3 +50,6 @@ export type {
   UseRealtimeSyncOptions,
   UseRealtimeSyncReturn,
 } from './useRealtimeSync';
+
+export { useChordPreferences } from './useChordPreferences';
+export type { UseChordPreferencesReturn } from './useChordPreferences';

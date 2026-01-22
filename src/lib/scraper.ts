@@ -31,6 +31,28 @@ export interface SupportedSite {
   example_url: string;
 }
 
+// U-Fretアーティスト検索結果
+export interface UfretArtistResult {
+  name: string;
+  url: string;
+}
+
+// U-Fret検索結果
+export interface UfretSearchResult {
+  song_id: string;
+  title: string;
+  artist: string;
+  url: string;
+  version: string | null;
+}
+
+export interface UfretSearchResponse {
+  artists: UfretArtistResult[];
+  results: UfretSearchResult[];
+  has_more: boolean;
+  current_page: number;
+}
+
 /**
  * Fetch and parse chord sheet from URL
  * @param url - URL of the chord sheet page

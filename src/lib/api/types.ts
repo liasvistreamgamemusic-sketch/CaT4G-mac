@@ -15,6 +15,8 @@ import type {
   CreateSongInput,
   CreatePlaylistInput,
   UpdateSongInput,
+  ChordPreference,
+  ChordFingering,
 } from '@/types/database';
 
 // Re-export types from scraper for convenience
@@ -24,6 +26,9 @@ export type {
   FetchedLine,
   FetchedChord,
   SupportedSite,
+  UfretArtistResult,
+  UfretSearchResponse,
+  UfretSearchResult,
 } from '@/lib/scraper';
 
 // ============================================
@@ -183,13 +188,42 @@ export interface DatabaseAPI {
    * Delete an annotation
    */
   deleteAnnotation(id: UUID): Promise<void>;
+
+  // ----------------------------------------
+  // Chord Preferences
+  // ----------------------------------------
+
+  /**
+   * Get all user's chord preferences
+   */
+  getChordPreferences(): Promise<ChordPreference[]>;
+
+  /**
+   * Get preference for a specific chord
+   */
+  getChordPreference(chordName: string): Promise<ChordPreference | null>;
+
+  /**
+   * Set/Update default fingering for a chord (upsert)
+   */
+  setChordPreference(chordName: string, fingering: ChordFingering): Promise<void>;
+
+  /**
+   * Delete preference (revert to system default)
+   */
+  deleteChordPreference(chordName: string): Promise<void>;
 }
 
 // ============================================
 // Scraper API Interface
 // ============================================
 
-import type { FetchedChordSheet, SupportedSite } from '@/lib/scraper';
+import type {
+  FetchedChordSheet,
+  SupportedSite,
+  UfretSearchResponse,
+  UfretSearchResult,
+} from '@/lib/scraper';
 
 /**
  * Unified Scraper API interface
@@ -211,6 +245,22 @@ export interface ScraperAPI {
    * Get list of supported chord sheet sites
    */
   getSupportedSites(): Promise<SupportedSite[]>;
+
+  /**
+   * Search songs on U-Fret
+   * @param query - Search query (song title or artist name)
+   * @param page - Page number (optional, defaults to 1)
+   * @returns Search results with pagination info
+   */
+  searchUfret(query: string, page?: number): Promise<UfretSearchResponse>;
+
+  /**
+   * Fetch artist's song list from U-Fret
+   * @param artistUrl - Artist page URL on U-Fret
+   * @param artistName - Artist name for result enrichment
+   * @returns Array of search results for the artist's songs
+   */
+  fetchArtistSongs(artistUrl: string, artistName: string): Promise<UfretSearchResult[]>;
 }
 
 // ============================================

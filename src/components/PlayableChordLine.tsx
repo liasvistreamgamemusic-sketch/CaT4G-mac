@@ -17,6 +17,7 @@ import { generateChordFingerings } from '@/lib/chords';
 import { transposeChord } from '@/lib/chords';
 import type { ChordFingering } from '@/lib/chords/types';
 import { getScaledValues, MAX_SCALE } from '@/lib/scaling';
+import { useChordPreferencesContextSafe } from '@/contexts/ChordPreferencesContext';
 
 // ============================================
 // 定数はスケーリングモジュール（src/lib/scaling.ts）で管理
@@ -60,6 +61,9 @@ export function PlayableChordLine({
   onPlayFromLine,
   scale = MAX_SCALE,
 }: PlayableChordLineProps) {
+  // ユーザーのコード設定を取得
+  const chordPreferences = useChordPreferencesContextSafe();
+
   // 表示設定
   const isLyricsOnly = viewMode === 'lyrics-only';
   const showChords = !isLyricsOnly;
@@ -119,6 +123,22 @@ export function PlayableChordLine({
   const chordFingerings = useMemo(() => {
     const fingerings: Record<number, ChordFingering | null> = {};
     transposedChords.forEach((chord, index) => {
+      // ユーザー設定を先にチェック
+      const userPref = chordPreferences?.getPreferred(chord.chord);
+      if (userPref) {
+        // データベースの ChordFingering を lib の ChordFingering に変換
+        fingerings[index] = {
+          ...userPref,
+          id: userPref.id ?? `user-pref-${chord.chord}`,
+          barreStrings: userPref.barreStrings ?? (userPref.barreAt ? [0, 5] : null),
+          muted: userPref.muted ?? userPref.frets.map(f => f === null),
+          isDefault: userPref.isDefault ?? true,
+          difficulty: userPref.difficulty ?? 'medium',
+        } as ChordFingering;
+        return;
+      }
+
+      // voicingId またはデフォルトにフォールバック
       const allFingerings = generateChordFingerings(chord.chord);
       if (chord.voicingId) {
         const selected = allFingerings.find((f) => f.id === chord.voicingId);
@@ -128,7 +148,7 @@ export function PlayableChordLine({
       }
     });
     return fingerings;
-  }, [transposedChords]);
+  }, [transposedChords, chordPreferences]);
 
   // メソッドインジケーターを取得
   const getMethodIndicator = (chord: ExtendedChordPosition): string => {
@@ -208,6 +228,7 @@ export function PlayableChordLine({
                 width: displayWidth,
                 minHeight: displayHeight,
               }}
+              onClick={(e) => e.stopPropagation()}
               onDoubleClick={() => onChordClick?.(chord.chord)}
               title={`${chord.chord}${chord.annotation ? `\n${chord.annotation}` : ''}`}
             >

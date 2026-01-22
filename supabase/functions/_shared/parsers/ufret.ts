@@ -11,6 +11,9 @@ import type {
   FetchedChordSheet,
   FetchedLine,
   FetchedSection,
+  UfretArtistResult,
+  UfretSearchResponse,
+  UfretSearchResult,
 } from "../types.ts";
 
 /**
@@ -461,4 +464,126 @@ function parseChordLine(line: string): FetchedChord[] {
   }
 
   return chords;
+}
+
+/**
+ * U-Fret検索結果HTMLをパース
+ * 検索URL形式: https://www.ufret.jp/search.php?key=検索語&p=ページ番号
+ */
+export function parseSearchResults(
+  html: string,
+  page: number
+): UfretSearchResponse {
+  const results: UfretSearchResult[] = [];
+  const artists: UfretArtistResult[] = [];
+
+  // アーティスト検索結果を抽出
+  // パターン: 「アーティストの検索結果」セクション内のボタン/リンク
+  const artistSectionMatch = html.match(
+    /アーティストの検索結果[\s\S]*?(?=曲の検索結果|$)/i
+  );
+  if (artistSectionMatch) {
+    // アーティスト名を抽出（ボタンやリンクのテキスト）
+    const artistPattern = /<(?:button|a)[^>]*>([^<]+)<\/(?:button|a)>/gi;
+    let artistMatch;
+    while ((artistMatch = artistPattern.exec(artistSectionMatch[0])) !== null) {
+      const name = artistMatch[1].trim();
+      if (name && !name.includes("検索結果")) {
+        artists.push({
+          name,
+          url: `https://www.ufret.jp/artist.php?data=${encodeURIComponent(name)}`,
+        });
+      }
+    }
+  }
+
+  // 検索結果のリンクを正規表現で抽出
+  // パターン: <a href="/song.php?data=ID">...<strong>曲名</strong>...アーティスト名...</a>
+  const linkPattern =
+    /<a[^>]*href="\/song\.php\?data=(\d+)"[^>]*>([\s\S]*?)<\/a>/gi;
+
+  let match;
+  while ((match = linkPattern.exec(html)) !== null) {
+    const songId = match[1];
+    const content = match[2];
+
+    // 曲名抽出: <strong>曲名</strong>
+    const titleMatch = content.match(/<strong[^>]*>([^<]+)<\/strong>/i);
+    const title = titleMatch ? titleMatch[1].trim() : "";
+
+    // アーティスト名抽出: "- アーティスト名" または末尾のテキスト
+    // HTMLタグを除去してからアーティスト名を探す
+    const textOnly = content.replace(/<[^>]+>/g, "");
+    const artistMatch = textOnly.match(/[-－]\s*(.+?)$/);
+    const artist = artistMatch ? artistMatch[1].trim() : "";
+
+    // バージョン情報抽出: 初心者向け簡単コード、動画プラス等
+    let version: string | null = null;
+    if (content.includes("初心者向け簡単コード")) {
+      version = "初心者向け簡単コード";
+    } else if (content.includes("動画プラス")) {
+      version = "動画プラス";
+    }
+
+    if (songId && title) {
+      results.push({
+        song_id: songId,
+        title,
+        artist,
+        url: `https://www.ufret.jp/song.php?data=${songId}`,
+        version,
+      });
+    }
+  }
+
+  // 次ページの存在確認
+  const hasMore =
+    html.includes(`p=${page + 1}`) || html.includes(`&p=${page + 1}`);
+
+  return {
+    artists,
+    results,
+    has_more: hasMore,
+    current_page: page,
+  };
+}
+
+/**
+ * U-Fretアーティストページから曲一覧をパース
+ * URL形式: https://www.ufret.jp/artist.php?data=アーティスト名
+ */
+export function parseArtistPage(
+  html: string,
+  artistName: string
+): UfretSearchResult[] {
+  const results: UfretSearchResult[] = [];
+  const seenIds = new Set<string>();
+
+  // 曲ページへのリンクを抽出
+  // 実際のHTML構造: <a href="/song.php?data=12345" class="...normal-chord..."><strong>曲名</strong>...</a>
+  // normal-chord クラスを持つリンクのみ取得（plus-chord は非表示なので除外）
+  const linkPattern =
+    /<a[^>]*href="\/song\.php\?data=(\d+)"[^>]*class="[^"]*normal-chord[^"]*"[^>]*>[\s\S]*?<strong>([^<]+)<\/strong>[\s\S]*?<\/a>/gi;
+
+  let match;
+  while ((match = linkPattern.exec(html)) !== null) {
+    const songId = match[1];
+    const title = match[2].trim();
+
+    // 重複を除外
+    if (seenIds.has(songId)) continue;
+    seenIds.add(songId);
+
+    if (songId && title) {
+      results.push({
+        song_id: songId,
+        title,
+        artist: artistName,
+        url: `https://www.ufret.jp/song.php?data=${songId}`,
+        version: null,  // normal-chordは通常版
+      });
+    }
+  }
+
+  return results;
 }

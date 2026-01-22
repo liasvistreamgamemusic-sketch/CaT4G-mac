@@ -65,3 +65,25 @@ export interface ErrorResponse {
   error: string;
   code?: string;
 }
+
+// U-Fretアーティスト検索結果
+export interface UfretArtistResult {
+  name: string;
+  url: string; // https://www.ufret.jp/artist.php?data=XXX
+}
+
+// U-Fret検索結果
+export interface UfretSearchResult {
+  song_id: string;
+  title: string;
+  artist: string;
+  url: string;
+  version: string | null; // 初心者向け簡単コード、動画プラス等
+}
+
+export interface UfretSearchResponse {
+  artists: UfretArtistResult[];
+  results: UfretSearchResult[];
+  has_more: boolean;
+  current_page: number;
+}

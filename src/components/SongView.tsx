@@ -53,7 +53,9 @@ interface SongViewProps {
   playbackSpeed: number;
   /** 再生中かどうか（オートスクロール） */
   isPlaying: boolean;
-  /** 基準線の位置（0.0〜1.0、コンテンツエリア上部からの割合）デフォルト: 0.25（25%） */
+  /** シンプルスクロール中かどうか */
+  isSimpleScrolling?: boolean;
+  /** 基準線の位置（0.0〜1.0、コンテンツエリア上部からの割合）デフォルト: 0.35（35%） */
   baselinePosition?: number;
   /** 現在の繰り返し回数（1-based） */
   currentRepeatIteration?: number;
@@ -182,7 +184,8 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     capo,
     playbackSpeed,
     isPlaying,
-    baselinePosition = 0.25,
+    isSimpleScrolling = false,
+    baselinePosition = 0.35,
     currentRepeatIteration,
     currentSectionIndex,
     onModeChange,
@@ -215,7 +218,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
 
   // 基準線のY座標（ビューポート座標）
   const [baselineY, setBaselineY] = useState(0);
-  // 基準線オフセット（コンテナ高さの25%）
+  // 基準線オフセット（コンテナ高さの35%）
   const [baselineOffset, setBaselineOffset] = useState(0);
 
   // コンテンツエリアのサイズ変更時に基準線位置を更新
@@ -223,10 +226,10 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     const updateBaselinePosition = () => {
       if (contentRef.current) {
         const rect = contentRef.current.getBoundingClientRect();
-        // 基準線は画面の上から15%の位置
-        const offset = rect.height * 0.25;
+        // 基準線は画面の上から35%の位置
+        const offset = rect.height * 0.35;
         setBaselineOffset(offset);
-        setBaselineY(rect.top + offset);
+        setBaselineY(window.innerHeight * 0.35);  // ビューポート基準の固定位置
       }
     };
     updateBaselinePosition();
@@ -245,11 +248,10 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
   const scrollToSection = useCallback((sectionId: string) => {
     const element = document.querySelector(`[data-section-id="${sectionId}"]`);
     if (element && contentRef.current) {
-      const containerRect = contentRef.current.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
 
-      // 基準線のビューポート位置（コンテナ高さの15%）
-      const baselineViewportY = containerRect.top + containerRect.height * 0.25;
+      // 基準線のビューポート位置（ビューポートの高さの35%）
+      const baselineViewportY = window.innerHeight * 0.35;
 
       // 必要なスクロール量 = 要素の現在位置 - 基準線位置
       const scrollDelta = elementRect.top - baselineViewportY;
@@ -263,16 +265,16 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
     onSectionClick?.(sectionId);
   }, [onSectionClick]);
 
-  // 行へスムーズスクロール（ビューポート座標ベース）
+  // 行へスクロール（ビューポート座標ベース）
+  // 速度再生中は即座に移動（オートスクロールとの競合防止）
   const scrollToLine = useCallback((lineId: string) => {
     const lineElement = contentRef.current?.querySelector(`[data-line-id="${lineId}"]`);
     if (!lineElement || !contentRef.current) return;
 
-    const containerRect = contentRef.current.getBoundingClientRect();
     const elementRect = lineElement.getBoundingClientRect();
 
-    // 基準線のビューポート位置（コンテナ高さの25%）
-    const baselineViewportY = containerRect.top + containerRect.height * 0.25;
+    // 基準線のビューポート位置（ビューポートの高さの35%）
+    const baselineViewportY = window.innerHeight * 0.35;
 
     // 必要なスクロール量 = 要素の現在位置 - 基準線位置
     const scrollDelta = elementRect.top - baselineViewportY;
@@ -280,9 +282,10 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
 
     contentRef.current.scrollTo({
       top: Math.max(0, newScrollTop),
-      behavior: 'smooth',
+      // 速度再生中は即座に移動、それ以外はスムーズに
+      behavior: isSimpleScrolling ? 'instant' : 'smooth',
     });
-  }, []); // No dependencies - uses getBoundingClientRect() for fresh values
+  }, [isSimpleScrolling]);
 
   // scrollToLine を親に渡す
   useEffect(() => {
@@ -840,26 +843,35 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
 
       {/* メインコンテンツエリア */}
       <div className="flex flex-col flex-1 min-w-0">
-        {/* トップバー */}
-        <SongTopBar
-          song={song}
-          mode={mode}
-          viewMode={viewMode}
-          playbackSpeed={playbackSpeed}
-          isPlaying={isPlaying}
-          onModeChange={onModeChange}
-          onViewModeChange={onViewModeChange}
-          hasUnsavedChanges={hasUnsavedChanges}
-          onSave={handleSave}
-          isSaving={isSaving}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          onUndo={undo}
-          onRedo={redo}
-          onCancel={handleCancelClick}
-          scale={scale}
-          onOpenLyricsModal={onOpenLyricsModal}
-        />
+        {/* トップバー（再生中は非表示） */}
+        <div
+          className={`
+            transition-all duration-300 ease-in-out overflow-hidden
+            ${(isPlaying || isSimpleScrolling) && mode === 'play'
+              ? 'max-h-0 opacity-0'
+              : 'max-h-24 opacity-100'}
+          `}
+        >
+          <SongTopBar
+            song={song}
+            mode={mode}
+            viewMode={viewMode}
+            playbackSpeed={playbackSpeed}
+            isPlaying={isPlaying}
+            onModeChange={onModeChange}
+            onViewModeChange={onViewModeChange}
+            hasUnsavedChanges={hasUnsavedChanges}
+            onSave={handleSave}
+            isSaving={isSaving}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            onUndo={undo}
+            onRedo={redo}
+            onCancel={handleCancelClick}
+            scale={scale}
+            onOpenLyricsModal={onOpenLyricsModal}
+          />
+        </div>
 
         {/* オートスクロール時の基準線 */}
         {isPlaying && mode === 'play' && (
@@ -1050,12 +1062,9 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                         key={line.id}
                         data-line-id={line.id}
                         onClick={() => {
+                          scrollToLine(String(line.id));
                           if (isPlaying) {
-                            // 再生中: handleLineClick で処理
                             onLineClick?.(String(line.id));
-                          } else {
-                            // 停止中: スクロールのみ
-                            scrollToLine(String(line.id));
                           }
                         }}
                         className="cursor-pointer hover:bg-[var(--btn-glass-hover)] rounded transition-colors -mx-2 px-2 py-1"
@@ -1064,12 +1073,9 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
+                            scrollToLine(String(line.id));
                             if (isPlaying) {
-                              // 再生中: handleLineClick で処理
                               onLineClick?.(String(line.id));
-                            } else {
-                              // 停止中: スクロールのみ
-                              scrollToLine(String(line.id));
                             }
                           }
                         }}

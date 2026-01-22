@@ -26,10 +26,15 @@ export interface ChordPosition {
 
 /** コードの押さえ方（フレット・指・バレー情報） */
 export interface ChordFingering {
+  id?: string; // Unique identifier for the fingering
   frets: (number | null)[]; // [E, A, D, G, B, e] - null = ミュート
   fingers: (number | null)[]; // 1=人差し指, 2=中指, 3=薬指, 4=小指
   barreAt: number | null; // バレーフレット位置
+  barreStrings?: [number, number] | null; // バレーする弦の範囲 [開始, 終了]
   baseFret: number; // 開始フレット（1 = オープンポジション）
+  muted?: boolean[]; // ミュートする弦の配列
+  isDefault?: boolean; // Whether this is the default fingering
+  difficulty?: 'easy' | 'medium' | 'hard'; // Difficulty level
 }
 
 // ============================================

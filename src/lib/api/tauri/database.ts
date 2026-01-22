@@ -28,10 +28,13 @@ import type {
   TagRow,
   PlaylistRow,
   AnnotationRow,
+  ChordPreferenceRow,
   TimeSignature,
   Difficulty,
   Tuning,
   UpdateSongInput,
+  ChordPreference,
+  ChordFingering,
 } from '@/types/database';
 import type { DatabaseAPI } from '../types';
 
@@ -876,6 +879,66 @@ export async function deleteAnnotation(id: UUID): Promise<void> {
 }
 
 // ============================================
+// Chord Preferences
+// ============================================
+
+export async function getChordPreferences(): Promise<ChordPreference[]> {
+  const database = await getDatabase();
+  const rows = await database.select<ChordPreferenceRow[]>(
+    'SELECT * FROM chord_preferences ORDER BY chord_name'
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    chordName: row.chord_name,
+    fingering: JSON.parse(row.fingering_json) as ChordFingering,
+    isDefault: row.is_default === 1,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function getChordPreference(chordName: string): Promise<ChordPreference | null> {
+  const database = await getDatabase();
+  const rows = await database.select<ChordPreferenceRow[]>(
+    'SELECT * FROM chord_preferences WHERE chord_name = ? AND is_default = 1',
+    [chordName]
+  );
+
+  if (rows.length === 0) return null;
+
+  const row = rows[0];
+  return {
+    id: row.id,
+    chordName: row.chord_name,
+    fingering: JSON.parse(row.fingering_json) as ChordFingering,
+    isDefault: row.is_default === 1,
+    createdAt: row.created_at,
+  };
+}
+
+export async function setChordPreference(
+  chordName: string,
+  fingering: ChordFingering
+): Promise<void> {
+  const database = await getDatabase();
+  const id = generateUUID();
+  const now = new Date().toISOString();
+  const fingeringJson = JSON.stringify(fingering);
+
+  await database.execute(
+    `INSERT INTO chord_preferences (id, chord_name, fingering_json, is_default, created_at)
+     VALUES (?, ?, ?, 1, ?)
+     ON CONFLICT(chord_name, is_default) DO UPDATE SET fingering_json = ?`,
+    [id, chordName, fingeringJson, now, fingeringJson]
+  );
+}
+
+export async function deleteChordPreference(chordName: string): Promise<void> {
+  const database = await getDatabase();
+  await database.execute('DELETE FROM chord_preferences WHERE chord_name = ?', [chordName]);
+}
+
+// ============================================
 // Export as DatabaseAPI implementation
 // ============================================
 
@@ -905,4 +968,8 @@ export const tauriDatabase: DatabaseAPI = {
   createAnnotation,
   updateAnnotation,
   deleteAnnotation,
+  getChordPreferences,
+  getChordPreference,
+  setChordPreference,
+  deleteChordPreference,
 };

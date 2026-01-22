@@ -6,12 +6,14 @@ import { AddSongModal } from '@/components/AddSongModal';
 import { ChordDiagramModal } from '@/components/ChordDiagramModal';
 import { LyricsFullViewModal } from '@/components/LyricsFullViewModal';
 import { CreatePlaylistModal } from '@/components/CreatePlaylistModal';
+import { ChordDefaultsSettings } from '@/components/ChordDefaultsSettings';
 import { SongView } from '@/components/SongView';
 import { CountInOverlay } from '@/components/CountInOverlay';
 import type { ViewMode, AppMode } from '@/components/SongView';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { AuthProvider, useAuth, LoginPage } from '@/components/Auth';
-import { useMeasureScroll, useKeyboardShortcuts, useMetronome, useTheme, useContainerScale, useRealtimeSync } from '@/hooks';
+import { ChordPreferencesProvider } from '@/contexts/ChordPreferencesContext';
+import { useMeasureScroll, useKeyboardShortcuts, useMetronome, useTheme, useContainerScale, useRealtimeSync, useAutoScroll } from '@/hooks';
 import { Sun, Moon } from 'lucide-react';
 import type { MeasureSectionInfo } from '@/hooks';
 import type { TimeSignature } from '@/hooks';
@@ -59,6 +61,9 @@ function AppContent() {
   // Lyrics full view modal state
   const [isLyricsModalOpen, setIsLyricsModalOpen] = useState(false);
 
+  // Chord settings modal state
+  const [isChordSettingsOpen, setIsChordSettingsOpen] = useState(false);
+
   // Playlist state
   const [playlists, setPlaylists] = useState<PlaylistWithCount[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
@@ -80,6 +85,10 @@ function AppContent() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [bpm, setBpm] = useState(120);
+
+  // Simple scroll state (BPM非連動のシンプルスクロール)
+  const [isSimpleScrolling, setIsSimpleScrolling] = useState(false);
+  const [simpleScrollSpeed, setSimpleScrollSpeed] = useState(1.0);
 
   // Metronome state
   const [metronomeEnabled, setMetronomeEnabled] = useState(false);
@@ -123,6 +132,16 @@ function AppContent() {
     scrollToLine: (lineId) => scrollToLineRef.current?.(lineId),
   });
 
+  // Simple autoscroll hook (BPM非連動)
+  useAutoScroll({
+    isPlaying: isSimpleScrolling,
+    scrollSpeed: simpleScrollSpeed,
+    bpm: undefined,
+    bpmSync: false,
+    containerRef: mainAreaRef,
+    onReachEnd: () => setIsSimpleScrolling(false),
+  });
+
   // Scroll to top function for keyboard shortcuts
   const scrollToTop = useCallback(() => {
     resetScroll();
@@ -138,7 +157,7 @@ function AppContent() {
     const container = mainAreaRef.current;
     const containerRect = container.getBoundingClientRect();
     // 基準線は画面の上から15%の位置
-    const baselineY = containerRect.top + containerRect.height * 0.25;
+    const baselineY = containerRect.top + containerRect.height *0.35;
 
     const lineElements = container.querySelectorAll('[data-line-id]');
     if (lineElements.length === 0) return null;
@@ -430,6 +449,10 @@ function AppContent() {
       // メトロノームも停止（ビジュアルカウントのため常に停止）
       stopMetronome();
     } else {
+      // シンプルスクロール中なら停止
+      if (isSimpleScrolling) {
+        setIsSimpleScrolling(false);
+      }
       // playStartLineId がなければ基準線に最も近い行から開始
       if (!playStartLineId) {
         const nearestLineId = findNearestLineToBaseline();
@@ -443,7 +466,7 @@ function AppContent() {
       // 再生開始時はカウントインを開始
       setIsCountingIn(true);
     }
-  }, [isPlaying, playStartLineId, measureScrollSections, currentBpm, stopMetronome, findNearestLineToBaseline]);
+  }, [isPlaying, isSimpleScrolling, playStartLineId, measureScrollSections, currentBpm, stopMetronome, findNearestLineToBaseline]);
 
   // カウントイン完了時のハンドラー
   // 注意: playStartLineIdRef を使用して依存配列から playStartLineId を除外
@@ -514,6 +537,25 @@ function AppContent() {
       setIsCountingIn(true);
     }
   }, [measureScrollSections, currentBpm]);
+
+  // シンプルスクロール トグルハンドラー
+  const handleSimpleScrollToggle = useCallback(() => {
+    if (isSimpleScrolling) {
+      setIsSimpleScrolling(false);
+    } else {
+      // BPM再生中なら停止
+      if (isPlaying) {
+        setIsPlaying(false);
+        stopMetronome();
+      }
+      setIsSimpleScrolling(true);
+    }
+  }, [isSimpleScrolling, isPlaying, stopMetronome]);
+
+  // シンプルスクロール速度変更ハンドラー
+  const handleSimpleScrollSpeedChange = useCallback((value: number) => {
+    setSimpleScrollSpeed(value);
+  }, []);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -727,6 +769,7 @@ function AppContent() {
             onArtistExpand={handleArtistExpand}
             onWidthChange={setSidebarWidth}
             scale={scale}
+            onOpenChordSettings={() => setIsChordSettingsOpen(true)}
           />
         )}
 
@@ -746,6 +789,7 @@ function AppContent() {
                   capo={capo}
                   playbackSpeed={playbackSpeed}
                   isPlaying={isPlaying}
+                  isSimpleScrolling={isSimpleScrolling}
                   onModeChange={handleModeChange}
                   onViewModeChange={setViewMode}
                   onChordClick={handleChordClick}
@@ -782,6 +826,11 @@ function AppContent() {
                     currentBeat={currentBeat}
                     containerRef={mainAreaRef}
                     scale={scale}
+                    isSimpleScrolling={isSimpleScrolling}
+                    onSimpleScrollToggle={handleSimpleScrollToggle}
+                    simpleScrollSpeed={simpleScrollSpeed}
+                    onSimpleScrollSpeedChange={handleSimpleScrollSpeedChange}
+                    headerVisible={!((isPlaying || isSimpleScrolling) && mode === 'play')}
                   />
                 )}
               </div>
@@ -813,6 +862,12 @@ function AppContent() {
         isOpen={isCreatePlaylistModalOpen}
         onClose={handleCreatePlaylistModalClose}
         onSave={handleCreatePlaylistSave}
+      />
+
+      {/* Chord defaults settings modal */}
+      <ChordDefaultsSettings
+        isOpen={isChordSettingsOpen}
+        onClose={() => setIsChordSettingsOpen(false)}
       />
 
       {/* Unsaved changes confirmation dialog */}
@@ -877,7 +932,11 @@ function AuthenticatedApp() {
   }
 
   // 認証済みの場合はメインコンテンツを表示
-  return <AppContent />;
+  return (
+    <ChordPreferencesProvider>
+      <AppContent />
+    </ChordPreferencesProvider>
+  );
 }
 
 export default App;

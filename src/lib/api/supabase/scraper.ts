@@ -8,7 +8,12 @@
 
 import { getSupabaseClient } from '@/lib/supabase';
 import type { ScraperAPI } from '../types';
-import type { FetchedChordSheet, SupportedSite } from '@/lib/scraper';
+import type {
+  FetchedChordSheet,
+  SupportedSite,
+  UfretSearchResponse,
+  UfretSearchResult,
+} from '@/lib/scraper';
 
 /**
  * Fetch and parse chord sheet from URL via Edge Function
@@ -117,6 +122,62 @@ export async function getSupportedSites(): Promise<SupportedSite[]> {
   ];
 }
 
+/**
+ * U-Fretで曲を検索
+ */
+export async function searchUfret(
+  query: string,
+  page: number = 1
+): Promise<UfretSearchResponse> {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase.functions.invoke<{
+    success: boolean;
+    data?: UfretSearchResponse;
+    error?: string;
+  }>('search-ufret', {
+    body: { query, page },
+  });
+
+  if (error) {
+    throw new Error(`検索エラー: ${error.message}`);
+  }
+
+  if (!data?.success || !data.data) {
+    throw new Error(data?.error || '検索結果の取得に失敗しました');
+  }
+
+  return data.data;
+}
+
+/**
+ * U-Fretアーティストの曲一覧を取得
+ */
+export async function fetchArtistSongs(
+  artistUrl: string,
+  artistName: string
+): Promise<UfretSearchResult[]> {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await supabase.functions.invoke<{
+    success: boolean;
+    data?: UfretSearchResult[];
+    error?: string;
+  }>('fetch-artist-songs', {
+    body: { artistUrl, artistName },
+  });
+
+  if (error) {
+    throw new Error(`アーティスト曲一覧取得エラー: ${error.message}`);
+  }
+
+  if (!data?.success || !data.data) {
+    throw new Error(data?.error || 'アーティスト曲一覧の取得に失敗しました');
+  }
+
+  return data.data;
+}
+
 // ============================================
 // Utility Functions
 // ============================================
@@ -159,4 +220,6 @@ export const supabaseScraper: ScraperAPI = {
   fetchChordSheet,
   parseChordSheetHtml,
   getSupportedSites,
+  searchUfret,
+  fetchArtistSongs,
 };

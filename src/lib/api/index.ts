@@ -15,6 +15,9 @@ export type {
   FetchedLine,
   FetchedChord,
   SupportedSite,
+  UfretArtistResult,
+  UfretSearchResponse,
+  UfretSearchResult,
 } from './types';
 
 // ============================================
@@ -111,6 +114,15 @@ export const db: DatabaseAPI = {
   updateAnnotation: async (id, content) =>
     (await getDatabaseAPI()).updateAnnotation(id, content),
   deleteAnnotation: async (id) => (await getDatabaseAPI()).deleteAnnotation(id),
+
+  // Chord Preferences
+  getChordPreferences: async () => (await getDatabaseAPI()).getChordPreferences(),
+  getChordPreference: async (chordName) =>
+    (await getDatabaseAPI()).getChordPreference(chordName),
+  setChordPreference: async (chordName, fingering) =>
+    (await getDatabaseAPI()).setChordPreference(chordName, fingering),
+  deleteChordPreference: async (chordName) =>
+    (await getDatabaseAPI()).deleteChordPreference(chordName),
 };
 
 /**
@@ -122,6 +134,9 @@ export const scraper: ScraperAPI = {
   parseChordSheetHtml: async (url, html) =>
     (await getScraperAPI()).parseChordSheetHtml(url, html),
   getSupportedSites: async () => (await getScraperAPI()).getSupportedSites(),
+  searchUfret: async (query, page) => (await getScraperAPI()).searchUfret(query, page),
+  fetchArtistSongs: async (artistUrl, artistName) =>
+    (await getScraperAPI()).fetchArtistSongs(artistUrl, artistName),
 };
 
 // ============================================

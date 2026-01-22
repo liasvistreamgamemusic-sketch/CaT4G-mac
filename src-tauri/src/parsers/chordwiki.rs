@@ -24,6 +24,16 @@ pub fn parse(html: &str) -> Result<FetchedChordSheet, FetchError> {
         .next()
         .map(|el| extract_artist(&el.text().collect::<String>()));
 
+    // Key: p.key - extract from "Key: Eb" format
+    let key_selector = Selector::parse("p.key")
+        .map_err(|_| FetchError::ParseError("Invalid key selector".to_string()))?;
+    sheet.key = document.select(&key_selector).next().and_then(|el| {
+        let text = el.text().collect::<String>();
+        text.strip_prefix("Key:")
+            .or_else(|| text.strip_prefix("Key："))
+            .map(|s| s.trim().to_string())
+    });
+
     // Parse main content
     let main_selector = Selector::parse("div.main")
         .map_err(|_| FetchError::ParseError("Invalid main selector".to_string()))?;
@@ -130,8 +140,13 @@ fn parse_line_content(el: &ElementRef) -> (String, Vec<FetchedChord>) {
                 if classes.contains(&"chord") {
                     // Chord span - extract chord name
                     let chord_name = text.trim();
-                    // Skip bar lines and empty chords
-                    if !chord_name.is_empty() && chord_name != "|" && !chord_name.starts_with('|') {
+                    // Skip bar lines, accent marks, and empty chords
+                    if !chord_name.is_empty()
+                        && chord_name != "|"
+                        && chord_name != ">"
+                        && chord_name != "<"
+                        && !chord_name.starts_with('|')
+                    {
                         let position = lyrics.chars().count() as i32;
                         chords.push(FetchedChord::new(chord_name, position));
                     }

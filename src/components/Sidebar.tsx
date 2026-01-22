@@ -12,6 +12,7 @@ import {
   MoreVertical,
   Edit3,
   Trash2,
+  Settings,
 } from 'lucide-react';
 import type { SongListItem, PlaylistWithCount, Artist } from '@/types/database';
 import { PlaylistList } from './PlaylistList';
@@ -52,6 +53,8 @@ interface SidebarProps {
   onWidthChange?: (width: number) => void;
   /** スケール係数（0.6〜1.0、デフォルト1.0） */
   scale?: number;
+  // Settings callback
+  onOpenChordSettings?: () => void;
 }
 
 export function Sidebar({
@@ -77,6 +80,7 @@ export function Sidebar({
   onArtistExpand = () => {},
   onWidthChange,
   scale = 1.0,
+  onOpenChordSettings,
 }: SidebarProps) {
   // スケーリング値の計算
   const iconSizeLg = Math.round(20 * scale);
@@ -106,7 +110,6 @@ export function Sidebar({
     const stored = localStorage.getItem(COLLAPSED_STORAGE_KEY);
     return stored === 'true';
   });
-
   // Sidebar ref for width observation
   const sidebarRef = useRef<HTMLDivElement>(null);
 
@@ -193,19 +196,11 @@ export function Sidebar({
         style={{ padding: `${spacing.lg}px`, gap: isCollapsed ? 0 : `${spacing.md}px` }}
       >
         <img
-          src="/icon.png"
+          src="/cat4g-icon-rounded.png"
           alt="CaT4G"
           className="object-contain flex-shrink-0"
           style={{ height: `${logoSize}px`, width: `${logoSize}px` }}
         />
-        {!isCollapsed && (
-          <img
-            src="/logo.png"
-            alt="CaT4G - Chords and Tabs for Guitar"
-            className="w-auto transition-opacity duration-300"
-            style={{ height: `${logoSize}px` }}
-          />
-        )}
       </div>
 
       {/* Search - Hidden when collapsed */}
@@ -525,6 +520,33 @@ export function Sidebar({
         </>
       )}
 
+      {/* Settings Button */}
+      {onOpenChordSettings && (
+        <div
+          className="border-t border-[var(--glass-premium-border)]"
+          style={{ padding: `${spacing.md}px` }}
+        >
+          {isCollapsed ? (
+            <button
+              onClick={onOpenChordSettings}
+              className="w-full btn-glass rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary"
+              style={{ height: `${buttonSize}px` }}
+              title="コードデフォルト設定"
+            >
+              <Settings style={{ width: `${iconSizeLg}px`, height: `${iconSizeLg}px` }} />
+            </button>
+          ) : (
+            <button
+              onClick={onOpenChordSettings}
+              className="w-full btn-glass flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary"
+              style={{ padding: `${spacing.sm}px`, gap: `${spacing.sm}px` }}
+            >
+              <Settings style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
+              コード設定
+            </button>
+          )}
+        </div>
+      )}
     </aside>
   );
 }
