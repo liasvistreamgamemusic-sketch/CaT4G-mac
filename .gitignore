@@ -39,6 +39,9 @@ coverage/
 # Screenshots (development artifacts)
 *.png
 
+!public/cat4g-icon-rounded.png
+!public/cat4g-icon.png
+
 # Claude Code (development only)
 .claude/state/
 .claude/memory/
