@@ -1,9 +1,10 @@
 import type { PlayingMethod } from '@/types/database';
 
 interface PlayingMethodSelectorProps {
-  value?: PlayingMethod;
-  onChange?: (method: PlayingMethod) => void;
+  value?: PlayingMethod | null;
+  onChange?: (method: PlayingMethod | null) => void;
   disabled?: boolean;
+  showUnset?: boolean;
 }
 
 /**
@@ -15,7 +16,10 @@ export function PlayingMethodSelector({
   value,
   onChange,
   disabled = false,
+  showUnset = true,
 }: PlayingMethodSelectorProps) {
+  const isUnset = value === null || value === undefined;
+
   return (
     <div className="flex items-center gap-2">
       <span
@@ -28,6 +32,22 @@ export function PlayingMethodSelector({
         className="flex items-center rounded-lg overflow-hidden border"
         style={{ borderColor: 'var(--color-border-default)' }}
       >
+        {showUnset && (
+          <button
+            type="button"
+            className={`px-2 py-1 text-xs transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            style={
+              isUnset
+                ? { backgroundColor: 'var(--color-accent-primary)', color: 'white' }
+                : { backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-secondary)' }
+            }
+            onClick={() => onChange?.(null)}
+            disabled={disabled}
+            title="未設定"
+          >
+            −
+          </button>
+        )}
         <button
           type="button"
           className={`px-2 py-1 text-xs transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}

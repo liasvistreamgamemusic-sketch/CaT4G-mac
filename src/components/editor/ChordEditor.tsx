@@ -170,12 +170,12 @@ export function ChordEditor({
   }, [editedChord, fingerings, selectedFingeringIndex, onSave, onClose]);
 
   // 演奏方法の変更
-  const handleMethodChange = useCallback((method: PlayingMethod) => {
+  const handleMethodChange = useCallback((method: PlayingMethod | null) => {
     setEditedChord(prev => {
       if (!prev) return prev;
       return {
         ...prev,
-        method,
+        method: method ?? undefined,
         // メソッド変更時にパターンをリセット
         strokePattern: method === 'stroke' ? prev.strokePattern || getDefaultStrokePattern(timeSignature) : undefined,
         arpeggioOrder: method === 'arpeggio' ? prev.arpeggioOrder || [] : undefined,

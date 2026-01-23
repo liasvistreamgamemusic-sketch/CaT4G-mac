@@ -11,12 +11,21 @@ import type { CreateSongInput, CreateSectionInput } from '@/types/database';
 interface AddSongModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (song: CreateSongInput) => Promise<void>;
+  onSave: (song: CreateSongInput) => Promise<string>;
+  onSaveAndEdit?: (songId: string) => void;
 }
 
 type TabType = 'search' | 'url' | 'chordwiki' | 'manual';
 
-export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
+function generateDefaultTitle(): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `Song${y}${m}${d}`;
+}
+
+export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSongModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('search');
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -246,17 +255,25 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
       };
     } else {
       // 手動入力
-      const sections = parseManualContent(manualContent);
+      const sections = manualContent.trim()
+        ? parseManualContent(manualContent)
+        : [{ name: 'Main', lines: [] }];
       songInput = {
-        title: manualTitle || '無題',
-        artistName: manualArtist || undefined,
+        title: manualTitle.trim() || generateDefaultTitle(),
+        artistName: manualArtist.trim() || undefined,
         sections,
       };
     }
 
     try {
-      await onSave(songInput);
-      handleClose();
+      const songId = await onSave(songInput);
+      // 手動入力タブの場合は編集画面へ遷移
+      if (activeTab === 'manual' && onSaveAndEdit) {
+        handleClose();
+        onSaveAndEdit(songId);
+      } else {
+        handleClose();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存に失敗しました');
     }
@@ -283,7 +300,7 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
 
   const canSave =
     ((activeTab === 'search' || activeTab === 'url' || activeTab === 'chordwiki') && preview) ||
-    (activeTab === 'manual' && manualTitle.trim());
+    activeTab === 'manual';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -667,12 +684,12 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
             <div className="space-y-4">
               {/* Manual Input */}
               <div>
-                <label className="block text-sm font-medium mb-2 text-text-secondary">曲名 *</label>
+                <label className="block text-sm font-medium mb-2 text-text-secondary">曲名</label>
                 <input
                   type="text"
                   value={manualTitle}
                   onChange={(e) => setManualTitle(e.target.value)}
-                  placeholder="曲名を入力"
+                  placeholder="空の場合は自動命名（例: Song20260123）"
                   className="input-glass"
                 />
               </div>
@@ -715,7 +732,7 @@ export function AddSongModal({ isOpen, onClose, onSave }: AddSongModalProps) {
             disabled={!canSave}
             className="btn-glass btn-glass-primary px-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            保存
+            {activeTab === 'manual' ? '編集へ' : '保存'}
           </button>
         </div>
       </div>

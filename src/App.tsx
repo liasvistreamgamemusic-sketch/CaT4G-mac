@@ -352,11 +352,12 @@ function AppContent() {
     setIsAddModalOpen(false);
   }, []);
 
-  const handleSaveSong = useCallback(async (input: CreateSongInput) => {
+  const handleSaveSong = useCallback(async (input: CreateSongInput): Promise<string> => {
     const newId = await db.saveSong(input);
     const updatedSongs = await db.getSongs();
     setSongs(updatedSongs);
     setSelectedSongId(newId);
+    return newId;
   }, []);
 
   const handleDeleteSong = useCallback(
@@ -846,6 +847,10 @@ function AppContent() {
         isOpen={isAddModalOpen}
         onClose={handleModalClose}
         onSave={handleSaveSong}
+        onSaveAndEdit={(songId) => {
+          setSelectedSongId(songId);
+          setMode('edit');
+        }}
       />
 
       <ChordDiagramModal chord={selectedChord} onClose={handleChordModalClose} />

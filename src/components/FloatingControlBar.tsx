@@ -662,29 +662,45 @@ export function FloatingControlBar({
             >
               Scroll
             </span>
-            <select
+            <input
+              type="range"
+              min="0.1"
+              max="3.0"
+              step="0.1"
               value={simpleScrollSpeed}
               onChange={(e) => onSimpleScrollSpeedChange?.(parseFloat(e.target.value))}
-              className="rounded-lg cursor-pointer transition-all duration-200"
+              className="volume-slider rounded-full appearance-none cursor-pointer
+                         [&::-webkit-slider-thumb]:appearance-none
+                         [&::-webkit-slider-thumb]:rounded-full
+                         [&::-webkit-slider-thumb]:bg-purple-400
+                         [&::-webkit-slider-thumb]:shadow-lg
+                         [&::-webkit-slider-thumb]:shadow-purple-500/30
+                         [&::-webkit-slider-thumb]:transition-transform
+                         [&::-webkit-slider-thumb]:hover:scale-125"
               style={{
-                background: 'var(--input-bg)',
-                border: '1px solid var(--input-border)',
-                color: 'var(--color-text-secondary)',
+                background: 'var(--input-border)',
+                width: `${80 * scale}px`,
+                height: `${4 * scale}px`,
+              }}
+              ref={(el) => {
+                if (el) {
+                  const thumbSize = `${12 * scale}px`;
+                  el.style.setProperty('--thumb-w', thumbSize);
+                  el.style.setProperty('--thumb-h', thumbSize);
+                }
+              }}
+              title="スクロール速度"
+            />
+            <span
+              className="text-center font-mono"
+              style={{
+                width: `${32 * scale}px`,
                 fontSize: `${fontSize.sm}px`,
-                padding: `${spacing.xs}px ${spacing.sm}px`,
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--input-border-focus)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--input-border)';
+                color: 'var(--color-text-secondary)',
               }}
             >
-              <option value="0.5">0.5x</option>
-              <option value="1.0">1.0x</option>
-              <option value="1.5">1.5x</option>
-              <option value="2.0">2.0x</option>
-            </select>
+              {simpleScrollSpeed.toFixed(1)}x
+            </span>
             <ControlButton
               onClick={onSimpleScrollToggle}
               active={isSimpleScrolling}

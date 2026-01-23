@@ -870,6 +870,9 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
             onCancel={handleCancelClick}
             scale={scale}
             onOpenLyricsModal={onOpenLyricsModal}
+            onTitleChange={(newTitle) => {
+              setEditMetadata(prev => prev ? { ...prev, title: newTitle } : prev);
+            }}
           />
         </div>
 

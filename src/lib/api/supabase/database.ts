@@ -173,9 +173,9 @@ export async function getSongById(id: UUID): Promise<SongWithDetails | null> {
     bpm: songData.bpm,
     timeSignature: songData.time_signature as TimeSignature,
     capo: songData.capo,
-    transpose: 0, // TODO: Add to Supabase schema
-    playbackSpeed: 1.0, // TODO: Add to Supabase schema
-    tuning: 'standard' as Tuning, // TODO: Add to Supabase schema
+    transpose: (songData as Record<string, unknown>).transpose as number ?? 0,
+    playbackSpeed: (songData as Record<string, unknown>).playback_speed as number ?? 1.0,
+    tuning: ((songData as Record<string, unknown>).tuning as Tuning) ?? 'standard',
     difficulty: songData.difficulty as Difficulty | null,
     sourceUrl: songData.source_url,
     notes: songData.notes,
@@ -402,6 +402,9 @@ export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void
   if (input.bpm !== undefined) updates.bpm = input.bpm;
   if (input.timeSignature !== undefined) updates.time_signature = input.timeSignature;
   if (input.capo !== undefined) updates.capo = input.capo;
+  if (input.transpose !== undefined) updates.transpose = input.transpose;
+  if (input.playbackSpeed !== undefined) updates.playback_speed = input.playbackSpeed;
+  if (input.tuning !== undefined) updates.tuning = input.tuning;
   if (input.difficulty !== undefined) updates.difficulty = input.difficulty;
   if (input.notes !== undefined) updates.notes = input.notes;
 

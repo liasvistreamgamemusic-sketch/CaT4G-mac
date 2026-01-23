@@ -9,7 +9,7 @@
  * - ビューモード切り替え
  */
 
-import { useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Edit3,
   Check,
@@ -70,6 +70,8 @@ interface SongTopBarProps {
   scale?: number;
   /** 歌詞全文モーダルを開くコールバック */
   onOpenLyricsModal?: () => void;
+  /** タイトル変更コールバック（編集モード用） */
+  onTitleChange?: (title: string) => void;
 }
 
 // ============================================
@@ -160,9 +162,54 @@ export function SongTopBar({
   onCancel,
   scale = 1.0,
   onOpenLyricsModal,
+  onTitleChange,
 }: SongTopBarProps) {
   const { song: songData, artist } = song;
   const { toggleTheme, isDark } = useTheme();
+
+  // Title inline editing state (edit mode only)
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(songData.title);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync editedTitle with songData when not editing
+  useEffect(() => {
+    if (!isEditingTitle) {
+      setEditedTitle(songData.title);
+    }
+  }, [songData.title, isEditingTitle]);
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  // Handle title edit completion
+  const handleTitleSubmit = useCallback(() => {
+    const trimmed = editedTitle.trim();
+    if (trimmed && trimmed !== songData.title) {
+      onTitleChange?.(trimmed);
+    } else {
+      setEditedTitle(songData.title);
+    }
+    setIsEditingTitle(false);
+  }, [editedTitle, songData.title, onTitleChange]);
+
+  // Handle keyboard events in title input
+  const handleTitleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleTitleSubmit();
+      } else if (e.key === 'Escape') {
+        setEditedTitle(songData.title);
+        setIsEditingTitle(false);
+      }
+    },
+    [handleTitleSubmit, songData.title]
+  );
 
   // スケーリングされたサイズ
   const iconSize = 16 * scale;
@@ -191,12 +238,48 @@ export function SongTopBar({
       {/* 左側: タイトル・アーティスト */}
       <div className="flex items-center min-w-0 flex-1" style={{ gap: `${16 * scale}px` }}>
         <div className="min-w-0">
-          <h1
-            className="font-bold text-text-primary truncate"
-            style={{ fontSize: `${18 * scale}px` }}
-          >
-            {songData.title}
-          </h1>
+          {mode === 'edit' && isEditingTitle ? (
+            <input
+              ref={titleInputRef}
+              type="text"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              onBlur={handleTitleSubmit}
+              onKeyDown={handleTitleKeyDown}
+              className="font-bold bg-transparent border-b-2 border-accent-primary
+                         text-text-primary focus:outline-none min-w-[200px] max-w-[400px]
+                         transition-colors duration-200"
+              style={{ fontSize: `${18 * scale}px` }}
+              aria-label="曲名を編集"
+            />
+          ) : mode === 'edit' ? (
+            <button
+              type="button"
+              onClick={() => setIsEditingTitle(true)}
+              className="group font-bold text-text-primary hover:text-accent-primary
+                         truncate text-left transition-colors duration-200
+                         focus:outline-none focus:underline focus:decoration-accent-primary
+                         flex items-center"
+              style={{ fontSize: `${18 * scale}px`, gap: `${8 * scale}px` }}
+              title="クリックして曲名を編集"
+              aria-label={`曲名: ${songData.title}（クリックで編集）`}
+            >
+              <span className="truncate">{songData.title || '無題'}</span>
+              <span
+                className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                style={{ fontSize: `${12 * scale}px` }}
+              >
+                編集
+              </span>
+            </button>
+          ) : (
+            <h1
+              className="font-bold text-text-primary truncate"
+              style={{ fontSize: `${18 * scale}px` }}
+            >
+              {songData.title}
+            </h1>
+          )}
           {artist && (
             <p
               className="text-text-secondary truncate"
