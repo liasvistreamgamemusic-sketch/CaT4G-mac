@@ -10,11 +10,12 @@ import { PlayingMethodSelector } from './PlayingMethodSelector';
 import { StrokePatternInput } from './StrokePatternInput';
 import { ArpeggioOrderInput } from './ArpeggioOrderInput';
 import { ChordDiagramHorizontal } from '@/components/ChordDiagramHorizontal';
-import { generateChordFingerings, getDefaultFingering, getAllChordNames } from '@/lib/chords';
+import { generateChordFingerings, getDefaultFingering, getAllCommonChordNames } from '@/lib/chords';
 import type { ChordFingering } from '@/lib/chords/types';
+import { useChordPreferencesContext } from '@/contexts/ChordPreferencesContext';
 
 // Common chord suggestions for autocomplete
-const COMMON_CHORD_NAMES = getAllChordNames();
+const COMMON_CHORD_NAMES = getAllCommonChordNames();
 
 // タブの種類
 type EditorTab = 'voicing' | 'playing' | 'advanced';
@@ -71,6 +72,8 @@ export function ChordEditor({
 }: ChordEditorProps) {
   // ローカル編集状態
   const [editedChord, setEditedChord] = useState<ExtendedChordPosition | null>(null);
+  const [isSettingDefault, setIsSettingDefault] = useState(false);
+  const chordPreferences = useChordPreferencesContext();
   const [fingerings, setFingerings] = useState<ChordFingering[]>([]);
   const [selectedFingeringIndex, setSelectedFingeringIndex] = useState(0);
   const [showChordSuggestions, setShowChordSuggestions] = useState(false);
@@ -582,6 +585,38 @@ export function ChordEditor({
                         </button>
                       ))}
                     </div>
+                    {/* デフォルトに設定ボタン */}
+                    <button
+                      onClick={async () => {
+                        if (!editedChord || !fingerings[selectedFingeringIndex]) return;
+                        setIsSettingDefault(true);
+                        try {
+                          await chordPreferences.setDefault(editedChord.chord, fingerings[selectedFingeringIndex]);
+                        } finally {
+                          setIsSettingDefault(false);
+                        }
+                      }}
+                      disabled={isSettingDefault || chordPreferences.hasPreference(editedChord?.chord ?? '') &&
+                        chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id}
+                      className="mt-2 w-full px-3 py-1.5 rounded text-xs font-medium transition-colors disabled:opacity-50"
+                      style={{
+                        backgroundColor: chordPreferences.hasPreference(editedChord?.chord ?? '') &&
+                          chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id
+                          ? 'var(--color-success)'
+                          : 'var(--btn-glass-hover)',
+                        color: chordPreferences.hasPreference(editedChord?.chord ?? '') &&
+                          chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id
+                          ? '#ffffff'
+                          : 'var(--color-text-secondary)',
+                      }}
+                    >
+                      {isSettingDefault
+                        ? '設定中...'
+                        : chordPreferences.hasPreference(editedChord?.chord ?? '') &&
+                          chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id
+                          ? '✓ デフォルトに設定済み'
+                          : 'デフォルトに設定'}
+                    </button>
                   </div>
                 )}
               </div>

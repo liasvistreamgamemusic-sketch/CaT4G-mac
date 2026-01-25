@@ -1,0 +1,8618 @@
+{
+  "C": {
+    "basic": {
+      "6": [
+        {
+          "id": "C6-open",
+          "frets": [
+            0,
+            1,
+            2,
+            2,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "7": [
+        {
+          "id": "C7-open",
+          "frets": [
+            0,
+            1,
+            3,
+            2,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            3,
+            2,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "9": [
+        {
+          "id": "C9-open",
+          "frets": [
+            0,
+            3,
+            2,
+            3,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            1,
+            3,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "69": [],
+      "": [
+        {
+          "id": "C-open",
+          "frets": [
+            0,
+            1,
+            0,
+            2,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            null,
+            2,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "C-barre-A",
+          "frets": [
+            3,
+            5,
+            5,
+            5,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "C-barre-E",
+          "frets": [
+            8,
+            8,
+            9,
+            10,
+            10,
+            8
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 8,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 8,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m": [
+        {
+          "id": "Cm-barre-A",
+          "frets": [
+            3,
+            4,
+            5,
+            5,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Cm-barre-E",
+          "frets": [
+            8,
+            8,
+            8,
+            10,
+            10,
+            8
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 8,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 8,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m7": [
+        {
+          "id": "Cm7-barre",
+          "frets": [
+            3,
+            4,
+            3,
+            5,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            4,
+            1,
+            null
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [
+        {
+          "id": "CM7-open",
+          "frets": [
+            0,
+            0,
+            0,
+            2,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            2,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "Cm7b5-open",
+          "frets": [
+            3,
+            4,
+            3,
+            4,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Cm7-5-std",
+          "frets": [
+            3,
+            4,
+            3,
+            4,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [
+        {
+          "id": "Cdim-open",
+          "frets": [
+            2,
+            4,
+            2,
+            4,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            1,
+            4,
+            null,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            2
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "dim7": [
+        {
+          "id": "Cdim7-std",
+          "frets": [
+            null,
+            3,
+            4,
+            2,
+            4,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            3,
+            1,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Cdim7-alt",
+          "frets": [
+            2,
+            null,
+            1,
+            2,
+            1,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            1,
+            4,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "aug": [
+        {
+          "id": "Caug-open",
+          "frets": [
+            0,
+            1,
+            1,
+            2,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "sus2": [
+        {
+          "id": "Csus2-open",
+          "frets": [
+            0,
+            3,
+            0,
+            0,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            null,
+            null,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "sus4": [
+        {
+          "id": "Csus4-open",
+          "frets": [
+            1,
+            1,
+            0,
+            3,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            1,
+            null,
+            3,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "Cm6-barre",
+          "frets": [
+            3,
+            5,
+            5,
+            5,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            4,
+            1,
+            null
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "CmM7-barre",
+          "frets": [
+            3,
+            4,
+            4,
+            5,
+            3,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            2,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [
+        {
+          "id": "Cadd9-open",
+          "frets": [
+            0,
+            3,
+            0,
+            2,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            null,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "Cblk-A",
+          "frets": [
+            null,
+            3,
+            4,
+            3,
+            3,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Cblk-E",
+          "frets": [
+            8,
+            null,
+            8,
+            7,
+            7,
+            null
+          ],
+          "fingers": [
+            4,
+            null,
+            3,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 7,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "C#": {
+    "basic": {
+      "6": [],
+      "7": [],
+      "9": [],
+      "69": [],
+      "": [
+        {
+          "id": "C#-barre-A",
+          "frets": [
+            4,
+            6,
+            6,
+            6,
+            4,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "C#-barre-E",
+          "frets": [
+            9,
+            9,
+            10,
+            11,
+            11,
+            9
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 9,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 9,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Db-barre-A",
+          "frets": [
+            4,
+            6,
+            6,
+            6,
+            4,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "C#m-barre-A",
+          "frets": [
+            4,
+            5,
+            6,
+            6,
+            4,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "C#m-barre-E",
+          "frets": [
+            9,
+            9,
+            9,
+            11,
+            11,
+            9
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 9,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 9,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Dbm-barre-A",
+          "frets": [
+            4,
+            5,
+            6,
+            6,
+            4,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "C#m7-barre",
+          "frets": [
+            4,
+            4,
+            4,
+            4,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Dbm7-barre",
+          "frets": [
+            4,
+            4,
+            4,
+            4,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [],
+      "m7-5": [
+        {
+          "id": "C#m7b5-std",
+          "frets": [
+            4,
+            5,
+            4,
+            5,
+            4,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "C#m7-5-std",
+          "frets": [
+            4,
+            5,
+            4,
+            5,
+            4,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Dbm7b5-std",
+          "frets": [
+            4,
+            5,
+            4,
+            5,
+            4,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [],
+      "dim7": [
+        {
+          "id": "C#dim7-std",
+          "frets": [
+            null,
+            4,
+            5,
+            3,
+            5,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            3,
+            1,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 3,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "C#dim7-alt",
+          "frets": [
+            null,
+            null,
+            2,
+            3,
+            2,
+            3
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Dbdim7-std",
+          "frets": [
+            null,
+            4,
+            5,
+            3,
+            5,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            3,
+            1,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 3,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "aug": [],
+      "sus2": [],
+      "sus4": [],
+      "7sus4": [],
+      "m6": [],
+      "mM7": [],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "C#blk-A",
+          "frets": [
+            null,
+            4,
+            5,
+            4,
+            4,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 4,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "C#blk-E",
+          "frets": [
+            9,
+            null,
+            9,
+            8,
+            8,
+            null
+          ],
+          "fingers": [
+            4,
+            null,
+            3,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 8,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Dbblk-A",
+          "frets": [
+            null,
+            4,
+            5,
+            4,
+            4,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 4,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "D": {
+    "basic": {
+      "6": [
+        {
+          "id": "D6-open",
+          "frets": [
+            2,
+            0,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            2,
+            null,
+            3,
+            4,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "7": [
+        {
+          "id": "D7-open",
+          "frets": [
+            2,
+            1,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            3,
+            1,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "9": [
+        {
+          "id": "D9-open",
+          "frets": [
+            0,
+            1,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "69": [],
+      "": [
+        {
+          "id": "D-open",
+          "frets": [
+            2,
+            3,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "D-barre-A",
+          "frets": [
+            5,
+            7,
+            7,
+            7,
+            5,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 5,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 5,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "D-barre-E",
+          "frets": [
+            10,
+            10,
+            11,
+            12,
+            12,
+            10
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 10,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 10,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m": [
+        {
+          "id": "Dm-open",
+          "frets": [
+            1,
+            3,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Dm-barre-A",
+          "frets": [
+            5,
+            6,
+            7,
+            7,
+            5,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 5,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 5,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Dm-barre-E",
+          "frets": [
+            10,
+            10,
+            10,
+            12,
+            12,
+            10
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 10,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 10,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m7": [
+        {
+          "id": "Dm7-open",
+          "frets": [
+            1,
+            1,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "M7": [
+        {
+          "id": "DM7-open",
+          "frets": [
+            2,
+            2,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "Dm7b5-open",
+          "frets": [
+            1,
+            1,
+            1,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Dm7b5-barre",
+          "frets": [
+            5,
+            6,
+            5,
+            6,
+            5,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 5,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 5,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Dm7-5-open",
+          "frets": [
+            1,
+            1,
+            1,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m-5": [],
+      "dim": [
+        {
+          "id": "Ddim-open",
+          "frets": [
+            1,
+            3,
+            1,
+            null,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            true,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "dim7": [
+        {
+          "id": "Ddim7-open",
+          "frets": [
+            null,
+            null,
+            0,
+            1,
+            0,
+            1
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            1,
+            null,
+            2
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Ddim7-barre",
+          "frets": [
+            null,
+            5,
+            6,
+            4,
+            6,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            3,
+            1,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 4,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "aug": [
+        {
+          "id": "Daug-open",
+          "frets": [
+            2,
+            3,
+            3,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "sus2": [
+        {
+          "id": "Dsus2-open",
+          "frets": [
+            0,
+            3,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            null,
+            3,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "sus4": [
+        {
+          "id": "Dsus4-open",
+          "frets": [
+            3,
+            3,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            3,
+            4,
+            1,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "Dm6-open",
+          "frets": [
+            1,
+            0,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            null,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Dm6-alt",
+          "frets": [
+            1,
+            2,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "DmM7-open",
+          "frets": [
+            1,
+            3,
+            2,
+            1,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            4,
+            2,
+            1,
+            null,
+            null
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            3
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [
+        {
+          "id": "Dadd9-open",
+          "frets": [
+            0,
+            3,
+            2,
+            0,
+            null,
+            null
+          ],
+          "fingers": [
+            null,
+            3,
+            2,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "Dblk-A",
+          "frets": [
+            null,
+            5,
+            6,
+            5,
+            5,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 5,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Dblk-E",
+          "frets": [
+            10,
+            null,
+            10,
+            9,
+            9,
+            null
+          ],
+          "fingers": [
+            4,
+            null,
+            3,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 9,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "D#": {
+    "basic": {
+      "6": [],
+      "7": [],
+      "9": [],
+      "69": [],
+      "": [
+        {
+          "id": "D#-barre-A",
+          "frets": [
+            6,
+            8,
+            8,
+            8,
+            6,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Eb-barre-A",
+          "frets": [
+            6,
+            8,
+            8,
+            8,
+            6,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "D#m-barre-A",
+          "frets": [
+            6,
+            7,
+            8,
+            8,
+            6,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Ebm-barre-A",
+          "frets": [
+            6,
+            7,
+            8,
+            8,
+            6,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "D#m7-barre",
+          "frets": [
+            6,
+            6,
+            6,
+            6,
+            8,
+            6
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Ebm7-barre",
+          "frets": [
+            6,
+            6,
+            6,
+            6,
+            8,
+            6
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [],
+      "m7-5": [
+        {
+          "id": "D#m7b5-std",
+          "frets": [
+            6,
+            7,
+            6,
+            7,
+            6,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Ebm7b5-std",
+          "frets": [
+            6,
+            7,
+            6,
+            7,
+            6,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [],
+      "dim7": [
+        {
+          "id": "D#dim7-open",
+          "frets": [
+            null,
+            null,
+            1,
+            2,
+            1,
+            2
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "D#dim7-barre",
+          "frets": [
+            null,
+            6,
+            7,
+            5,
+            7,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            3,
+            1,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 5,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Ebdim7-open",
+          "frets": [
+            null,
+            null,
+            1,
+            2,
+            1,
+            2
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "aug": [],
+      "sus2": [],
+      "sus4": [],
+      "7sus4": [],
+      "m6": [],
+      "mM7": [],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "D#blk-A",
+          "frets": [
+            null,
+            6,
+            7,
+            6,
+            6,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 6,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Ebblk-A",
+          "frets": [
+            null,
+            6,
+            7,
+            6,
+            6,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 6,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "E": {
+    "basic": {
+      "6": [
+        {
+          "id": "E6-open",
+          "frets": [
+            0,
+            2,
+            1,
+            2,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            3,
+            1,
+            2,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "7": [
+        {
+          "id": "E7-open",
+          "frets": [
+            0,
+            0,
+            1,
+            0,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            null,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "9": [
+        {
+          "id": "E9-open",
+          "frets": [
+            0,
+            2,
+            0,
+            1,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            2,
+            null,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "69": [],
+      "": [
+        {
+          "id": "E-open",
+          "frets": [
+            0,
+            0,
+            1,
+            2,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "E-barre-A",
+          "frets": [
+            7,
+            9,
+            9,
+            9,
+            7,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 7,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 7,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "Em-open",
+          "frets": [
+            0,
+            0,
+            0,
+            2,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            2,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Em-barre-A",
+          "frets": [
+            7,
+            8,
+            9,
+            9,
+            7,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 7,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 7,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "Em7-open",
+          "frets": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            null,
+            1,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "M7": [
+        {
+          "id": "EM7-open",
+          "frets": [
+            0,
+            0,
+            1,
+            1,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            2,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "Em7b5-open",
+          "frets": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            null,
+            1,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Em7b5-barre",
+          "frets": [
+            7,
+            8,
+            7,
+            8,
+            7,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 7,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 7,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Em7-5-open",
+          "frets": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            null,
+            1,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m-5": [],
+      "dim": [
+        {
+          "id": "Edim-open",
+          "frets": [
+            2,
+            4,
+            2,
+            3,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            4,
+            1,
+            2,
+            null,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            2
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "dim7": [
+        {
+          "id": "Edim7-open",
+          "frets": [
+            0,
+            1,
+            2,
+            0,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            null,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Edim7-alt",
+          "frets": [
+            null,
+            null,
+            2,
+            3,
+            2,
+            3
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "aug": [
+        {
+          "id": "Eaug-open",
+          "frets": [
+            0,
+            1,
+            1,
+            2,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "sus2": [
+        {
+          "id": "Esus2-open",
+          "frets": [
+            2,
+            4,
+            4,
+            2,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            4,
+            1,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "sus4": [
+        {
+          "id": "Esus4-open",
+          "frets": [
+            0,
+            0,
+            2,
+            2,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            2,
+            3,
+            4,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "Em6-open",
+          "frets": [
+            0,
+            2,
+            0,
+            2,
+            2,
+            0
+          ],
+          "fingers": [
+            null,
+            1,
+            null,
+            2,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "EmM7-open",
+          "frets": [
+            0,
+            0,
+            0,
+            2,
+            1,
+            0
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            2,
+            1,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [
+        {
+          "id": "Eadd9-open",
+          "frets": [
+            0,
+            0,
+            1,
+            2,
+            2,
+            2
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            2,
+            3,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "Eblk-A",
+          "frets": [
+            null,
+            7,
+            8,
+            7,
+            7,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 7,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Eblk-open",
+          "frets": [
+            0,
+            null,
+            0,
+            3,
+            null,
+            2
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            3,
+            null,
+            2
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "F": {
+    "basic": {
+      "6": [
+        {
+          "id": "F6-barre",
+          "frets": [
+            1,
+            3,
+            2,
+            3,
+            null,
+            1
+          ],
+          "fingers": [
+            1,
+            3,
+            2,
+            4,
+            null,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "7": [
+        {
+          "id": "F7-barre",
+          "frets": [
+            1,
+            1,
+            2,
+            1,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "9": [],
+      "69": [],
+      "": [
+        {
+          "id": "F-barre",
+          "frets": [
+            1,
+            1,
+            2,
+            3,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "F-easy",
+          "frets": [
+            1,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            1
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "F-barre-A",
+          "frets": [
+            8,
+            10,
+            10,
+            10,
+            8,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 8,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 8,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "Fm-barre-E",
+          "frets": [
+            1,
+            1,
+            1,
+            3,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Fm-barre-A",
+          "frets": [
+            8,
+            9,
+            10,
+            10,
+            8,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 8,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 8,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "Fm7-barre",
+          "frets": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "M7": [
+        {
+          "id": "FM7-open",
+          "frets": [
+            0,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "Fm7b5-std",
+          "frets": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Fm7b5-barre",
+          "frets": [
+            8,
+            9,
+            8,
+            9,
+            8,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 8,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 8,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Fm7-5-std",
+          "frets": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [
+        {
+          "id": "Fdim-open",
+          "frets": [
+            1,
+            2,
+            null,
+            1,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            null,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            true,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "dim7": [
+        {
+          "id": "Fdim7-barre",
+          "frets": [
+            1,
+            2,
+            3,
+            1,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Fdim7-alt",
+          "frets": [
+            null,
+            null,
+            3,
+            4,
+            3,
+            4
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "aug": [
+        {
+          "id": "Faug-barre",
+          "frets": [
+            1,
+            2,
+            2,
+            3,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            2,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "sus2": [],
+      "sus4": [
+        {
+          "id": "Fsus4-barre",
+          "frets": [
+            1,
+            1,
+            3,
+            3,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            3,
+            3,
+            4,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "Fm6-barre",
+          "frets": [
+            1,
+            3,
+            1,
+            3,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            3,
+            1,
+            4,
+            2,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "FmM7-barre",
+          "frets": [
+            1,
+            1,
+            1,
+            3,
+            2,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            2,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "Fblk-A",
+          "frets": [
+            null,
+            8,
+            9,
+            8,
+            8,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 8,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Fblk-E",
+          "frets": [
+            1,
+            null,
+            1,
+            0,
+            0,
+            null
+          ],
+          "fingers": [
+            2,
+            null,
+            3,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "F#": {
+    "basic": {
+      "6": [],
+      "7": [
+        {
+          "id": "F#7-barre",
+          "frets": [
+            2,
+            2,
+            3,
+            2,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Gb7-barre",
+          "frets": [
+            2,
+            2,
+            3,
+            2,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "9": [],
+      "69": [],
+      "": [
+        {
+          "id": "F#-barre-E",
+          "frets": [
+            2,
+            2,
+            3,
+            4,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "F#-barre-A",
+          "frets": [
+            9,
+            11,
+            11,
+            11,
+            9,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 9,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 9,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gb-barre-E",
+          "frets": [
+            2,
+            2,
+            3,
+            4,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "F#m-barre-E",
+          "frets": [
+            2,
+            2,
+            2,
+            4,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "F#m-barre-A",
+          "frets": [
+            9,
+            10,
+            11,
+            11,
+            9,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 9,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 9,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gbm-barre-E",
+          "frets": [
+            2,
+            2,
+            2,
+            4,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "F#m7-barre",
+          "frets": [
+            2,
+            2,
+            2,
+            2,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gbm7-barre",
+          "frets": [
+            2,
+            2,
+            2,
+            2,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [
+        {
+          "id": "F#M7-barre",
+          "frets": [
+            2,
+            2,
+            3,
+            3,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            3,
+            4,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "GbM7-barre",
+          "frets": [
+            2,
+            2,
+            3,
+            3,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            3,
+            4,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "F#m7b5-std",
+          "frets": [
+            2,
+            3,
+            2,
+            2,
+            null,
+            2
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "F#m7b5-barre",
+          "frets": [
+            9,
+            10,
+            9,
+            10,
+            9,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 9,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 9,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "F#m7-5-std",
+          "frets": [
+            2,
+            3,
+            2,
+            2,
+            null,
+            2
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gbm7b5-std",
+          "frets": [
+            2,
+            3,
+            2,
+            2,
+            null,
+            2
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [],
+      "dim7": [
+        {
+          "id": "F#dim7-barre",
+          "frets": [
+            2,
+            3,
+            4,
+            2,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "F#dim7-alt",
+          "frets": [
+            null,
+            null,
+            4,
+            5,
+            4,
+            5
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Gbdim7-barre",
+          "frets": [
+            2,
+            3,
+            4,
+            2,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "aug": [],
+      "sus2": [],
+      "sus4": [],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "F#m6-barre",
+          "frets": [
+            2,
+            4,
+            2,
+            4,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            3,
+            1,
+            4,
+            2,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Gbm6-barre",
+          "frets": [
+            2,
+            4,
+            2,
+            4,
+            4,
+            2
+          ],
+          "fingers": [
+            1,
+            3,
+            1,
+            4,
+            2,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "F#mM7-barre",
+          "frets": [
+            2,
+            2,
+            2,
+            4,
+            3,
+            2
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            2,
+            1
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "F#blk-A",
+          "frets": [
+            null,
+            9,
+            10,
+            9,
+            9,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 9,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "F#blk-E",
+          "frets": [
+            2,
+            null,
+            2,
+            1,
+            1,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Gbblk-E",
+          "frets": [
+            2,
+            null,
+            2,
+            1,
+            1,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "G": {
+    "basic": {
+      "6": [
+        {
+          "id": "G6-open",
+          "frets": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            3
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            null,
+            1,
+            2
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "7": [
+        {
+          "id": "G7-open",
+          "frets": [
+            1,
+            0,
+            0,
+            0,
+            2,
+            3
+          ],
+          "fingers": [
+            1,
+            null,
+            null,
+            null,
+            2,
+            3
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "9": [
+        {
+          "id": "G9-open",
+          "frets": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            3
+          ],
+          "fingers": [
+            1,
+            null,
+            null,
+            null,
+            null,
+            2
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "69": [],
+      "": [
+        {
+          "id": "G-open",
+          "frets": [
+            3,
+            0,
+            0,
+            0,
+            2,
+            3
+          ],
+          "fingers": [
+            4,
+            null,
+            null,
+            null,
+            1,
+            2
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "G-barre-E",
+          "frets": [
+            3,
+            3,
+            4,
+            5,
+            5,
+            3
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "G-barre-A",
+          "frets": [
+            10,
+            12,
+            12,
+            12,
+            10,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 10,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 10,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m": [
+        {
+          "id": "Gm-barre-E",
+          "frets": [
+            3,
+            3,
+            3,
+            5,
+            5,
+            3
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gm-barre-A",
+          "frets": [
+            10,
+            11,
+            12,
+            12,
+            10,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 10,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 10,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m7": [
+        {
+          "id": "Gm7-barre",
+          "frets": [
+            3,
+            3,
+            3,
+            3,
+            5,
+            3
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [
+        {
+          "id": "GM7-open",
+          "frets": [
+            2,
+            0,
+            0,
+            0,
+            2,
+            3
+          ],
+          "fingers": [
+            1,
+            null,
+            null,
+            null,
+            2,
+            3
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "Gm7b5-std",
+          "frets": [
+            3,
+            4,
+            3,
+            3,
+            null,
+            3
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gm7b5-barre",
+          "frets": [
+            10,
+            11,
+            10,
+            11,
+            10,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 10,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 10,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gm7-5-std",
+          "frets": [
+            3,
+            4,
+            3,
+            3,
+            null,
+            3
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [
+        {
+          "id": "Gdim-open",
+          "frets": [
+            2,
+            3,
+            null,
+            3,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            null,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            true,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "dim7": [
+        {
+          "id": "Gdim7-barre",
+          "frets": [
+            3,
+            4,
+            5,
+            3,
+            5,
+            3
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Gdim7-alt",
+          "frets": [
+            null,
+            null,
+            5,
+            6,
+            5,
+            6
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 5,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "aug": [
+        {
+          "id": "Gaug-open",
+          "frets": [
+            3,
+            0,
+            1,
+            0,
+            2,
+            3
+          ],
+          "fingers": [
+            4,
+            null,
+            1,
+            null,
+            2,
+            3
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "sus2": [
+        {
+          "id": "Gsus2-open",
+          "frets": [
+            3,
+            0,
+            0,
+            0,
+            0,
+            3
+          ],
+          "fingers": [
+            3,
+            null,
+            null,
+            null,
+            null,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "sus4": [
+        {
+          "id": "Gsus4-open",
+          "frets": [
+            3,
+            1,
+            0,
+            0,
+            3,
+            3
+          ],
+          "fingers": [
+            3,
+            1,
+            null,
+            null,
+            4,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "Gm6-barre",
+          "frets": [
+            3,
+            5,
+            3,
+            5,
+            5,
+            3
+          ],
+          "fingers": [
+            1,
+            3,
+            1,
+            4,
+            2,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "GmM7-barre",
+          "frets": [
+            3,
+            3,
+            3,
+            5,
+            4,
+            3
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            2,
+            1
+          ],
+          "barreAt": 3,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [
+        {
+          "id": "Gadd9-open",
+          "frets": [
+            3,
+            0,
+            2,
+            0,
+            0,
+            3
+          ],
+          "fingers": [
+            3,
+            null,
+            2,
+            null,
+            null,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "Gblk-A",
+          "frets": [
+            null,
+            10,
+            11,
+            10,
+            10,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 10,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Gblk-E",
+          "frets": [
+            3,
+            null,
+            3,
+            2,
+            2,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "G#": {
+    "basic": {
+      "6": [],
+      "7": [],
+      "9": [],
+      "69": [],
+      "": [
+        {
+          "id": "G#-barre-E",
+          "frets": [
+            4,
+            4,
+            5,
+            6,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "G#-barre-A",
+          "frets": [
+            11,
+            13,
+            13,
+            13,
+            11,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 11,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 11,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Ab-barre-E",
+          "frets": [
+            4,
+            4,
+            5,
+            6,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "G#m-barre-E",
+          "frets": [
+            4,
+            4,
+            4,
+            6,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Abm-barre-E",
+          "frets": [
+            4,
+            4,
+            4,
+            6,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "G#m7-barre",
+          "frets": [
+            4,
+            4,
+            4,
+            4,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Abm7-barre",
+          "frets": [
+            4,
+            4,
+            4,
+            4,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [],
+      "m7-5": [
+        {
+          "id": "G#m7b5-std",
+          "frets": [
+            4,
+            5,
+            4,
+            4,
+            null,
+            4
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Abm7b5-std",
+          "frets": [
+            4,
+            5,
+            4,
+            4,
+            null,
+            4
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [],
+      "dim7": [
+        {
+          "id": "G#dim7-barre",
+          "frets": [
+            4,
+            5,
+            6,
+            4,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "G#dim7-open",
+          "frets": [
+            null,
+            null,
+            0,
+            1,
+            0,
+            1
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            2,
+            null,
+            3
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Abdim7-barre",
+          "frets": [
+            4,
+            5,
+            6,
+            4,
+            6,
+            4
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 4,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 4,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "aug": [],
+      "sus2": [],
+      "sus4": [],
+      "7sus4": [],
+      "m6": [],
+      "mM7": [],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "G#blk-E",
+          "frets": [
+            4,
+            null,
+            4,
+            3,
+            3,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Abblk-E",
+          "frets": [
+            4,
+            null,
+            4,
+            3,
+            3,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "A": {
+    "basic": {
+      "6": [
+        {
+          "id": "A6-open",
+          "frets": [
+            2,
+            2,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            4,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "7": [
+        {
+          "id": "A7-open",
+          "frets": [
+            0,
+            2,
+            0,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            null,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "9": [
+        {
+          "id": "A9-open",
+          "frets": [
+            0,
+            2,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "69": [],
+      "": [
+        {
+          "id": "A-open",
+          "frets": [
+            0,
+            2,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "A-barre-E",
+          "frets": [
+            5,
+            5,
+            6,
+            7,
+            7,
+            5
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 5,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 5,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "Am-open",
+          "frets": [
+            0,
+            1,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Am-barre-E",
+          "frets": [
+            5,
+            5,
+            5,
+            7,
+            7,
+            5
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 5,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 5,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "Am7-open",
+          "frets": [
+            0,
+            1,
+            0,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            null,
+            2,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "M7": [
+        {
+          "id": "AM7-open",
+          "frets": [
+            0,
+            2,
+            1,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            3,
+            1,
+            2,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "Am7b5-open",
+          "frets": [
+            0,
+            1,
+            0,
+            1,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            null,
+            2,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Am7b5-std",
+          "frets": [
+            5,
+            6,
+            5,
+            5,
+            null,
+            5
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 5,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 5,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Am7-5-open",
+          "frets": [
+            0,
+            1,
+            0,
+            1,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            null,
+            2,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m-5": [],
+      "dim": [
+        {
+          "id": "Adim-open",
+          "frets": [
+            1,
+            2,
+            1,
+            2,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            2,
+            4,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "dim7": [
+        {
+          "id": "Adim7-open",
+          "frets": [
+            null,
+            0,
+            1,
+            2,
+            1,
+            2
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            3,
+            2,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Adim7-barre",
+          "frets": [
+            5,
+            6,
+            7,
+            5,
+            7,
+            5
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 5,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 5,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "aug": [
+        {
+          "id": "Aaug-open",
+          "frets": [
+            1,
+            2,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            4,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "sus2": [
+        {
+          "id": "Asus2-open",
+          "frets": [
+            0,
+            0,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            null,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "sus4": [
+        {
+          "id": "Asus4-open",
+          "frets": [
+            0,
+            3,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            4,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "Am6-open",
+          "frets": [
+            0,
+            1,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Am6-alt",
+          "frets": [
+            2,
+            1,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            2,
+            1,
+            3,
+            4,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "AmM7-open",
+          "frets": [
+            0,
+            1,
+            1,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            3,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [
+        {
+          "id": "Aadd9-open",
+          "frets": [
+            0,
+            0,
+            2,
+            2,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            2,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "Ablk-open",
+          "frets": [
+            null,
+            0,
+            1,
+            0,
+            0,
+            null
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            null,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Ablk-E",
+          "frets": [
+            5,
+            null,
+            5,
+            4,
+            4,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "A#": {
+    "basic": {
+      "6": [],
+      "7": [],
+      "9": [],
+      "69": [],
+      "": [
+        {
+          "id": "A#-barre-A",
+          "frets": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "A#-barre-E",
+          "frets": [
+            6,
+            6,
+            7,
+            8,
+            8,
+            6
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bb-barre-A",
+          "frets": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bb-barre-E",
+          "frets": [
+            6,
+            6,
+            7,
+            8,
+            8,
+            6
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "A#m-barre-A",
+          "frets": [
+            1,
+            2,
+            3,
+            3,
+            1,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "A#m-barre-E",
+          "frets": [
+            6,
+            6,
+            6,
+            8,
+            8,
+            6
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bbm-barre-A",
+          "frets": [
+            1,
+            2,
+            3,
+            3,
+            1,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bbm-barre-E",
+          "frets": [
+            6,
+            6,
+            6,
+            8,
+            8,
+            6
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "A#m7-barre",
+          "frets": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bbm7-barre",
+          "frets": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            1,
+            3,
+            1
+          ],
+          "barreAt": 1,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [],
+      "m7-5": [
+        {
+          "id": "A#m7b5-std",
+          "frets": [
+            6,
+            7,
+            6,
+            6,
+            null,
+            6
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bbm7b5-std",
+          "frets": [
+            6,
+            7,
+            6,
+            6,
+            null,
+            6
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m-5": [],
+      "dim": [],
+      "dim7": [
+        {
+          "id": "A#dim7-std",
+          "frets": [
+            null,
+            1,
+            2,
+            3,
+            2,
+            3
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            4,
+            3,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "A#dim7-barre",
+          "frets": [
+            6,
+            7,
+            8,
+            6,
+            8,
+            6
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            4,
+            1
+          ],
+          "barreAt": 6,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 6,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "hard"
+        },
+        {
+          "id": "Bbdim7-std",
+          "frets": [
+            null,
+            1,
+            2,
+            3,
+            2,
+            3
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            4,
+            3,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "aug": [],
+      "sus2": [],
+      "sus4": [],
+      "7sus4": [],
+      "m6": [],
+      "mM7": [],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "A#blk-A",
+          "frets": [
+            null,
+            1,
+            2,
+            1,
+            1,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "A#blk-E",
+          "frets": [
+            6,
+            null,
+            6,
+            5,
+            5,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 5,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bbblk-A",
+          "frets": [
+            null,
+            1,
+            2,
+            1,
+            1,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "slash": {}
+  },
+  "B": {
+    "basic": {
+      "6": [],
+      "7": [
+        {
+          "id": "B7-open",
+          "frets": [
+            2,
+            0,
+            2,
+            1,
+            2,
+            null
+          ],
+          "fingers": [
+            2,
+            null,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "9": [],
+      "69": [],
+      "": [
+        {
+          "id": "B-barre-A",
+          "frets": [
+            2,
+            4,
+            4,
+            4,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            3,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "B-barre-E",
+          "frets": [
+            7,
+            7,
+            8,
+            9,
+            9,
+            7
+          ],
+          "fingers": [
+            1,
+            1,
+            2,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 7,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 7,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m": [
+        {
+          "id": "Bm-barre-A",
+          "frets": [
+            2,
+            3,
+            4,
+            4,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            4,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bm-barre-E",
+          "frets": [
+            7,
+            7,
+            7,
+            9,
+            9,
+            7
+          ],
+          "fingers": [
+            1,
+            1,
+            1,
+            4,
+            3,
+            1
+          ],
+          "barreAt": 7,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 7,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "m7": [
+        {
+          "id": "Bm7-barre",
+          "frets": [
+            2,
+            3,
+            2,
+            4,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            4,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "M7": [
+        {
+          "id": "BM7-barre",
+          "frets": [
+            2,
+            4,
+            3,
+            4,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            3,
+            2,
+            4,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m7-5": [
+        {
+          "id": "Bm7b5-open",
+          "frets": [
+            0,
+            0,
+            2,
+            2,
+            2,
+            null
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            2,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Bm7b5-std",
+          "frets": [
+            7,
+            8,
+            7,
+            7,
+            null,
+            7
+          ],
+          "fingers": [
+            1,
+            2,
+            1,
+            1,
+            null,
+            1
+          ],
+          "barreAt": 7,
+          "barreStrings": [
+            0,
+            5
+          ],
+          "baseFret": 7,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bm7-5-open",
+          "frets": [
+            0,
+            0,
+            2,
+            2,
+            2,
+            null
+          ],
+          "fingers": [
+            null,
+            null,
+            1,
+            2,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "m-5": [],
+      "dim": [
+        {
+          "id": "Bdim-open",
+          "frets": [
+            2,
+            3,
+            4,
+            2,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            1,
+            null,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            3
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "dim7": [
+        {
+          "id": "Bdim7-std",
+          "frets": [
+            null,
+            2,
+            3,
+            4,
+            3,
+            4
+          ],
+          "fingers": [
+            null,
+            1,
+            2,
+            4,
+            3,
+            4
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "medium"
+        },
+        {
+          "id": "Bdim7-open",
+          "frets": [
+            null,
+            null,
+            0,
+            1,
+            0,
+            1
+          ],
+          "fingers": [
+            null,
+            null,
+            null,
+            2,
+            null,
+            3
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+          ],
+          "difficulty": "easy"
+        }
+      ],
+      "aug": [
+        {
+          "id": "Baug-open",
+          "frets": [
+            3,
+            4,
+            4,
+            4,
+            null,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            4,
+            null,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 3,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "sus2": [],
+      "sus4": [
+        {
+          "id": "Bsus4-barre",
+          "frets": [
+            2,
+            5,
+            4,
+            4,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            4,
+            3,
+            2,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "7sus4": [],
+      "m6": [
+        {
+          "id": "Bm6-barre",
+          "frets": [
+            2,
+            3,
+            4,
+            4,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            3,
+            4,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ],
+      "mM7": [
+        {
+          "id": "BmM7-barre",
+          "frets": [
+            2,
+            3,
+            3,
+            4,
+            2,
+            null
+          ],
+          "fingers": [
+            1,
+            2,
+            2,
+            3,
+            1,
+            null
+          ],
+          "barreAt": 2,
+          "barreStrings": [
+            0,
+            4
+          ],
+          "baseFret": 2,
+          "muted": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "hard"
+        }
+      ],
+      "m9": [],
+      "M9": [],
+      "9sus4": [],
+      "add9": [],
+      "m69": [],
+      "-5": [],
+      "7-5": [],
+      "7+5": [],
+      "M7-5": [],
+      "m7+5": [],
+      "7+9": [],
+      "4.4": [],
+      "blk": [
+        {
+          "id": "Bblk-A",
+          "frets": [
+            null,
+            2,
+            3,
+            2,
+            2,
+            null
+          ],
+          "fingers": [
+            null,
+            2,
+            4,
+            1,
+            3,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 1,
+          "muted": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "easy"
+        },
+        {
+          "id": "Bblk-E",
+          "frets": [
+            7,
+            null,
+            7,
+            6,
+            6,
+            null
+          ],
+          "fingers": [
+            3,
+            null,
+            4,
+            1,
+            2,
+            null
+          ],
+          "barreAt": null,
+          "barreStrings": null,
+          "baseFret": 6,
+          "muted": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            true
+          ],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "slash": {}
+  }
+}

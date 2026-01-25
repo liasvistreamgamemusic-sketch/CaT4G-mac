@@ -23,6 +23,8 @@ import { isExtendedChord, getExtendedChordFingerings } from './extendedChords';
 import { isPowerChord, getPowerChordFingerings } from './powerChords';
 import { isHalfDiminished, getHalfDiminishedFingerings } from './m7b5Chords';
 import { isSus2Chord, getSus2ChordFingerings } from './sus2Chords';
+import { getChordFingerings as getStructuredDataFingerings } from './data';
+import type { Fingering as DataFingering } from './data/types';
 
 // 開放弦の音（標準チューニング）
 // [1弦(E4), 2弦(B3), 3弦(G3), 4弦(D3), 5弦(A2), 6弦(E2)]
@@ -356,6 +358,23 @@ function getNoteAtFret(stringIndex: number, fret: number): number {
 }
 
 /**
+ * data/types.ts の Fingering を ChordFingering に変換
+ */
+function convertDataFingering(f: DataFingering): ChordFingering {
+  return {
+    id: f.id,
+    frets: f.frets,
+    fingers: f.fingers,
+    barreAt: f.barreAt ?? null,
+    barreStrings: f.barreStrings ?? null,
+    baseFret: f.baseFret,
+    muted: f.muted,
+    isDefault: false,
+    difficulty: f.difficulty,
+  };
+}
+
+/**
  * 動的にコードのフィンガリングを生成（デフォルト1つ）
  */
 export function generateChordFingering(chordName: string): ChordFingering | null {
@@ -396,6 +415,12 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
     for (const fingering of chordDef.fingerings) {
       addIfUnique(fingering);
     }
+  }
+
+  // 1.5 構造化データ（492コード × 671フィンガリング）
+  const structuredFingerings = getStructuredDataFingerings(chordName);
+  for (const fingering of structuredFingerings) {
+    addIfUnique(convertDataFingering(fingering));
   }
 
   // 2. CAGEDシステムによるバレーコード
