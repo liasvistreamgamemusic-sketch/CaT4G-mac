@@ -8,10 +8,10 @@
  * E = MIDI 4
  */
 
-import type { Fingering, ChordQuality, SlashChordPattern } from '../types';
+import type { Fingering, RootChordData, SlashChordPattern } from '../types';
 
 // Eルートの基本コード（31品質）
-export const E_BASIC: Record<ChordQuality, Fingering[]> = {
+export const E_BASIC: RootChordData = {
   // ============================================
   // 基本 (5種)
   // ============================================

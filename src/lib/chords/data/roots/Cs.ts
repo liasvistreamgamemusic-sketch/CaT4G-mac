@@ -8,10 +8,10 @@
  * C# = MIDI 1
  */
 
-import type { Fingering, ChordQuality, SlashChordPattern } from '../types';
+import type { Fingering, RootChordData, SlashChordPattern } from '../types';
 
 // C#ルートの基本コード（31品質）
-export const CS_BASIC: Record<ChordQuality, Fingering[]> = {
+export const CS_BASIC: RootChordData = {
   // ============================================
   // 基本 (5種)
   // ============================================

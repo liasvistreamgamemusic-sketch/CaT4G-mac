@@ -8,10 +8,10 @@
  * G# = MIDI 8
  */
 
-import type { Fingering, ChordQuality, SlashChordPattern } from '../types';
+import type { Fingering, RootChordData, SlashChordPattern } from '../types';
 
 // G#ルートの基本コード（31品質）
-export const GS_BASIC: Record<ChordQuality, Fingering[]> = {
+export const GS_BASIC: RootChordData = {
   // ============================================
   // 基本 (5種)
   // ============================================

@@ -8,10 +8,10 @@
  * A# = MIDI 10
  */
 
-import type { Fingering, ChordQuality, SlashChordPattern } from '../types';
+import type { Fingering, RootChordData, SlashChordPattern } from '../types';
 
 // A#ルートの基本コード（31品質）
-export const AS_BASIC: Record<ChordQuality, Fingering[]> = {
+export const AS_BASIC: RootChordData = {
   // ============================================
   // 基本 (5種)
   // ============================================

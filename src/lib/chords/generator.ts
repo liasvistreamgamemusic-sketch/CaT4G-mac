@@ -25,7 +25,7 @@ import { isHalfDiminished, getHalfDiminishedFingerings } from './m7b5Chords';
 import { isSus2Chord, getSus2ChordFingerings } from './sus2Chords';
 import { getChordFingerings as getStructuredDataFingerings } from './data';
 import type { Fingering as DataFingering } from './data/types';
-import { getIntervalsFromRegistry, normalizeQualityFromRegistry } from './theory';
+import { getIntervalsFromRegistry, normalizeQualityFromRegistry, generateFingeringFromSlashChordName } from './theory';
 
 // 開放弦の音（標準チューニング）
 // [1弦(E4), 2弦(B3), 3弦(G3), 4弦(D3), 5弦(A2), 6弦(E2)]
@@ -308,6 +308,18 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
       primaryFingeringId = converted.id; // 最初のものを優先デフォルトとして記録
     }
     addIfUnique(converted);
+  }
+
+  // 1.6 分数コード理論ベース生成
+  // 構造化データに分数コード専用フィンガリングがない場合、理論ベースで生成
+  const parsedForSlash = parseChordName(chordName);
+  if (parsedForSlash?.bass) {
+    // 分数コードなら理論ベースで生成
+    const theorySlashFingerings = generateFingeringFromSlashChordName(chordName);
+    for (const fingering of theorySlashFingerings) {
+      const converted = convertDataFingering(fingering);
+      addIfUnique(converted);
+    }
   }
 
   // 2. CAGEDシステムによるバレーコード

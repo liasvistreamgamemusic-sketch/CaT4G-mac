@@ -58,6 +58,12 @@ export type ChordQuality =
   // シックスナインス系 (2種)
   | '69'      // Major 6/9
   | 'm69'     // Minor 6/9
+  // 13th系 (5種)
+  | '13'      // Dominant 13
+  | 'M13'     // Major 13
+  | 'm13'     // Minor 13
+  | '7(13)'   // Dominant 7 with 13th
+  | 'm7(13)'  // Minor 7 with 13th
   // オルタード系 (6種)
   | '-5'      // Major flat 5
   | '7-5'     // Dominant 7 flat 5
@@ -92,7 +98,8 @@ export type SlashChordPattern =
 export type RootNote = 'C' | 'C#' | 'D' | 'D#' | 'E' | 'F' | 'F#' | 'G' | 'G#' | 'A' | 'A#' | 'B';
 
 // ルートごとのコードデータ（基本品質のみ）
-export type RootChordData = Record<ChordQuality, Fingering[]>;
+// Partial: 手動定義は一部のみ、残りは自動生成で補完
+export type RootChordData = Partial<Record<ChordQuality, Fingering[]>>;
 
 // 分数コードデータ
 export type SlashChordData = Record<SlashChordPattern, Fingering[]>;
@@ -139,6 +146,12 @@ export const EXPECTED_INTERVALS: Record<ChordQuality, number[]> = {
   // シックスナインス系
   '69': [0, 4, 7, 9, 14],  // Major 6/9
   'm69': [0, 3, 7, 9, 14], // Minor 6/9
+  // 13th系
+  '13': [0, 4, 7, 10, 14, 21],    // Dominant 13
+  'M13': [0, 4, 7, 11, 14, 21],   // Major 13
+  'm13': [0, 3, 7, 10, 14, 21],   // Minor 13
+  '7(13)': [0, 4, 7, 10, 21],     // Dominant 7 with 13th (no 9th)
+  'm7(13)': [0, 3, 7, 10, 21],    // Minor 7 with 13th (no 9th)
   // オルタード系
   '-5': [0, 4, 6],         // Major flat 5
   '7-5': [0, 4, 6, 10],    // Dominant 7 flat 5
@@ -171,6 +184,8 @@ export const ALL_QUALITIES: ChordQuality[] = [
   '9', 'm9', 'M9', '9sus4', 'add9',
   // シックスナインス系
   '69', 'm69',
+  // 13th系
+  '13', 'M13', 'm13', '7(13)', 'm7(13)',
   // オルタード系
   '-5', '7-5', '7+5', 'M7-5', 'm7+5', '7+9',
   // 特殊

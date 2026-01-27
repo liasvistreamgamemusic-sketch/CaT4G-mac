@@ -8,10 +8,10 @@
  * F# = MIDI 6
  */
 
-import type { Fingering, ChordQuality, SlashChordPattern } from '../types';
+import type { Fingering, RootChordData, SlashChordPattern } from '../types';
 
 // F#ルートの基本コード（31品質）
-export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
+export const FS_BASIC: RootChordData = {
   // ============================================
   // 基本 (5種)
   // ============================================

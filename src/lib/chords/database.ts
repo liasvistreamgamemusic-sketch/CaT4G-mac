@@ -879,7 +879,7 @@ export function getAllChordNames(): string[] {
 export function getAllCommonChordNames(): string[] {
   const roots = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-  // Genkhord準拠の31品質（分数コード以外）
+  // 拡張品質（分数コード以外）
   const qualities = [
     // 基本 (5種)
     '', 'm', '7', 'm7', 'M7',
@@ -897,6 +897,8 @@ export function getAllCommonChordNames(): string[] {
     '9', 'm9', 'M9', '9sus4', 'add9',
     // シックスナインス系 (2種)
     '69', 'm69',
+    // 13th系 (5種)
+    '13', 'M13', 'm13', '7(13)', 'm7(13)',
     // オルタード系 (6種)
     '-5', '7-5', '7+5', 'M7-5', 'm7+5', '7+9',
     // 特殊 (2種)
@@ -914,35 +916,49 @@ export function getAllCommonChordNames(): string[] {
     }
   }
 
-  // 分数コード（10種 × 12ルート = 120）
-  const intervals = {
-    major: [2, 4, 5, 7, 9, 10],  // 全音上, 長3度, 完全4度, 完全5度, 長6度, 短7度
-    minor: [3, 7],               // 短3度, 完全5度
-    minor7: [5, 10],             // 完全4度, 短7度
+  // 分数コード（多種 × 12ルート）
+  // 各品質ごとに実用的なベースインターバルを定義
+  const slashPatterns: Record<string, number[]> = {
+    // メジャー分数 (7種): 2度, 長3度, 完全4度, 完全5度, 長6度, 短7度, 長7度
+    '': [2, 4, 5, 7, 9, 10, 11],
+    // マイナー分数 (4種): 短3度, 完全5度, 長6度, 短7度
+    'm': [3, 7, 9, 10],
+    // ドミナント7分数 (5種): 短3度, 長3度, 完全4度, 完全5度, 短7度
+    '7': [3, 4, 5, 7, 10],
+    // マイナー7分数 (4種): 短3度, 完全4度, 完全5度, 短7度
+    'm7': [3, 5, 7, 10],
+    // メジャー7分数 (4種): 長3度, 完全4度, 完全5度, 長7度
+    'M7': [4, 5, 7, 11],
+    // ディミニッシュ分数 (3種): 短3度, 減5度, 減7度
+    'dim': [3, 6, 9],
+    // ディミニッシュ7分数 (3種): 短3度, 減5度, 減7度
+    'dim7': [3, 6, 9],
+    // オーギュメント分数 (2種): 長3度, 増5度
+    'aug': [4, 8],
+    // ハーフディミニッシュ分数 (3種): 短3度, 減5度, 短7度
+    'm7-5': [3, 6, 10],
+    // 6th分数 (3種): 長3度, 完全5度, 長6度
+    '6': [4, 7, 9],
+    // マイナー6分数 (3種): 短3度, 完全5度, 長6度
+    'm6': [3, 7, 9],
+    // sus4分数 (2種): 完全4度, 完全5度
+    'sus4': [5, 7],
+    // 7sus4分数 (3種): 完全4度, 完全5度, 短7度
+    '7sus4': [5, 7, 10],
+    // add9分数 (3種): 2度, 長3度, 完全5度
+    'add9': [2, 4, 7],
   };
 
   for (const root of roots) {
     const rootIndex = roots.indexOf(root);
 
-    // メジャー分数コード (6種)
-    for (const interval of intervals.major) {
-      const bassIndex = (rootIndex + interval) % 12;
-      const bass = roots[bassIndex];
-      chords.push(`${root}/${bass}`);
-    }
-
-    // マイナー分数コード (2種)
-    for (const interval of intervals.minor) {
-      const bassIndex = (rootIndex + interval) % 12;
-      const bass = roots[bassIndex];
-      chords.push(`${root}m/${bass}`);
-    }
-
-    // マイナー7分数コード (2種)
-    for (const interval of intervals.minor7) {
-      const bassIndex = (rootIndex + interval) % 12;
-      const bass = roots[bassIndex];
-      chords.push(`${root}m7/${bass}`);
+    // 各品質の分数コードを生成
+    for (const [quality, intervals] of Object.entries(slashPatterns)) {
+      for (const interval of intervals) {
+        const bassIndex = (rootIndex + interval) % 12;
+        const bass = roots[bassIndex];
+        chords.push(`${root}${quality}/${bass}`);
+      }
     }
   }
 

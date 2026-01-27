@@ -8,10 +8,10 @@
  * D = MIDI 2
  */
 
-import type { Fingering, ChordQuality, SlashChordPattern } from '../types';
+import type { Fingering, RootChordData, SlashChordPattern } from '../types';
 
 // Dルートの基本コード（31品質）
-export const D_BASIC: Record<ChordQuality, Fingering[]> = {
+export const D_BASIC: RootChordData = {
   // ============================================
   // 基本 (5種)
   // ============================================

@@ -25,7 +25,7 @@ import { A_BASIC, A_SLASH } from './roots/A';
 import { AS_BASIC, AS_SLASH } from './roots/As';
 import { B_BASIC, B_SLASH } from './roots/B';
 
-import type { RootNote, ChordQuality, SlashChordPattern, Fingering, AllChordData } from './types';
+import type { RootNote, ChordQuality, SlashChordPattern, Fingering, AllChordData, RootChordData } from './types';
 
 // Individual root exports
 export { C_BASIC, C_SLASH } from './roots/C';
@@ -58,7 +58,7 @@ export const ALL_CHORD_DATA: AllChordData = {
 };
 
 // Mapping from root note to basic chord data
-const BASIC_DATA_MAP: Record<RootNote, Record<ChordQuality, Fingering[]>> = {
+const BASIC_DATA_MAP: Record<RootNote, RootChordData> = {
   'C': C_BASIC,
   'C#': CS_BASIC,
   'D': D_BASIC,

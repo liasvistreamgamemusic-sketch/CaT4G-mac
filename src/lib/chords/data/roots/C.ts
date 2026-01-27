@@ -8,10 +8,10 @@
  * C = MIDI 0
  */
 
-import type { Fingering, ChordQuality, SlashChordPattern } from '../types';
+import type { Fingering, RootChordData, SlashChordPattern } from '../types';
 
 // Cルートの基本コード（31品質）
-export const C_BASIC: Record<ChordQuality, Fingering[]> = {
+export const C_BASIC: RootChordData = {
   // ============================================
   // 基本 (5種)
   // ============================================
