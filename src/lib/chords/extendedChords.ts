@@ -1056,7 +1056,11 @@ export function isExtendedChord(quality: string): boolean {
   const extendedQualities = [
     '9',
     'M9',
+    'M79',
+    'M7(9)',
     'm9',
+    'm79',
+    'm7(9)',
     'madd9',
     '7sus4',
     '7sus2',

@@ -96,6 +96,11 @@ export function normalizeQuality(quality: string): string {
     'M6': '6',
     'min6': 'm6',
     '-6': 'm6',
+    // M79/m79 (Major/Minor 7(9))
+    'M79': 'M9',
+    'M7(9)': 'M9',
+    'm79': 'm9',
+    'm7(9)': 'm9',
     // sus
     'sus': 'sus4',
     'suspended4': 'sus4',

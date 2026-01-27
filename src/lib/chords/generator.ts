@@ -17,7 +17,7 @@ import type { ChordFingering } from './types';
 import { getStandardChordFingerings } from './standardChords';
 import { getCAGEDChordFingerings, isCAGEDSupported } from './cagedChords';
 import { getChordDefinition } from './database';
-import { normalizeQuality, isFingeringDisplayable } from './utils';
+import { isFingeringDisplayable } from './utils';
 import { isSymmetricChord, getSymmetricChordFingerings } from './symmetricChords';
 import { isExtendedChord, getExtendedChordFingerings } from './extendedChords';
 import { isPowerChord, getPowerChordFingerings } from './powerChords';
@@ -25,6 +25,7 @@ import { isHalfDiminished, getHalfDiminishedFingerings } from './m7b5Chords';
 import { isSus2Chord, getSus2ChordFingerings } from './sus2Chords';
 import { getChordFingerings as getStructuredDataFingerings } from './data';
 import type { Fingering as DataFingering } from './data/types';
+import { getIntervalsFromRegistry, normalizeQualityFromRegistry } from './theory';
 
 // 開放弦の音（標準チューニング）
 // [1弦(E4), 2弦(B3), 3弦(G3), 4弦(D3), 5弦(A2), 6弦(E2)]
@@ -55,139 +56,18 @@ const NOTE_TO_MIDI: Record<string, number> = {
   'B#': 0, // C と同じ（異名同音）
 };
 
-// コード構成音のインターバル定義
-const CHORD_INTERVALS: Record<string, number[]> = {
-  // メジャー系
-  '': [0, 4, 7], // Major
-  maj: [0, 4, 7],
-  M: [0, 4, 7],
-  '5': [0, 7], // Power chord
-  '6': [0, 4, 7, 9], // Major 6th
-  M6: [0, 4, 7, 9],
-  maj6: [0, 4, 7, 9],
-  add6: [0, 4, 7, 9],
-  '7': [0, 4, 7, 10], // Dominant 7
-  M7: [0, 4, 7, 11], // Major 7
-  maj7: [0, 4, 7, 11],
-  Maj7: [0, 4, 7, 11],
-  'Δ': [0, 4, 7, 11],
-  'Δ7': [0, 4, 7, 11],
-  '9': [0, 4, 7, 10, 14],
-  M9: [0, 4, 7, 11, 14],
-  maj9: [0, 4, 7, 11, 14],
-  add9: [0, 4, 7, 14],
-  add2: [0, 2, 4, 7],
-  '11': [0, 4, 7, 10, 14, 17],
-  '13': [0, 4, 7, 10, 14, 21],
-  '69': [0, 4, 7, 9, 14], // 6/9 chord
-
-  // マイナー系
-  m: [0, 3, 7],
-  min: [0, 3, 7],
-  mi: [0, 3, 7],
-  '-': [0, 3, 7],
-  m6: [0, 3, 7, 9], // Minor 6th
-  min6: [0, 3, 7, 9],
-  '-6': [0, 3, 7, 9],
-  m7: [0, 3, 7, 10],
-  min7: [0, 3, 7, 10],
-  mi7: [0, 3, 7, 10],
-  '-7': [0, 3, 7, 10],
-  mM7: [0, 3, 7, 11], // Minor Major 7th
-  'minMaj7': [0, 3, 7, 11],
-  'mMaj7': [0, 3, 7, 11],
-  'm(M7)': [0, 3, 7, 11],
-  'm/M7': [0, 3, 7, 11],
-  'mΔ7': [0, 3, 7, 11],
-  '-Δ7': [0, 3, 7, 11],
-  m9: [0, 3, 7, 10, 14],
-  min9: [0, 3, 7, 10, 14],
-  m11: [0, 3, 7, 10, 14, 17],
-  madd9: [0, 3, 7, 14],
-  m69: [0, 3, 7, 9, 14], // Minor 6/9
-
-  // サスペンデッド
-  sus2: [0, 2, 7],
-  sus4: [0, 5, 7],
-  sus: [0, 5, 7],
-  '7sus2': [0, 2, 7, 10], // ルート, M2, P5, m7
-  '7sus4': [0, 5, 7, 10],
-  '7sus': [0, 5, 7, 10],
-  '9sus4': [0, 5, 7, 10, 14],
-  '9sus': [0, 5, 7, 10, 14],
-  'add4': [0, 4, 5, 7],
-
-  // ディミニッシュ/オーギュメント
-  dim: [0, 3, 6],
-  '°': [0, 3, 6],
-  'o': [0, 3, 6],
-  dim7: [0, 3, 6, 9],
-  '°7': [0, 3, 6, 9],
-  'o7': [0, 3, 6, 9],
-  m7b5: [0, 3, 6, 10], // Half diminished
-  'm7-5': [0, 3, 6, 10],
-  'ø': [0, 3, 6, 10],
-  'ø7': [0, 3, 6, 10],
-  'Ø': [0, 3, 6, 10],
-  'Ø7': [0, 3, 6, 10],
-  '-7b5': [0, 3, 6, 10],
-  aug: [0, 4, 8],
-  '+': [0, 4, 8],
-  aug7: [0, 4, 8, 10],
-  '+7': [0, 4, 8, 10],
-  augM7: [0, 4, 8, 11], // aug + Major7
-  'aug(M7)': [0, 4, 8, 11],
-  '+M7': [0, 4, 8, 11],
-  'M7#5': [0, 4, 8, 11],
-  'maj7#5': [0, 4, 8, 11],
-  'M7#11': [0, 4, 7, 11, 18], // Major7 + Sharp11
-  'maj7#11': [0, 4, 7, 11, 18],
-  'M7(#11)': [0, 4, 7, 11, 18],
-  'augM7#11': [0, 4, 8, 11, 18], // aug + Major7 + Sharp11
-  'augM7(#11)': [0, 4, 8, 11, 18],
-
-  // アルタード
-  '7#5': [0, 4, 8, 10],
-  '7+5': [0, 4, 8, 10],
-  '7b5': [0, 4, 6, 10],
-  '7-5': [0, 4, 6, 10],
-  '7#9': [0, 4, 7, 10, 15],
-  '7b9': [0, 4, 7, 10, 13],
-  '7#11': [0, 4, 7, 10, 18],
-  '7b13': [0, 4, 7, 10, 20],
-  'alt': [0, 4, 8, 10, 13], // Altered dominant (7#5b9)
-  '7alt': [0, 4, 8, 10, 13],
-
-  // 特殊コード
-  '4.4': [0, 5, 10], // クォータルコード (C-F-Bb)
-  'blk': [0, 2, 6, 10], // ブラックアダーコード（分数aug）: Root + M2 + #4 + m7
-
-  // フラット5系（エイリアス追加）
-  '-5': [0, 4, 6], // フラット5
-  'm-5': [0, 3, 6], // マイナーフラット5
-
-  // メジャー7フラット5
-  'M7-5': [0, 4, 6, 11], // メジャーセブンフラット5
-  'maj7-5': [0, 4, 6, 11], // エイリアス
-  'M7b5': [0, 4, 6, 11], // エイリアス
-
-  // マイナー7シャープ5
-  'm7+5': [0, 3, 8, 10], // マイナーセブンシャープ5
-  'm7#5': [0, 3, 8, 10], // エイリアス
-
-  // 7シャープ9のエイリアス
-  '7+9': [0, 4, 7, 10, 15], // 7#9のエイリアス
-
-  // シックスナインス（エイリアス追加）
-  '6/9': [0, 4, 7, 9, 14], // エイリアス
-  'm6/9': [0, 3, 7, 9, 14], // エイリアス
-};
+// コード構成音のインターバル定義は theory/registry.ts に移行済み
 
 /**
  * コード名を正規化
  */
 function normalizeChordName(name: string): string {
-  return name.replace(/♯/g, '#').replace(/♭/g, 'b');
+  return name
+    .replace(/♯/g, '#')
+    .replace(/♭/g, 'b')
+    .replace(/[（(]/g, '(') // 全角括弧を半角に
+    .replace(/[）)]/g, ')')
+    .replace(/\s+/g, ''); // スペース除去
 }
 
 /**
@@ -222,18 +102,19 @@ function parseChordName(
 
 /**
  * コードの構成音を取得
+ * theory/registry.ts から取得、見つからない場合は動的構築
  */
 function getChordNotes(root: string, quality: string): number[] {
   const rootMidi = NOTE_TO_MIDI[root];
   if (rootMidi === undefined) return [];
 
-  // 品質に対応するインターバルを検索
-  let intervals = CHORD_INTERVALS[quality];
+  // theory/registry から検索
+  let intervals = getIntervalsFromRegistry(quality);
 
   // 見つからない場合、正規化して再検索
   if (!intervals) {
-    const normalizedQuality = normalizeQuality(quality);
-    intervals = CHORD_INTERVALS[normalizedQuality];
+    const normalizedQuality = normalizeQualityFromRegistry(quality);
+    intervals = getIntervalsFromRegistry(normalizedQuality);
   }
 
   // それでも見つからない場合、構成要素から構築
