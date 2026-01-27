@@ -418,9 +418,15 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
   }
 
   // 1.5 構造化データ（492コード × 671フィンガリング）
+  // roots/の最初のフィンガリングを優先デフォルトとして記録
   const structuredFingerings = getStructuredDataFingerings(chordName);
+  let primaryFingeringId: string | null = null;
   for (const fingering of structuredFingerings) {
-    addIfUnique(convertDataFingering(fingering));
+    const converted = convertDataFingering(fingering);
+    if (primaryFingeringId === null) {
+      primaryFingeringId = converted.id; // 最初のものを優先デフォルトとして記録
+    }
+    addIfUnique(converted);
   }
 
   // 2. CAGEDシステムによるバレーコード
@@ -500,8 +506,16 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
     return [];
   }
 
-  // ソート: CAGEDシステム/標準ライブラリを優先、動的生成は最後
+  // ソート: roots/の最初のフィンガリングを最優先、その後CAGEDシステム/標準ライブラリ
   const sortedFingerings = displayableFingerings.sort((a, b) => {
+    // roots/の最初のフィンガリング（優先デフォルト）を最優先
+    if (primaryFingeringId) {
+      const aIsPrimary = a.id === primaryFingeringId;
+      const bIsPrimary = b.id === primaryFingeringId;
+      if (aIsPrimary && !bIsPrimary) return -1;
+      if (!aIsPrimary && bIsPrimary) return 1;
+    }
+
     // 動的生成（generated-で始まるID）は最後に
     const aIsGenerated = a.id.startsWith('generated-');
     const bIsGenerated = b.id.startsWith('generated-');

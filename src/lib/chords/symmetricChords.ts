@@ -66,7 +66,7 @@ export function generateDimFingerings(root: string): ChordFingering[] {
     fingerings.push({
       id: `${root}dim-5str-root`,
       frets: [fret5 + 2, fret5, fret5 + 1, fret5 + 2, fret5, null],
-      fingers: [3, 1, 2, 4, 1, null],
+      fingers: [3, 1, 2, 3, 1, null],
       barreAt: fret5,
       barreStrings: [1, 4],
       baseFret,
@@ -83,7 +83,7 @@ export function generateDimFingerings(root: string): ChordFingering[] {
     fingerings.push({
       id: `${root}dim-6str-barre`,
       frets: [fret6 + 2, fret6, fret6 + 1, fret6 + 2, fret6, fret6],
-      fingers: [3, 1, 2, 4, 1, 1],
+      fingers: [3, 1, 2, 3, 1, 1],
       barreAt: fret6,
       barreStrings: [1, 5],
       baseFret,
@@ -152,7 +152,7 @@ export function generateDim7Fingerings(root: string): ChordFingering[] {
     fingerings.push({
       id: `${root}dim7-mid`,
       frets: [fret5 + 1, fret5, fret5 + 1, fret5 + 2, fret5, null],
-      fingers: [2, 1, 3, 4, 1, null],
+      fingers: [2, 1, 2, 3, 1, null],
       barreAt: fret5,
       barreStrings: [1, 4],
       baseFret,
@@ -210,31 +210,34 @@ export function generateAugFingerings(root: string): ChordFingering[] {
   const fret6 = ROOT_TO_FRET_6STRING[root];
 
   // Form 1: Eaug型（6弦ルート） - 標準aug
-  // frets: [x, +1, +1, +2, +2, ルート]
+  // aug = [0, 4, 8] = root + M3 + #5
+  // Eaug開放フォーム: 6弦=E(root), 5弦=C(#5/3フレット), 4弦=E(root/2フレット), 3弦=G#(M3/1フレット), 2弦=C(#5/1フレット), 1弦=E(root/0フレット)
+  // frets: [0 or x, +1, +1, +2, +3, ルート]
   if (fret6 !== undefined) {
     if (fret6 === 0) {
-      // 開放弦Eaug
+      // 開放弦Eaug: x-0-3-1-1-0 または 0-0-3-1-1-0
       fingerings.push({
         id: `${root}aug-E-open`,
-        frets: [null, 1, 1, 2, 2, 0],
-        fingers: [null, 1, 1, 3, 2, null],
+        frets: [0, 1, 1, 2, 3, 0],
+        fingers: [null, 1, 1, 2, 3, null],
         barreAt: 1,
         barreStrings: [1, 2],
         baseFret: 1,
-        muted: [true, false, false, false, false, false],
+        muted: [false, false, false, false, false, false],
         isDefault: true,
         difficulty: 'easy',
       });
     } else if (fret6 <= 9) {
-      // Eaugフォームバレー
+      // Eaugフォームバレー: ルート+0, ルート+3, ルート+2, ルート+1, ルート+1, ルート
+      // 6弦=root, 5弦=#5(+3), 4弦=root(+2), 3弦=M3(+1), 2弦=#5(+1), 1弦=root
       fingerings.push({
         id: `${root}aug-E-barre`,
-        frets: [null, fret6 + 1, fret6 + 1, fret6 + 2, fret6 + 2, fret6],
-        fingers: [null, 2, 2, 4, 3, 1],
+        frets: [fret6, fret6 + 1, fret6 + 1, fret6 + 2, fret6 + 3, fret6],
+        fingers: [1, 2, 2, 3, 4, 1],
         barreAt: fret6,
-        barreStrings: [2, 5],
+        barreStrings: [0, 5],
         baseFret: fret6,
-        muted: [true, false, false, false, false, false],
+        muted: [false, false, false, false, false, false],
         isDefault: true,
         difficulty: 'medium',
       });
@@ -357,7 +360,7 @@ export function generateAug7Fingerings(root: string): ChordFingering[] {
       fingerings.push({
         id: `${root}aug7-E-barre`,
         frets: [fret6, fret6 + 1, fret6 + 1, fret6, fret6 + 2, fret6],
-        fingers: [1, 2, 2, 1, 4, 1],
+        fingers: [1, 2, 2, 1, 3, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
@@ -374,7 +377,7 @@ export function generateAug7Fingerings(root: string): ChordFingering[] {
     fingerings.push({
       id: `${root}aug7-C-type`,
       frets: [fret5 + 1, fret5, fret5 + 1, fret5 + 2, fret5, null],
-      fingers: [2, 1, 3, 4, 1, null],
+      fingers: [2, 1, 2, 3, 1, null],
       barreAt: fret5,
       barreStrings: [1, 4],
       baseFret: fret5,

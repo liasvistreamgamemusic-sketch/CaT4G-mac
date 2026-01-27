@@ -574,8 +574,8 @@ export function generateMinorMajor7thCAGED(root: string): ChordFingering[] {
       // EmM7フォームバレー
       fingerings.push({
         id: `${root}mM7-EmM7-barre`,
-        frets: [fret6, fret6, fret6, fret6 + 2, fret6 + 1, fret6],
-        fingers: [1, 1, 1, 4, 2, 1],
+        frets: [fret6, fret6, fret6, fret6 + 1, fret6 + 2, fret6],
+        fingers: [1, 1, 1, 2, 3, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
@@ -1767,9 +1767,9 @@ export function generateMinorMajor7thDForm(root: string): ChordFingering[] {
       fingerings.push({
         id: `${root}mM7-DmM7-barre`,
         frets: [fret4 + 1, fret4 + 2, fret4 + 2, fret4, null, null],
-        fingers: [1, 2, 3, 1, null, null],
-        barreAt: fret4, // 1弦と4弦でバレー
-        barreStrings: [0, 3],
+        fingers: [2, 3, 4, 1, null, null],
+        barreAt: null,
+        barreStrings: null,
         baseFret: baseFret,
         muted: [false, false, false, false, true, true],
         isDefault: false,

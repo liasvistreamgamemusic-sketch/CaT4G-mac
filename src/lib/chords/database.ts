@@ -879,7 +879,7 @@ export function getAllChordNames(): string[] {
 export function getAllCommonChordNames(): string[] {
   const roots = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-  // Genkhord準拠の30品質（分数コード以外）+ m7
+  // Genkhord準拠の31品質（分数コード以外）
   const qualities = [
     // 基本 (5種)
     '', 'm', '7', 'm7', 'M7',
@@ -901,11 +901,13 @@ export function getAllCommonChordNames(): string[] {
     '-5', '7-5', '7+5', 'M7-5', 'm7+5', '7+9',
     // 特殊 (2種)
     '4.4', 'blk',
+    // パワーコード (1種)
+    '5',
   ];
 
   const chords: string[] = [];
 
-  // 基本コード（30品質 × 12ルート = 360）
+  // 基本コード（31品質 × 12ルート = 372）
   for (const root of roots) {
     for (const quality of qualities) {
       chords.push(root + quality);

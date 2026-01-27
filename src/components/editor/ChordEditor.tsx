@@ -13,6 +13,7 @@ import { ChordDiagramHorizontal } from '@/components/ChordDiagramHorizontal';
 import { generateChordFingerings, getDefaultFingering, getAllCommonChordNames } from '@/lib/chords';
 import type { ChordFingering } from '@/lib/chords/types';
 import { useChordPreferencesContext } from '@/contexts/ChordPreferencesContext';
+import { transposeChord } from '@/lib/chords/transpose';
 
 // Common chord suggestions for autocomplete
 const COMMON_CHORD_NAMES = getAllCommonChordNames();
@@ -55,6 +56,8 @@ interface ChordEditorProps {
   timeSignature?: TimeSignature;
   /** ポップオーバーの表示位置（オプション） */
   anchorPosition?: { x: number; y: number };
+  /** 移調量（CAPO考慮済み、表示・押さえ方検索用） */
+  transpose?: number;
 }
 
 /**
@@ -69,6 +72,7 @@ export function ChordEditor({
   onDelete,
   timeSignature = '4/4',
   anchorPosition,
+  transpose = 0,
 }: ChordEditorProps) {
   // ローカル編集状態
   const [editedChord, setEditedChord] = useState<ExtendedChordPosition | null>(null);
@@ -81,6 +85,13 @@ export function ChordEditor({
   const [activeTab, setActiveTab] = useState<EditorTab>('voicing');
   const popoverRef = useRef<HTMLDivElement>(null);
   const chordInputRef = useRef<HTMLInputElement>(null);
+
+  // 表示用コード名（移調適用済み）
+  // 押さえ方検索・表示に使用。保存時は元のコード名を維持
+  const displayChordName = useMemo(() => {
+    if (!editedChord) return '';
+    return transpose !== 0 ? transposeChord(editedChord.chord, transpose) : editedChord.chord;
+  }, [editedChord, transpose]);
 
   // Filter chord suggestions based on search query
   const chordSuggestions = useMemo(() => {
@@ -99,8 +110,9 @@ export function ChordEditor({
       setChordSearchQuery('');
       setActiveTab('voicing');
 
-      // フィンガリング情報を取得
-      const allFingerings = generateChordFingerings(chord.chord);
+      // フィンガリング情報を取得（移調後のコード名を使用）
+      const transposedName = transpose !== 0 ? transposeChord(chord.chord, transpose) : chord.chord;
+      const allFingerings = generateChordFingerings(transposedName);
       if (allFingerings.length > 0) {
         setFingerings(allFingerings);
         // voicingId が設定されていればそれを選択
@@ -113,7 +125,7 @@ export function ChordEditor({
         }
       } else {
         // フォールバック
-        const fallback = getDefaultFingering(chord.chord);
+        const fallback = getDefaultFingering(transposedName);
         setFingerings(fallback ? [fallback] : []);
         setSelectedFingeringIndex(0);
       }
@@ -122,7 +134,7 @@ export function ChordEditor({
       setFingerings([]);
       setChordSearchQuery('');
     }
-  }, [chord]);
+  }, [chord, transpose]);
 
   // Update fingerings when chord name changes
   const updateFingeringsForChord = useCallback((chordName: string) => {
@@ -219,10 +231,12 @@ export function ChordEditor({
     setChordSearchQuery(name);
     setShowChordSuggestions(name.length > 0);
     // Update fingerings after a short delay to avoid excessive recalculation
+    // 移調後のコード名でフィンガリングを生成
     if (name.length >= 1) {
-      updateFingeringsForChord(name);
+      const transposedName = transpose !== 0 ? transposeChord(name, transpose) : name;
+      updateFingeringsForChord(transposedName);
     }
-  }, [updateFingeringsForChord]);
+  }, [updateFingeringsForChord, transpose]);
 
   // コードを選択（サジェストから）
   const handleChordSelect = useCallback((chordName: string) => {
@@ -232,8 +246,10 @@ export function ChordEditor({
     });
     setChordSearchQuery('');
     setShowChordSuggestions(false);
-    updateFingeringsForChord(chordName);
-  }, [updateFingeringsForChord]);
+    // 移調後のコード名でフィンガリングを生成
+    const transposedName = transpose !== 0 ? transposeChord(chordName, transpose) : chordName;
+    updateFingeringsForChord(transposedName);
+  }, [updateFingeringsForChord, transpose]);
 
   // 位置の変更
   const handlePositionChange = useCallback((delta: number) => {
@@ -329,12 +345,12 @@ export function ChordEditor({
                 #{chordIndex + 1}
               </span>
             )}
-            {/* コード名表示 */}
+            {/* コード名表示（移調適用済み） */}
             <span
               className="text-lg font-bold ml-2"
               style={{ color: 'var(--color-accent-primary)' }}
             >
-              {editedChord.chord}
+              {displayChordName}
             </span>
           </div>
           <button
@@ -585,35 +601,35 @@ export function ChordEditor({
                         </button>
                       ))}
                     </div>
-                    {/* デフォルトに設定ボタン */}
+                    {/* デフォルトに設定ボタン（移調後のコード名で設定） */}
                     <button
                       onClick={async () => {
-                        if (!editedChord || !fingerings[selectedFingeringIndex]) return;
+                        if (!displayChordName || !fingerings[selectedFingeringIndex]) return;
                         setIsSettingDefault(true);
                         try {
-                          await chordPreferences.setDefault(editedChord.chord, fingerings[selectedFingeringIndex]);
+                          await chordPreferences.setDefault(displayChordName, fingerings[selectedFingeringIndex]);
                         } finally {
                           setIsSettingDefault(false);
                         }
                       }}
-                      disabled={isSettingDefault || chordPreferences.hasPreference(editedChord?.chord ?? '') &&
-                        chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id}
+                      disabled={isSettingDefault || chordPreferences.hasPreference(displayChordName) &&
+                        chordPreferences.getPreferred(displayChordName)?.id === fingerings[selectedFingeringIndex]?.id}
                       className="mt-2 w-full px-3 py-1.5 rounded text-xs font-medium transition-colors disabled:opacity-50"
                       style={{
-                        backgroundColor: chordPreferences.hasPreference(editedChord?.chord ?? '') &&
-                          chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id
+                        backgroundColor: chordPreferences.hasPreference(displayChordName) &&
+                          chordPreferences.getPreferred(displayChordName)?.id === fingerings[selectedFingeringIndex]?.id
                           ? 'var(--color-success)'
                           : 'var(--btn-glass-hover)',
-                        color: chordPreferences.hasPreference(editedChord?.chord ?? '') &&
-                          chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id
+                        color: chordPreferences.hasPreference(displayChordName) &&
+                          chordPreferences.getPreferred(displayChordName)?.id === fingerings[selectedFingeringIndex]?.id
                           ? '#ffffff'
                           : 'var(--color-text-secondary)',
                       }}
                     >
                       {isSettingDefault
                         ? '設定中...'
-                        : chordPreferences.hasPreference(editedChord?.chord ?? '') &&
-                          chordPreferences.getPreferred(editedChord?.chord ?? '')?.id === fingerings[selectedFingeringIndex]?.id
+                        : chordPreferences.hasPreference(displayChordName) &&
+                          chordPreferences.getPreferred(displayChordName)?.id === fingerings[selectedFingeringIndex]?.id
                           ? '✓ デフォルトに設定済み'
                           : 'デフォルトに設定'}
                     </button>

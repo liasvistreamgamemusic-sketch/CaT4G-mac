@@ -76,7 +76,6 @@ export interface Database {
           difficulty: 'beginner' | 'intermediate' | 'advanced' | null;
           source_url: string | null;
           notes: string | null;
-          is_favorite: boolean;
           play_count: number;
           created_at: string;
           updated_at: string;
@@ -93,7 +92,6 @@ export interface Database {
           difficulty?: 'beginner' | 'intermediate' | 'advanced' | null;
           source_url?: string | null;
           notes?: string | null;
-          is_favorite?: boolean;
           play_count?: number;
           created_at?: string;
           updated_at?: string;
@@ -110,7 +108,6 @@ export interface Database {
           difficulty?: 'beginner' | 'intermediate' | 'advanced' | null;
           source_url?: string | null;
           notes?: string | null;
-          is_favorite?: boolean;
           play_count?: number;
           created_at?: string;
           updated_at?: string;

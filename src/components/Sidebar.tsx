@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Music,
-  Star,
   ListMusic,
   Search,
   Plus,
@@ -31,7 +30,6 @@ interface SidebarProps {
   onSongSelect: (id: string) => void;
   onAddClick: () => void;
   onDeleteSong?: (id: string) => void;
-  onToggleFavorite?: (id: string) => void;
   onEditSong?: (id: string) => void;
   // Playlist props
   playlists: PlaylistWithCount[];
@@ -63,7 +61,6 @@ export function Sidebar({
   onSongSelect,
   onAddClick,
   onDeleteSong,
-  onToggleFavorite,
   onEditSong,
   playlists,
   selectedPlaylistId,
@@ -105,7 +102,7 @@ export function Sidebar({
   };
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'songs' | 'favorites' | 'playlists' | 'artists'>('songs');
+  const [activeTab, setActiveTab] = useState<'songs' | 'playlists' | 'artists'>('songs');
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const stored = localStorage.getItem(COLLAPSED_STORAGE_KEY);
     return stored === 'true';
@@ -143,10 +140,7 @@ export function Sidebar({
       song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       song.artistName?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesTab =
-      activeTab === 'songs' || (activeTab === 'favorites' && song.isFavorite);
-
-    return matchesSearch && matchesTab;
+    return matchesSearch;
   });
 
   const handleToggleCollapse = () => {
@@ -249,25 +243,6 @@ export function Sidebar({
         >
           <Music style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
           {!isCollapsed && <span>すべて</span>}
-        </button>
-        <button
-          className={`
-            flex-1 font-medium transition-colors flex items-center justify-center
-            ${activeTab === 'favorites'
-              ? 'text-accent-primary border-b-2 border-accent-primary'
-              : 'text-text-secondary hover:text-text-primary'
-            }
-          `}
-          style={{
-            padding: isCollapsed ? `${spacing.md}px 0` : `${spacing.sm}px`,
-            fontSize: `${fontSize.sm}px`,
-            gap: `${spacing.sm}px`,
-          }}
-          onClick={() => setActiveTab('favorites')}
-          title="お気に入り"
-        >
-          <Star style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }} />
-          {!isCollapsed && <span>★</span>}
         </button>
         <button
           className={`
@@ -463,11 +438,7 @@ export function Sidebar({
                       `}
                       title={`${song.title}${song.artistName ? ` - ${song.artistName}` : ''}`}
                     >
-                      {song.isFavorite ? (
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      ) : (
-                        <span>{song.title.charAt(0).toUpperCase()}</span>
-                      )}
+                      <span>{song.title.charAt(0).toUpperCase()}</span>
                     </button>
                   </li>
                 ))}
@@ -481,7 +452,6 @@ export function Sidebar({
                     isSelected={song.id === selectedSongId}
                     onSelect={() => onSongSelect(song.id)}
                     onDelete={() => onDeleteSong?.(song.id)}
-                    onToggleFavorite={() => onToggleFavorite?.(song.id)}
                     onEdit={() => onEditSong?.(song.id)}
                     playlists={playlists}
                     onAddToPlaylist={onAddSongToPlaylist}
@@ -557,7 +527,6 @@ interface SongItemProps {
   isSelected: boolean;
   onSelect: () => void;
   onDelete?: () => void;
-  onToggleFavorite?: () => void;
   onEdit?: () => void;
   playlists?: PlaylistWithCount[];
   onAddToPlaylist?: (songId: string, playlistId: string) => void;
@@ -569,7 +538,6 @@ function SongItem({
   isSelected,
   onSelect,
   onDelete,
-  onToggleFavorite,
   onEdit,
   playlists,
   onAddToPlaylist,
@@ -626,12 +594,6 @@ function SongItem({
               className="font-medium truncate flex items-center"
               style={{ fontSize: `${fontSize.sm}px`, gap: `${spacing.sm}px` }}
             >
-              {song.isFavorite && (
-                <Star
-                  className="text-yellow-400 fill-yellow-400 flex-shrink-0"
-                  style={{ width: `${iconSizeMd}px`, height: `${iconSizeMd}px` }}
-                />
-              )}
               {song.title}
             </div>
             {song.artistName && (
@@ -674,23 +636,6 @@ function SongItem({
               transform: 'translateX(-100%)',
             }}
           >
-            <button
-              onClick={() => {
-                onToggleFavorite?.();
-                setShowMenu(false);
-              }}
-              className="w-full px-3 py-2 text-sm text-left hover:bg-[var(--btn-glass-hover)] flex items-center gap-2"
-            >
-              {song.isFavorite ? (
-                <>
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> お気に入り解除
-                </>
-              ) : (
-                <>
-                  <Star className="w-4 h-4 text-text-muted" /> お気に入り
-                </>
-              )}
-            </button>
             <button
               onClick={() => {
                 onEdit?.();

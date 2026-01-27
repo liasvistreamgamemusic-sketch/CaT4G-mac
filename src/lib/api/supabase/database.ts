@@ -58,7 +58,6 @@ export async function getSongs(): Promise<SongListItem[]> {
     .select(`
       id,
       title,
-      is_favorite,
       artists!songs_artist_id_fkey ( name )
     `)
     .order('updated_at', { ascending: false });
@@ -69,7 +68,6 @@ export async function getSongs(): Promise<SongListItem[]> {
     id: row.id,
     title: row.title,
     artistName: (row.artists as { name: string } | null)?.name ?? null,
-    isFavorite: row.is_favorite,
   }));
 }
 
@@ -179,7 +177,6 @@ export async function getSongById(id: UUID): Promise<SongWithDetails | null> {
     difficulty: songData.difficulty as Difficulty | null,
     sourceUrl: songData.source_url,
     notes: songData.notes,
-    isFavorite: songData.is_favorite,
     playCount: songData.play_count,
     createdAt: songData.created_at,
     updatedAt: songData.updated_at,
@@ -196,7 +193,6 @@ export async function searchSongs(query: string): Promise<SongListItem[]> {
     .select(`
       id,
       title,
-      is_favorite,
       artists!songs_artist_id_fkey ( name )
     `)
     .or(`title.ilike.%${query}%,artists.name.ilike.%${query}%`)
@@ -208,7 +204,6 @@ export async function searchSongs(query: string): Promise<SongListItem[]> {
     id: row.id,
     title: row.title,
     artistName: (row.artists as { name: string } | null)?.name ?? null,
-    isFavorite: row.is_favorite,
   }));
 }
 
@@ -259,7 +254,6 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
     difficulty: input.difficulty ?? null,
     source_url: input.sourceUrl ?? null,
     notes: input.notes ?? null,
-    is_favorite: false,
     play_count: 0,
     created_at: now,
     updated_at: now,
@@ -311,20 +305,6 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
   }
 
   return songId;
-}
-
-export async function updateSongFavorite(id: UUID, isFavorite: boolean): Promise<void> {
-  const supabase = getSupabaseClient();
-
-  const { error } = await supabase
-    .from('songs')
-    .update({
-      is_favorite: isFavorite,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id);
-
-  if (error) throw new Error(error.message);
 }
 
 export async function incrementPlayCount(id: UUID): Promise<void> {
@@ -515,7 +495,6 @@ export async function getPlaylistById(id: UUID): Promise<PlaylistWithSongs | nul
       songs!playlist_songs_song_id_fkey (
         id,
         title,
-        is_favorite,
         artists!songs_artist_id_fkey ( name )
       )
     `)
@@ -530,14 +509,12 @@ export async function getPlaylistById(id: UUID): Promise<PlaylistWithSongs | nul
       const song = row.songs as {
         id: string;
         title: string;
-        is_favorite: boolean;
         artists: { name: string } | null;
       };
       return {
         id: song.id,
         title: song.title,
         artistName: song.artists?.name ?? null,
-        isFavorite: song.is_favorite,
       };
     });
 
@@ -742,7 +719,6 @@ export async function getSongsByArtist(artistId: UUID): Promise<SongListItem[]> 
     .select(`
       id,
       title,
-      is_favorite,
       artists!songs_artist_id_fkey ( name )
     `)
     .eq('artist_id', artistId)
@@ -754,7 +730,6 @@ export async function getSongsByArtist(artistId: UUID): Promise<SongListItem[]> 
     id: row.id,
     title: row.title,
     artistName: (row.artists as { name: string } | null)?.name ?? null,
-    isFavorite: row.is_favorite,
   }));
 }
 
@@ -884,7 +859,6 @@ export const supabaseDatabase: DatabaseAPI = {
   saveSong,
   updateSong,
   deleteSong,
-  updateSongFavorite,
   incrementPlayCount,
   getPlaylists,
   getPlaylistById,

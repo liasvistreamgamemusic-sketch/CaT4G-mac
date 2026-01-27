@@ -1098,10 +1098,8 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                 </section>
               ))}
 
-              {/* 下部スペーサー: 再生中のみ表示（最後の行がベースライン位置までスクロールできるように） */}
-              {isPlaying && (
-                <div style={{ height: `${(1 - baselinePosition) * 100}vh` }} aria-hidden="true" />
-              )}
+              {/* 下部スペーサー: 閲覧モードでは常に表示（最後の行がベースライン位置までスクロールできるように） */}
+              <div style={{ height: `${(1 - baselinePosition) * 100}vh` }} aria-hidden="true" />
             </>
           )}
 
@@ -1126,6 +1124,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           onSave={handleSaveChord}
           onDelete={chordEditState.chordIndex !== -1 ? handleDeleteChord : undefined}
           timeSignature={currentTimeSignature}
+          transpose={(editMetadata?.transpose ?? 0) - (editMetadata?.capo ?? 0)}
         />
       )}
 

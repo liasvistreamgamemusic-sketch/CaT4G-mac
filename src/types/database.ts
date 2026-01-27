@@ -63,7 +63,6 @@ export interface Song {
   difficulty: Difficulty | null;
   sourceUrl: string | null;
   notes: string | null;
-  isFavorite: boolean;
   playCount: number;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
@@ -148,7 +147,6 @@ export interface SongListItem {
   id: UUID;
   title: string;
   artistName: string | null;
-  isFavorite: boolean;
 }
 
 /** プレイリスト + 曲数 */
@@ -282,7 +280,6 @@ export interface SongRow {
   difficulty: string | null;
   source_url: string | null;
   notes: string | null;
-  is_favorite: number;
   play_count: number;
   created_at: string;
   updated_at: string;

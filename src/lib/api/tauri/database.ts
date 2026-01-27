@@ -204,7 +204,6 @@ function toSong(row: SongRow): Song {
     difficulty: row.difficulty as Difficulty | null,
     sourceUrl: row.source_url,
     notes: row.notes,
-    isFavorite: row.is_favorite === 1,
     playCount: row.play_count,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -282,20 +281,18 @@ export async function getSongs(): Promise<SongListItem[]> {
       id: string;
       title: string;
       artist_name: string | null;
-      is_favorite: number;
     }>
   >(
-    `SELECT s.id, s.title, a.name as artist_name, s.is_favorite
+    `SELECT s.id, s.title, a.name as artist_name
      FROM songs s
      LEFT JOIN artists a ON s.artist_id = a.id
      ORDER BY s.updated_at DESC`
   );
 
-  return rows.map((row: { id: string; title: string; artist_name: string | null; is_favorite: number }) => ({
+  return rows.map((row: { id: string; title: string; artist_name: string | null }) => ({
     id: row.id,
     title: row.title,
     artistName: row.artist_name,
-    isFavorite: row.is_favorite === 1,
   }));
 }
 
@@ -365,10 +362,9 @@ export async function searchSongs(query: string): Promise<SongListItem[]> {
       id: string;
       title: string;
       artist_name: string | null;
-      is_favorite: number;
     }>
   >(
-    `SELECT s.id, s.title, a.name as artist_name, s.is_favorite
+    `SELECT s.id, s.title, a.name as artist_name
      FROM songs s
      LEFT JOIN artists a ON s.artist_id = a.id
      WHERE s.title LIKE ? OR a.name LIKE ?
@@ -376,11 +372,10 @@ export async function searchSongs(query: string): Promise<SongListItem[]> {
     [searchTerm, searchTerm]
   );
 
-  return rows.map((row: { id: string; title: string; artist_name: string | null; is_favorite: number }) => ({
+  return rows.map((row: { id: string; title: string; artist_name: string | null }) => ({
     id: row.id,
     title: row.title,
     artistName: row.artist_name,
-    isFavorite: row.is_favorite === 1,
   }));
 }
 
@@ -464,14 +459,6 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
   }
 
   return songId;
-}
-
-export async function updateSongFavorite(id: UUID, isFavorite: boolean): Promise<void> {
-  const database = await getDatabase();
-  await database.execute(
-    'UPDATE songs SET is_favorite = ?, updated_at = datetime("now") WHERE id = ?',
-    [isFavorite ? 1 : 0, id]
-  );
 }
 
 export async function incrementPlayCount(id: UUID): Promise<void> {
@@ -656,10 +643,9 @@ export async function getPlaylistById(id: UUID): Promise<PlaylistWithSongs | nul
       id: string;
       title: string;
       artist_name: string | null;
-      is_favorite: number;
     }>
   >(
-    `SELECT s.id, s.title, a.name as artist_name, s.is_favorite
+    `SELECT s.id, s.title, a.name as artist_name
      FROM songs s
      LEFT JOIN artists a ON s.artist_id = a.id
      INNER JOIN playlist_songs ps ON s.id = ps.song_id
@@ -670,11 +656,10 @@ export async function getPlaylistById(id: UUID): Promise<PlaylistWithSongs | nul
 
   return {
     playlist: toPlaylist(playlistRows[0]),
-    songs: songRows.map((row: { id: string; title: string; artist_name: string | null; is_favorite: number }) => ({
+    songs: songRows.map((row: { id: string; title: string; artist_name: string | null }) => ({
       id: row.id,
       title: row.title,
       artistName: row.artist_name,
-      isFavorite: row.is_favorite === 1,
     })),
   };
 }
@@ -817,10 +802,9 @@ export async function getSongsByArtist(artistId: UUID): Promise<SongListItem[]> 
       id: string;
       title: string;
       artist_name: string | null;
-      is_favorite: number;
     }>
   >(
-    `SELECT s.id, s.title, a.name as artist_name, s.is_favorite
+    `SELECT s.id, s.title, a.name as artist_name
      FROM songs s
      LEFT JOIN artists a ON s.artist_id = a.id
      WHERE s.artist_id = ?
@@ -831,7 +815,6 @@ export async function getSongsByArtist(artistId: UUID): Promise<SongListItem[]> 
     id: row.id,
     title: row.title,
     artistName: row.artist_name,
-    isFavorite: row.is_favorite === 1,
   }));
 }
 
@@ -949,7 +932,6 @@ export const tauriDatabase: DatabaseAPI = {
   saveSong,
   updateSong,
   deleteSong,
-  updateSongFavorite,
   incrementPlayCount,
   getPlaylists,
   getPlaylistById,

@@ -121,19 +121,9 @@ export function generateSus2Fingerings(root: string): ChordFingering[] {
   }
 
   // Esus2 オープンフォーム（6弦ルート）: [0, 2, 4, 4, 0, 0]
+  // ストレッチが大きいためhard
   if (fret6 === 0) {
-    fingerings.push({
-      id: `${root}sus2-E-open`,
-      frets: [0, 2, 4, 4, 0, 0],
-      fingers: [null, 1, 3, 4, null, null],
-      barreAt: null,
-      barreStrings: null,
-      baseFret: 1,
-      muted: [false, false, false, false, false, false],
-      isDefault: true,
-      difficulty: 'medium',
-    });
-    // Esus2 簡易版: [0, 2, 2, x, 0, 0]
+    // Esus2 簡易版: [0, 2, 2, x, 0, 0] - デフォルト推奨
     fingerings.push({
       id: `${root}sus2-E-easy`,
       frets: [0, 2, 2, null, 0, 0],
@@ -142,8 +132,20 @@ export function generateSus2Fingerings(root: string): ChordFingering[] {
       barreStrings: null,
       baseFret: 1,
       muted: [false, false, false, true, false, false],
-      isDefault: false,
+      isDefault: true,
       difficulty: 'easy',
+    });
+    // Esus2 フルフォーム（ストレッチ大）
+    fingerings.push({
+      id: `${root}sus2-E-open`,
+      frets: [0, 2, 4, 4, 0, 0],
+      fingers: [null, 1, 3, 4, null, null],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: 1,
+      muted: [false, false, false, false, false, false],
+      isDefault: false,
+      difficulty: 'hard',
     });
   }
 
@@ -182,7 +184,7 @@ export function generateSus2Fingerings(root: string): ChordFingering[] {
     fingerings.push({
       id: `${root}sus2-A-barre`,
       frets: [fret5, fret5, fret5 + 2, fret5 + 2, fret5, null],
-      fingers: [1, 1, 3, 4, 1, null],
+      fingers: [1, 1, 3, 3, 1, null],
       barreAt: fret5,
       barreStrings: [0, 4],
       baseFret: fret5,
@@ -197,7 +199,7 @@ export function generateSus2Fingerings(root: string): ChordFingering[] {
     fingerings.push({
       id: `${root}sus2-E-barre`,
       frets: [fret6, fret6 + 2, fret6 + 4, fret6 + 4, fret6, fret6],
-      fingers: [1, 2, 3, 4, 1, 1],
+      fingers: [1, 3, 4, 4, 1, 1],
       barreAt: fret6,
       barreStrings: [0, 5],
       baseFret: fret6,
@@ -212,7 +214,7 @@ export function generateSus2Fingerings(root: string): ChordFingering[] {
     fingerings.push({
       id: `${root}sus2-D-movable`,
       frets: [fret4, fret4 + 3, fret4 + 2, fret4, null, null],
-      fingers: [1, 3, 2, 1, null, null],
+      fingers: [1, 4, 3, 1, null, null],
       barreAt: fret4,
       barreStrings: [0, 3],
       baseFret: fret4,

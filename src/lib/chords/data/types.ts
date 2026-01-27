@@ -67,7 +67,9 @@ export type ChordQuality =
   | '7+9'     // Dominant 7 sharp 9
   // 特殊 (2種)
   | '4.4'     // Quartal chord (C-F-Bb)
-  | 'blk';    // Blackadder chord
+  | 'blk'     // Blackadder chord
+  // パワーコード (1種)
+  | '5';      // Power chord (root + P5)
 
 // 分数コードのベースインターバル定義
 export type SlashChordPattern =
@@ -147,6 +149,8 @@ export const EXPECTED_INTERVALS: Record<ChordQuality, number[]> = {
   // 特殊
   '4.4': [0, 5, 10],       // Quartal chord
   'blk': [0, 2, 6, 10],    // Blackadder chord
+  // パワーコード
+  '5': [0, 7],             // Power chord (root + P5)
 };
 
 // 全31品質のリスト（順序付き）
@@ -171,6 +175,8 @@ export const ALL_QUALITIES: ChordQuality[] = [
   '-5', '7-5', '7+5', 'M7-5', 'm7+5', '7+9',
   // 特殊
   '4.4', 'blk',
+  // パワーコード
+  '5',
 ];
 
 // ルート音のMIDI番号（mod 12）

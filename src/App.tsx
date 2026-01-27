@@ -372,22 +372,6 @@ function AppContent() {
     [selectedSongId]
   );
 
-  const handleToggleFavorite = useCallback(
-    async (id: string) => {
-      const song = songs.find((s) => s.id === id);
-      if (song) {
-        await db.updateSongFavorite(id, !song.isFavorite);
-        const updatedSongs = await db.getSongs();
-        setSongs(updatedSongs);
-        if (selectedSongId === id) {
-          const updatedSong = await db.getSongById(id);
-          setSelectedSong(updatedSong);
-        }
-      }
-    },
-    [songs, selectedSongId]
-  );
-
   // Edit song handler (switch to edit mode)
   const handleEditSong = useCallback((id: string) => {
     setSelectedSongId(id);
@@ -753,7 +737,6 @@ function AppContent() {
             onSongSelect={handleSongSelect}
             onAddClick={handleAddClick}
             onDeleteSong={handleDeleteSong}
-            onToggleFavorite={handleToggleFavorite}
             onEditSong={handleEditSong}
             playlists={playlists}
             selectedPlaylistId={selectedPlaylistId}

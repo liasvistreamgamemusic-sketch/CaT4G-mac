@@ -223,23 +223,21 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 3, 6] = F#, A, C (6, 9, 0)
   'dim': [
     {
-      // String 0 (E=4) fret 5: 4+5=9 (A) ✓ m3
-      // String 1 (B=11) fret 1: 11+1=12%12=0 (C) ✓ dim5
-      // String 2 (G=7) fret 2: 7+2=9 (A) ✓ m3
-      // String 3 (D=2) fret 4: 2+4=6 (F#) ✓ root
-      id: 'F#dim-std',
-      frets: [5, 1, 2, 4, null, null],
-      fingers: [4, 1, 2, 3, null, null],
-      baseFret: 1,
-      muted: [false, false, false, false, true, true],
+      id: 'F#dim-5str',
+      frets: [8, 10, 8, 10, 9, null],
+      fingers: [1, 3, 1, 4, 2, null],
+      barreAt: 8,
+      barreStrings: [0, 2],
+      baseFret: 8,
+      muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
     {
-      id: 'Gbdim-std',
-      frets: [5, 1, 2, 4, null, null],
-      fingers: [4, 1, 2, 3, null, null],
+      id: 'F#dim-6str',
+      frets: [null, 1, 2, 1, null, 2],
+      fingers: [null, 1, 3, 2, null, 4],
       baseFret: 1,
-      muted: [false, false, false, false, true, true],
+      muted: [true, false, false, false, true, false],
       difficulty: 'medium',
     },
   ],
@@ -388,6 +386,30 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 4, 7, 9] = F#, A#, C#, D# (6, 10, 1, 3)
   '6': [
     {
+      // 6弦ルート移動フォーム (Form 1) - F#: X=2
+      // 5弦使用: [null, X+2, X+1, null, X+2, X] = [null, 4, 3, null, 4, 2]
+      id: 'F#6-6str-form1',
+      frets: [null, 4, 3, null, 4, 2],
+      fingers: [null, 3, 2, null, 4, 1],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: 2,
+      muted: [true, false, false, true, false, false],
+      difficulty: 'medium',
+    },
+    {
+      // 6弦ルート移動フォーム (Form 2) - F#: X=2
+      // 4弦使用 (high): [null, X, X+1, X-1, null, X] = [null, 2, 3, 1, null, 2]
+      id: 'F#6-6str-form2',
+      frets: [null, 2, 3, 1, null, 2],
+      fingers: [null, 2, 3, 1, null, 2],
+      barreAt: 2,
+      barreStrings: [1, 5],
+      baseFret: 1,
+      muted: [true, false, false, false, true, false],
+      difficulty: 'medium',
+    },
+    {
       // String 0 (E=4) fret 2: 4+2=6 (F#) ✓ root
       // String 1 (B=11) fret 4: 11+4=15%12=3 (D#) ✓ 6th
       // String 2 (G=7) fret 3: 7+3=10 (A#) ✓ M3
@@ -446,6 +468,17 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
   // F#mM7 - Minor Major 7
   // Intervals: [0, 3, 7, 11] = F#, A, C#, E# (F#=6, A=9, C#=1, F=5)
   'mM7': [
+    {
+      // E-shape mM7 barre at fret 2
+      id: 'F#mM7-E-barre',
+      frets: [2, 2, 2, 3, 4, 2],
+      fingers: [1, 1, 1, 2, 3, 1],
+      barreAt: 2,
+      barreStrings: [0, 5],
+      baseFret: 2,
+      muted: [false, false, false, false, false, false],
+      difficulty: 'hard',
+    },
     {
       // String 0 (E=4) fret 5: 4+5=9 (A) ✓
       // String 1 (B=11) fret 6: 11+6=17%12=5 (F/E#) ✓
@@ -514,19 +547,22 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 4, 7, 11, 14] = F#, A#, C#, E#, G# (6, 10, 1, 5, 8)
   'M9': [
     {
-      // String 0 (E=4) fret 6: 4+6=10 (A#) ✓ M3
-      // String 1 (B=11) fret 6: 11+6=17%12=5 (F/E#) ✓ M7
-      // String 2 (G=7) fret 6: 7+6=13%12=1 (C#) ✓ 5th
-      // String 3 (D=2) fret 6: 2+6=8 (G#) ✓ 9th
-      // String 4 (A=9) fret 9: 9+9=18%12=6 (F#) ✓ root
-      id: 'F#M9-A',
-      frets: [6, 6, 6, 6, 9, null],
-      fingers: [1, 1, 1, 1, 4, null],
-      barreAt: 6,
-      barreStrings: [0, 3],
-      baseFret: 6,
-      muted: [false, false, false, false, false, true],
+      id: 'F#M9-open',
+      frets: [null, 9, 10, 8, 9, null],
+      fingers: [null, 2, 4, 1, 3, null],
+      baseFret: 8,
+      muted: [true, false, false, false, false, true],
       difficulty: 'medium',
+    },
+    {
+      id: 'F#M9-barre',
+      frets: [9, 9, 10, 11, 9, null],
+      fingers: [1, 1, 2, 4, 1, null],
+      barreAt: 9,
+      barreStrings: [1, 5],
+      baseFret: 9,
+      muted: [false, false, false, false, false, true],
+      difficulty: 'hard',
     },
   ],
 
@@ -574,6 +610,17 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
       muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
+    {
+      // F#add9-high: 4弦ルートの高位ポジション
+      // 1弦(E=4)+4=8 (G#) 9th, 2弦(B=11)+2=1 (C#) 5th
+      // 3弦(G=7)+3=10 (A#) M3, 4弦(D=2)+4=6 (F#) root
+      id: 'F#add9-high',
+      frets: [4, 2, 3, 4, null, null],
+      fingers: [4, 1, 2, 3, null, null],
+      baseFret: 2,
+      muted: [false, false, false, false, true, true],
+      difficulty: 'medium',
+    },
   ],
 
   // ============================================
@@ -582,25 +629,21 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
 
   // F#69 - Major 6/9
   // Intervals: [0, 4, 7, 9, 14] = F#, A#, C#, D#, G#
+  // 5弦ルート移動フォーム (5弦9フレット = F#)
   '69': [
     {
-      // String 0 (E=4) fret 6: 4+6=10 (A#) ✓
-      // String 1 (B=11) fret 9: 11+9=20%12=8 (G#) ✓
-      // String 2 (G=7) fret 8: 7+8=15%12=3 (D#) ✓
-      // String 3 (D=2) fret 8: 2+8=10 (A#) ✓
-      // String 4 (A=9) fret 9: 9+9=18%12=6 (F#) ✓
       id: 'F#69-A',
-      frets: [6, 9, 8, 8, 9, null],
-      fingers: [1, 3, 2, 2, 4, null],
-      baseFret: 6,
+      frets: [9, 9, 8, 8, 9, null],
+      fingers: [3, 3, 1, 2, 4, null],
+      baseFret: 8,
       muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
     {
       id: 'Gb69-A',
-      frets: [6, 9, 8, 8, 9, null],
-      fingers: [1, 3, 2, 2, 4, null],
-      baseFret: 6,
+      frets: [9, 9, 8, 8, 9, null],
+      fingers: [3, 3, 1, 2, 4, null],
+      baseFret: 8,
       muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
@@ -610,23 +653,29 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 3, 7, 9, 14] = F#, A, C#, D#, G#
   'm69': [
     {
-      // String 1 (B=11) fret 10: 11+10=21%12=9 (A) ✓
-      // String 2 (G=7) fret 8: 7+8=15%12=3 (D#) ✓
-      // String 3 (D=2) fret 6: 2+6=8 (G#) ✓
-      // String 4 (A=9) fret 9: 9+9=18%12=6 (F#) ✓
-      id: 'F#m69-A',
-      frets: [null, 10, 8, 6, 9, null],
-      fingers: [null, 4, 2, 1, 3, null],
-      baseFret: 6,
+      // フォーム1: 低フレット
+      // String 1 (B=11) fret 9: 11+9=20%12=8 (G#) ✓ 9th
+      // String 2 (G=7) fret 8: 7+8=15%12=3 (D#) ✓ 6th
+      // String 3 (D=2) fret 7: 2+7=9 (A) ✓ m3
+      // String 4 (A=9) fret 9: 9+9=18%12=6 (F#) ✓ root
+      id: 'F#m69-form1',
+      frets: [null, 9, 8, 7, 9, null],
+      fingers: [null, 3, 2, 1, 4, null],
+      baseFret: 7,
       muted: [true, false, false, false, false, true],
       difficulty: 'medium',
     },
     {
-      id: 'Gbm69-A',
-      frets: [null, 10, 8, 6, 9, null],
-      fingers: [null, 4, 2, 1, 3, null],
-      baseFret: 6,
-      muted: [true, false, false, false, false, true],
+      // フォーム2: 低いポジション
+      // String 0 (E=4) fret 4: 4+4=8 (G#) ✓ 9th
+      // String 1 (B=11) fret 4: 11+4=15%12=3 (D#) ✓ 6th
+      // String 2 (G=7) fret 2: 7+2=9 (A) ✓ m3
+      // String 3 (D=2) fret 4: 2+4=6 (F#) ✓ root
+      id: 'F#m69-form2',
+      frets: [4, 4, 2, 4, null, null],
+      fingers: [2, 3, 1, 4, null, null],
+      baseFret: 2,
+      muted: [false, false, false, false, true, true],
       difficulty: 'medium',
     },
   ],
@@ -840,6 +889,35 @@ export const FS_BASIC: Record<ChordQuality, Fingering[]> = {
       baseFret: 9,
       muted: [true, false, false, false, false, true],
       difficulty: 'hard',
+    },
+  ],
+
+  // ============================================
+  // パワーコード (1種)
+  // ============================================
+
+  // F#5 - Power Chord (root + P5)
+  // Intervals: [0, 7] = F#, C#
+  '5': [
+    {
+      id: 'F#5-power5',
+      frets: [null, null, null, 11, 9, null],
+      fingers: [null, null, null, 3, 1, null],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: 9,
+      muted: [true, true, true, false, false, true],
+      difficulty: 'easy',
+    },
+    {
+      id: 'F#5-power6',
+      frets: [null, null, null, null, 4, 2],
+      fingers: [null, null, null, null, 3, 1],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: 2,
+      muted: [true, true, true, true, false, false],
+      difficulty: 'easy',
     },
   ],
 

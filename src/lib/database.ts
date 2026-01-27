@@ -22,7 +22,6 @@ export {
   saveSong,
   updateSong,
   deleteSong,
-  updateSongFavorite,
   incrementPlayCount,
 
   // Playlists

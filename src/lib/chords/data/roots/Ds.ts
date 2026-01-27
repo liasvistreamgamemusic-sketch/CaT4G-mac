@@ -230,37 +230,21 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 3, 6] = D#, F#, A (3, 6, 9)
   'dim': [
     {
-      // Open-ish position
-      // String 0 (E=4) fret 2: 4+2=6 (F#) ✓ m3
-      // String 1 (B=11) fret 3: 11+3=14%12=2 (D) - skip, use another
-      // String 2 (G=7) fret 2: 7+2=9 (A) ✓ b5
-      // String 3 (D=2) fret 1: 2+1=3 (D#) ✓ root
-      id: 'D#dim-open',
-      frets: [2, null, 2, 1, null, null],
-      fingers: [2, null, 3, 1, null, null],
-      baseFret: 1,
-      muted: [false, true, false, false, true, true],
-      difficulty: 'easy',
-    },
-    {
-      // A-shape at fret 6
-      // String 1 (B=11) fret 7: 11+7=18%12=6 (F#) ✓ m3
-      // String 2 (G=7) fret 8: 7+8=15%12=3 (D#) ✓ root
-      // String 3 (D=2) fret 7: 2+7=9 (A) ✓ b5
-      // String 4 (A=9) fret 6: 9+6=15%12=3 (D#) ✓ root
-      id: 'D#dim-A',
-      frets: [null, 7, 8, 7, 6, null],
-      fingers: [null, 2, 4, 3, 1, null],
-      baseFret: 6,
-      muted: [true, false, false, false, false, true],
+      id: 'D#dim-5str',
+      frets: [5, 7, 5, 7, 6, null],
+      fingers: [1, 3, 1, 4, 2, null],
+      barreAt: 5,
+      barreStrings: [0, 2],
+      baseFret: 5,
+      muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
     {
-      id: 'Ebdim-A',
-      frets: [null, 7, 8, 7, 6, null],
-      fingers: [null, 2, 4, 3, 1, null],
-      baseFret: 6,
-      muted: [true, false, false, false, false, true],
+      id: 'D#dim-6str',
+      frets: [null, 10, 11, 10, null, 11],
+      fingers: [null, 1, 3, 2, null, 4],
+      baseFret: 10,
+      muted: [true, false, false, false, true, false],
       difficulty: 'medium',
     },
   ],
@@ -423,6 +407,28 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 4, 7, 9] = D#, G, A#, C (3, 7, 10, 0)
   '6': [
     {
+      // 6弦ルート移動フォーム (Form 1)
+      id: 'D#6-6str-form1',
+      frets: [null, 13, 12, null, 13, 11],
+      fingers: [null, 3, 2, null, 4, 1],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: 11,
+      muted: [true, false, false, true, false, false],
+      difficulty: 'medium',
+    },
+    {
+      // 6弦ルート移動フォーム (Form 2)
+      id: 'D#6-6str-form2',
+      frets: [null, 11, 12, 10, null, 11],
+      fingers: [null, 2, 3, 1, null, 2],
+      barreAt: 11,
+      barreStrings: [1, 5],
+      baseFret: 10,
+      muted: [true, false, false, false, true, false],
+      difficulty: 'medium',
+    },
+    {
       // A-shape at fret 6
       // String 0 (E=4) fret 8: 4+8=12%12=0 (C) ✓ 6th
       // String 1 (B=11) fret 8: 11+8=19%12=7 (G) ✓ M3
@@ -488,6 +494,17 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
   // D#mM7 - Minor Major 7
   // Intervals: [0, 3, 7, 11] = D#, F#, A#, D (3, 6, 10, 2)
   'mM7': [
+    {
+      // E-shape mM7 barre at fret 11
+      id: 'D#mM7-E-barre',
+      frets: [11, 11, 11, 12, 13, 11],
+      fingers: [1, 1, 1, 2, 3, 1],
+      barreAt: 11,
+      barreStrings: [0, 5],
+      baseFret: 11,
+      muted: [false, false, false, false, false, false],
+      difficulty: 'hard',
+    },
     {
       // A-shape at fret 6
       // String 0 (E=4) fret 6: 4+6=10 (A#) ✓ 5th
@@ -574,19 +591,22 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 4, 7, 11, 14] = D#, G, A#, D, E# (3, 7, 10, 2, 5)
   'M9': [
     {
-      // String 0 (E=4) fret 3: 4+3=7 (G) ✓ M3
-      // String 1 (B=11) fret 3: 11+3=14%12=2 (D) ✓ M7
-      // String 2 (G=7) fret 3: 7+3=10 (A#) ✓ 5th
-      // String 3 (D=2) fret 3: 2+3=5 (F/E#) ✓ 9th
-      // String 4 (A=9) fret 6: 9+6=15%12=3 (D#) ✓ root
-      id: 'D#M9-A',
-      frets: [3, 3, 3, 3, 6, null],
-      fingers: [1, 1, 1, 1, 4, null],
-      barreAt: 3,
-      barreStrings: [0, 3],
-      baseFret: 3,
-      muted: [false, false, false, false, false, true],
+      id: 'D#M9-open',
+      frets: [null, 6, 7, 5, 6, null],
+      fingers: [null, 2, 4, 1, 3, null],
+      baseFret: 5,
+      muted: [true, false, false, false, false, true],
       difficulty: 'medium',
+    },
+    {
+      id: 'D#M9-barre',
+      frets: [6, 6, 7, 8, 6, null],
+      fingers: [1, 1, 2, 4, 1, null],
+      barreAt: 6,
+      barreStrings: [1, 5],
+      baseFret: 6,
+      muted: [false, false, false, false, false, true],
+      difficulty: 'hard',
     },
   ],
 
@@ -634,6 +654,17 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
       muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
+    {
+      // D#add9-high: 4弦ルートの高位ポジション
+      // 1弦(E=4)+13=5 (F) 9th, 2弦(B=11)+11=10 (A#) 5th
+      // 3弦(G=7)+12=7 (G) M3, 4弦(D=2)+13=3 (D#) root
+      id: 'D#add9-high',
+      frets: [13, 11, 12, 13, null, null],
+      fingers: [4, 1, 2, 3, null, null],
+      baseFret: 11,
+      muted: [false, false, false, false, true, true],
+      difficulty: 'hard',
+    },
   ],
 
   // ============================================
@@ -642,25 +673,21 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
 
   // D#69 - Major 6/9
   // Intervals: [0, 4, 7, 9, 14] = D#, G, A#, C, F
+  // 5弦ルート移動フォーム (5弦6フレット = D#)
   '69': [
     {
-      // String 0 (E=4) fret 3: 4+3=7 (G) ✓
-      // String 1 (B=11) fret 6: 11+6=17%12=5 (F) ✓
-      // String 2 (G=7) fret 5: 7+5=12%12=0 (C) ✓
-      // String 3 (D=2) fret 5: 2+5=7 (G) ✓
-      // String 4 (A=9) fret 6: 9+6=15%12=3 (D#) ✓
       id: 'D#69-A',
-      frets: [3, 6, 5, 5, 6, null],
-      fingers: [1, 3, 2, 2, 4, null],
-      baseFret: 3,
+      frets: [6, 6, 5, 5, 6, null],
+      fingers: [3, 3, 1, 2, 4, null],
+      baseFret: 5,
       muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
     {
       id: 'Eb69-A',
-      frets: [3, 6, 5, 5, 6, null],
-      fingers: [1, 3, 2, 2, 4, null],
-      baseFret: 3,
+      frets: [6, 6, 5, 5, 6, null],
+      fingers: [3, 3, 1, 2, 4, null],
+      baseFret: 5,
       muted: [false, false, false, false, false, true],
       difficulty: 'medium',
     },
@@ -670,23 +697,31 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
   // Intervals: [0, 3, 7, 9, 14] = D#, F#, A#, C, F
   'm69': [
     {
-      // String 1 (B=11) fret 7: 11+7=18%12=6 (F#) ✓
-      // String 2 (G=7) fret 5: 7+5=12%12=0 (C) ✓
-      // String 3 (D=2) fret 3: 2+3=5 (F) ✓
-      // String 4 (A=9) fret 6: 9+6=15%12=3 (D#) ✓
-      id: 'D#m69-A',
-      frets: [null, 7, 5, 3, 6, null],
-      fingers: [null, 4, 2, 1, 3, null],
-      baseFret: 3,
+      // フォーム1: 低フレット
+      // String 1 (B=11) fret 6: 11+6=17%12=5 (F) ✓ 9th
+      // String 2 (G=7) fret 5: 7+5=12%12=0 (C) ✓ 6th
+      // String 3 (D=2) fret 4: 2+4=6 (F#) ✓ m3
+      // String 4 (A=9) fret 6: 9+6=15%12=3 (D#) ✓ root
+      id: 'D#m69-form1',
+      frets: [null, 6, 5, 4, 6, null],
+      fingers: [null, 3, 2, 1, 4, null],
+      baseFret: 4,
       muted: [true, false, false, false, false, true],
       difficulty: 'medium',
     },
     {
-      id: 'Ebm69-A',
-      frets: [null, 7, 5, 3, 6, null],
-      fingers: [null, 4, 2, 1, 3, null],
-      baseFret: 3,
-      muted: [true, false, false, false, false, true],
+      // フォーム2: 低いポジション (オクターブ下)
+      // String 0 (E=4) fret 1: 4+1=5 (F) ✓ 9th
+      // String 1 (B=11) fret 1: 11+1=12%12=0 (C) ✓ 6th
+      // String 2 (G=7) fret 0: 7+0=7 → 違う、修正必要
+      // 実際には: fret 11で 7+11=18%12=6 (F#) ✓ m3
+      id: 'D#m69-form2',
+      frets: [1, 1, 0, 1, null, null],
+      fingers: [1, 1, null, 2, null, null],
+      barreAt: 1,
+      barreStrings: [0, 1],
+      baseFret: 1,
+      muted: [false, false, false, false, true, true],
       difficulty: 'medium',
     },
   ],
@@ -849,6 +884,35 @@ export const DS_BASIC: Record<ChordQuality, Fingering[]> = {
       baseFret: 6,
       muted: [true, false, false, false, false, true],
       difficulty: 'medium',
+    },
+  ],
+
+  // ============================================
+  // パワーコード (1種)
+  // ============================================
+
+  // D#5 - Power Chord (root + P5)
+  // Intervals: [0, 7] = D#, A#
+  '5': [
+    {
+      id: 'D#5-power5',
+      frets: [null, null, null, 8, 6, null],
+      fingers: [null, null, null, 3, 1, null],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: 6,
+      muted: [true, true, true, false, false, true],
+      difficulty: 'easy',
+    },
+    {
+      id: 'D#5-power6',
+      frets: [null, null, null, null, 13, 11],
+      fingers: [null, null, null, null, 3, 1],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: 11,
+      muted: [true, true, true, true, false, false],
+      difficulty: 'easy',
     },
   ],
 

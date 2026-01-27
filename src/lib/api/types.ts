@@ -76,11 +76,6 @@ export interface DatabaseAPI {
   deleteSong(id: UUID): Promise<void>;
 
   /**
-   * Update song favorite status
-   */
-  updateSongFavorite(id: UUID, isFavorite: boolean): Promise<void>;
-
-  /**
    * Increment song play count
    */
   incrementPlayCount(id: UUID): Promise<void>;

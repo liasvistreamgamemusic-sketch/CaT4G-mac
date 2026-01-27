@@ -7,6 +7,7 @@ import { generateChordFingerings } from '@/lib/chords';
 import { transposeChord } from '@/lib/chords/transpose';
 import type { ChordFingering } from '@/lib/chords/types';
 import { getScaledValues, MAX_SCALE } from '@/lib/scaling';
+import { useChordPreferencesContextSafe } from '@/contexts/ChordPreferencesContext';
 
 // Editor state for a single line
 interface EditableLine {
@@ -85,6 +86,9 @@ export function LineEditor({
   const lyricsRef = useRef<HTMLInputElement>(null);
   const hasSpreadRef = useRef<string | null>(null); // Track if we've spread chords for this line
 
+  // ユーザー設定のコード押さえ方（コンテキスト外でも動作するようSafe版を使用）
+  const chordPreferences = useChordPreferencesContextSafe();
+
   // スケーリングされた値を計算
   const scaledValues = useMemo(() => getScaledValues(scale), [scale]);
 
@@ -156,15 +160,31 @@ export function LineEditor({
   }, [MIN_CHORD_SPACING]);
 
   // Generate chord fingerings for display (cached per chord)
-  // Always use generateChordFingerings which can dynamically generate fingerings for any chord
+  // Priority: 1. User preference, 2. voicingId, 3. System default
   // Use transposed chord name for correct fingering display
   const chordFingerings = useMemo(() => {
     const fingerings: Record<number, ChordFingering | null> = {};
     line.chords.forEach((chord, index) => {
       // Generate all fingerings for the transposed chord
       const transposedChordName = transpose !== 0 ? transposeChord(chord.chord, transpose) : chord.chord;
-      const allFingerings = generateChordFingerings(transposedChordName);
 
+      // Priority 1: Check user preference first
+      const userPref = chordPreferences?.getPreferred(transposedChordName);
+      if (userPref) {
+        // Convert database ChordFingering to lib ChordFingering
+        fingerings[index] = {
+          ...userPref,
+          id: userPref.id ?? `user-pref-${transposedChordName}`,
+          barreStrings: userPref.barreStrings ?? (userPref.barreAt ? [0, 5] : null),
+          muted: userPref.muted ?? userPref.frets.map(f => f === null),
+          isDefault: userPref.isDefault ?? true,
+          difficulty: userPref.difficulty ?? 'medium',
+        } as ChordFingering;
+        return;
+      }
+
+      // Priority 2 & 3: voicingId or system default
+      const allFingerings = generateChordFingerings(transposedChordName);
       if (chord.voicingId) {
         // If voicingId is set, find that specific fingering
         const selected = allFingerings.find(f => f.id === chord.voicingId);
@@ -175,7 +195,7 @@ export function LineEditor({
       }
     });
     return fingerings;
-  }, [line.chords, transpose]);
+  }, [line.chords, transpose, chordPreferences]);
 
   // Reset states when line changes
   useEffect(() => {

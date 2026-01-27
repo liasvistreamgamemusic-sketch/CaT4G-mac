@@ -79,8 +79,6 @@ export const db: DatabaseAPI = {
   saveSong: async (input) => (await getDatabaseAPI()).saveSong(input),
   updateSong: async (id, input) => (await getDatabaseAPI()).updateSong(id, input),
   deleteSong: async (id) => (await getDatabaseAPI()).deleteSong(id),
-  updateSongFavorite: async (id, isFavorite) =>
-    (await getDatabaseAPI()).updateSongFavorite(id, isFavorite),
   incrementPlayCount: async (id) => (await getDatabaseAPI()).incrementPlayCount(id),
 
   // Playlists

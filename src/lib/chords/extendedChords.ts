@@ -78,9 +78,28 @@ const ROOT_TO_FRET_4STRING: Record<string, number> = {
 };
 
 /**
- * 難易度を計算
+ * フレットストレッチを計算（null以外のフレット間の最大距離）
  */
-function calculateDifficulty(baseFret: number, hasBar: boolean): ChordDifficulty {
+function calculateStretch(frets: (number | null)[]): number {
+  const validFrets = frets.filter((f): f is number => f !== null && f > 0);
+  if (validFrets.length < 2) return 0;
+  return Math.max(...validFrets) - Math.min(...validFrets);
+}
+
+/**
+ * 難易度を計算
+ * 6フレット以上のストレッチがある場合は 'hard' に変更
+ */
+function calculateDifficulty(
+  baseFret: number,
+  hasBar: boolean,
+  frets?: (number | null)[]
+): ChordDifficulty {
+  // 6フレット以上のストレッチがあれば hard
+  if (frets) {
+    const stretch = calculateStretch(frets);
+    if (stretch >= 6) return 'hard';
+  }
   if (baseFret === 1 && !hasBar) return 'easy';
   if (baseFret <= 5) return 'medium';
   return 'hard';
@@ -113,16 +132,17 @@ export function generate9Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret6 <= 9) {
       // E9フォームバレー（5th省略形）
+      const e9BarreFrets: (number | null)[] = [fret6, fret6 + 2, fret6, fret6 + 1, fret6 + 2, fret6];
       fingerings.push({
         id: `${root}9-E9-barre`,
-        frets: [fret6, fret6 + 2, fret6, fret6 + 1, fret6 + 2, fret6],
-        fingers: [1, 3, 1, 2, 4, 1],
+        frets: e9BarreFrets,
+        fingers: [1, 3, 1, 2, 3, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
         muted: [false, false, false, false, false, false],
         isDefault: true,
-        difficulty: calculateDifficulty(fret6, true),
+        difficulty: calculateDifficulty(fret6, true, e9BarreFrets),
       });
     }
   }
@@ -144,16 +164,17 @@ export function generate9Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // A9フォームバレー
+      const a9BarreFrets: (number | null)[] = [fret5, fret5 + 2, fret5, fret5 + 2, fret5, null];
       fingerings.push({
         id: `${root}9-A9-barre`,
-        frets: [fret5, fret5 + 2, fret5, fret5 + 2, fret5, null],
-        fingers: [1, 2, 1, 3, 1, null],
+        frets: a9BarreFrets,
+        fingers: [1, 3, 1, 3, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, a9BarreFrets),
       });
     }
   }
@@ -179,56 +200,62 @@ export function generate9Fingerings(root: string): ChordFingering[] {
 /**
  * M9コード（メジャー9th）の押さえ方を生成
  * M9 = R + 3 + 5 + 7 + 9
+ * roots/と同じボイシングを使用:
+ * - オープン形式: [null, X, X+1, X-1, X, null]
+ * - バレー形式: [X, X, X+1, X+2, X, null]
+ * X = 5弦上のルートフレット
  */
 export function generateM9Fingerings(root: string): ChordFingering[] {
   const fingerings: ChordFingering[] = [];
   const fret5 = ROOT_TO_FRET_5STRING[root];
-  const fret6 = ROOT_TO_FRET_6STRING[root];
 
-  // CM9形（5弦ルート開放）: x-3-2-0-0-0 -> CM9
   if (fret5 !== undefined) {
-    if (fret5 === 3) {
-      // C root -> CM9開放形
+    // オープン形式: [null, X, X+1, X-1, X, null]
+    const openFrets: (number | null)[] = [null, fret5, fret5 + 1, fret5 - 1, fret5, null];
+    // X-1が負になる場合はスキップ（A=0の場合など）
+    if (fret5 > 0) {
       fingerings.push({
         id: `${root}M9-open`,
-        frets: [0, 0, 0, 2, 3, null],
-        fingers: [null, null, null, 1, 2, null],
+        frets: openFrets,
+        fingers: [null, 2, 4, 1, 3, null],
+        barreAt: null,
+        barreStrings: null,
+        baseFret: Math.max(1, fret5 - 1),
+        muted: [true, false, false, false, false, true],
+        isDefault: true,
+        difficulty: calculateDifficulty(Math.max(1, fret5 - 1), false, openFrets),
+      });
+    } else {
+      // A (fret5=0) の場合は特別なオープン形式
+      const aOpenFrets: (number | null)[] = [null, 0, 2, 1, 0, null];
+      fingerings.push({
+        id: `${root}M9-open`,
+        frets: aOpenFrets,
+        fingers: [null, 2, 4, 1, 3, null],
         barreAt: null,
         barreStrings: null,
         baseFret: 1,
-        muted: [false, false, false, false, false, true],
+        muted: [true, false, false, false, false, true],
         isDefault: true,
-        difficulty: 'easy',
-      });
-    } else if (fret5 <= 9) {
-      // AM9フォームバレー
-      fingerings.push({
-        id: `${root}M9-A-barre`,
-        frets: [fret5, fret5 + 1, fret5 + 1, fret5 + 2, fret5, null],
-        fingers: [1, 2, 2, 3, 1, null],
-        barreAt: fret5,
-        barreStrings: [0, 4],
-        baseFret: fret5,
-        muted: [false, false, false, false, false, true],
-        isDefault: true,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: 'medium',
       });
     }
-  }
 
-  // Eフォームベースバレー（6弦ルート）
-  if (fret6 !== undefined && fret6 >= 1 && fret6 <= 9) {
-    fingerings.push({
-      id: `${root}M9-E-barre`,
-      frets: [fret6, fret6, fret6 + 1, fret6 + 1, fret6 + 2, fret6],
-      fingers: [1, 1, 2, 2, 3, 1],
-      barreAt: fret6,
-      barreStrings: [0, 5],
-      baseFret: fret6,
-      muted: [false, false, false, false, false, false],
-      isDefault: fingerings.length === 0,
-      difficulty: calculateDifficulty(fret6, true),
-    });
+    // バレー形式: [X, X, X+1, X+2, X, null]
+    if (fret5 <= 11) {
+      const barreFrets: (number | null)[] = [fret5, fret5, fret5 + 1, fret5 + 2, fret5, null];
+      fingerings.push({
+        id: `${root}M9-barre`,
+        frets: barreFrets,
+        fingers: [1, 1, 2, 3, 1, null],
+        barreAt: fret5,
+        barreStrings: [1, 5] as [number, number],
+        baseFret: Math.max(1, fret5),
+        muted: [false, false, false, false, false, true],
+        isDefault: fingerings.length === 0,
+        difficulty: calculateDifficulty(Math.max(1, fret5), true, barreFrets),
+      });
+    }
   }
 
   return fingerings.filter(isFingeringDisplayable);
@@ -259,17 +286,18 @@ export function generatem9Fingerings(root: string): ChordFingering[] {
         difficulty: 'easy',
       });
     } else if (fret6 <= 9) {
-      // Em9フォームバレー
+      // Em9フォームバレー (1弦で9thを出す)
+      const em9BarreFrets: (number | null)[] = [fret6 + 2, fret6, fret6, fret6, fret6 + 2, fret6];
       fingerings.push({
         id: `${root}m9-Em9-barre`,
-        frets: [fret6, fret6, fret6, fret6, fret6 + 2, fret6],
-        fingers: [1, 1, 1, 1, 3, 1],
+        frets: em9BarreFrets,
+        fingers: [3, 1, 1, 1, 3, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
         muted: [false, false, false, false, false, false],
         isDefault: true,
-        difficulty: calculateDifficulty(fret6, true),
+        difficulty: calculateDifficulty(fret6, true, em9BarreFrets),
       });
     }
   }
@@ -291,16 +319,17 @@ export function generatem9Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // Am9フォームバレー
+      const am9BarreFrets: (number | null)[] = [fret5, fret5, fret5, fret5 + 2, fret5, null];
       fingerings.push({
         id: `${root}m9-Am9-barre`,
-        frets: [fret5, fret5, fret5, fret5 + 2, fret5, null],
-        fingers: [1, 1, 1, 2, 1, null],
+        frets: am9BarreFrets,
+        fingers: [1, 1, 1, 3, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, am9BarreFrets),
       });
     }
   }
@@ -334,16 +363,17 @@ export function generatemadd9Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // Amadd9フォームバレー
+      const amadd9BarreFrets: (number | null)[] = [fret5, fret5, fret5 + 2, fret5 + 2, fret5, null];
       fingerings.push({
         id: `${root}madd9-Am-barre`,
-        frets: [fret5, fret5, fret5 + 2, fret5 + 2, fret5, null],
-        fingers: [1, 1, 3, 4, 1, null],
+        frets: amadd9BarreFrets,
+        fingers: [1, 1, 3, 3, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: true,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, amadd9BarreFrets),
       });
     }
   }
@@ -365,16 +395,17 @@ export function generatemadd9Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret4 <= 9) {
       // Dmadd9フォームバレー
+      const dmadd9BarreFrets: (number | null)[] = [fret4, fret4 + 3, fret4 + 2, fret4, null, null];
       fingerings.push({
         id: `${root}madd9-Dm-barre`,
-        frets: [fret4, fret4 + 3, fret4 + 2, fret4, null, null],
+        frets: dmadd9BarreFrets,
         fingers: [1, 4, 3, 1, null, null],
         barreAt: fret4,
         barreStrings: [0, 3],
         baseFret: fret4,
         muted: [false, false, false, false, true, true],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret4, true),
+        difficulty: calculateDifficulty(fret4, true, dmadd9BarreFrets),
       });
     }
   }
@@ -408,16 +439,17 @@ export function generate7sus4Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret6 <= 9) {
       // E7sus4フォームバレー
+      const e7sus4BarreFrets: (number | null)[] = [fret6, fret6, fret6 + 2, fret6, fret6 + 2, fret6];
       fingerings.push({
         id: `${root}7sus4-E7sus4-barre`,
-        frets: [fret6, fret6, fret6 + 2, fret6, fret6 + 2, fret6],
-        fingers: [1, 1, 3, 1, 4, 1],
+        frets: e7sus4BarreFrets,
+        fingers: [1, 1, 3, 1, 3, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
         muted: [false, false, false, false, false, false],
         isDefault: true,
-        difficulty: calculateDifficulty(fret6, true),
+        difficulty: calculateDifficulty(fret6, true, e7sus4BarreFrets),
       });
     }
   }
@@ -439,32 +471,34 @@ export function generate7sus4Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // A7sus4フォームバレー
+      const a7sus4BarreFrets: (number | null)[] = [fret5, fret5 + 3, fret5, fret5 + 2, fret5, null];
       fingerings.push({
         id: `${root}7sus4-A7sus4-barre`,
-        frets: [fret5, fret5 + 3, fret5, fret5 + 2, fret5, null],
+        frets: a7sus4BarreFrets,
         fingers: [1, 4, 1, 3, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, a7sus4BarreFrets),
       });
     }
   }
 
   // バレーフォーム（簡易形）
   if (fret6 !== undefined && fret6 >= 1 && fret6 <= 7) {
+    const simpleFrets: (number | null)[] = [fret6, fret6, fret6, fret6, fret6 + 2, fret6];
     fingerings.push({
       id: `${root}7sus4-simple-barre`,
-      frets: [fret6, fret6, fret6, fret6, fret6 + 2, fret6],
+      frets: simpleFrets,
       fingers: [1, 1, 1, 1, 3, 1],
       barreAt: fret6,
       barreStrings: [0, 5],
       baseFret: fret6,
       muted: [false, false, false, false, false, false],
       isDefault: false,
-      difficulty: calculateDifficulty(fret6, true),
+      difficulty: calculateDifficulty(fret6, true, simpleFrets),
     });
   }
 
@@ -497,16 +531,17 @@ export function generate7sus2Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // A7sus2フォームバレー
+      const a7sus2BarreFrets: (number | null)[] = [fret5, fret5, fret5, fret5 + 2, fret5, null];
       fingerings.push({
         id: `${root}7sus2-A7sus2-barre`,
-        frets: [fret5, fret5, fret5, fret5 + 2, fret5, null],
+        frets: a7sus2BarreFrets,
         fingers: [1, 1, 1, 3, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: true,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, a7sus2BarreFrets),
       });
     }
   }
@@ -528,16 +563,17 @@ export function generate7sus2Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret6 >= 1 && fret6 <= 8) {
       // E7sus2フォームバレー
+      const e7sus2BarreFrets: (number | null)[] = [fret6, fret6, fret6 + 2, fret6 + 4, fret6 + 2, fret6];
       fingerings.push({
         id: `${root}7sus2-E7sus2-barre`,
-        frets: [fret6, fret6, fret6 + 2, fret6 + 4, fret6 + 2, fret6],
-        fingers: [1, 1, 2, 4, 3, 1],
+        frets: e7sus2BarreFrets,
+        fingers: [1, 1, 3, 4, 3, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
         muted: [false, false, false, false, false, false],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret6, true),
+        difficulty: calculateDifficulty(fret6, true, e7sus2BarreFrets),
       });
     }
   }
@@ -548,6 +584,7 @@ export function generate7sus2Fingerings(root: string): ChordFingering[] {
 /**
  * add9コードの押さえ方を生成
  * add9 = R + 3 + 5 + 9（7thなし）
+ * roots/と同様の正確なボイシングを使用
  */
 export function generateadd9Fingerings(root: string): ChordFingering[] {
   const fingerings: ChordFingering[] = [];
@@ -555,10 +592,10 @@ export function generateadd9Fingerings(root: string): ChordFingering[] {
   const fret6 = ROOT_TO_FRET_6STRING[root];
   const fret4 = ROOT_TO_FRET_4STRING[root];
 
-  // Cadd9形（5弦ルート）: x-3-2-0-3-0
+  // Cadd9形（5弦ルート）: roots/C.tsと同じ [0, 3, 0, 2, 3, null]
   if (fret5 !== undefined) {
     if (fret5 === 3) {
-      // Cadd9開放形（Cルート）
+      // Cadd9開放形（Cルート）- roots/C.tsと一致
       fingerings.push({
         id: `${root}add9-Cadd9-open`,
         frets: [0, 3, 0, 2, 3, null],
@@ -570,49 +607,48 @@ export function generateadd9Fingerings(root: string): ChordFingering[] {
         isDefault: true,
         difficulty: 'easy',
       });
-    } else if (fret5 <= 9) {
-      // Cadd9フォームバレー
-      fingerings.push({
-        id: `${root}add9-C-barre`,
-        frets: [fret5, fret5 + 3, fret5, fret5 + 2, fret5, null],
-        fingers: [1, 4, 1, 3, 1, null],
-        barreAt: fret5,
-        barreStrings: [0, 4],
-        baseFret: fret5,
-        muted: [false, false, false, false, false, true],
-        isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret5, true),
-      });
+    } else if (fret5 >= 1 && fret5 <= 9) {
+      // C形add9バレー（fret5-3がルートからの相対位置）
+      // 5弦ルートの場合のadd9フォーム
+      const barreFrets: (number | null)[] = [
+        fret5 - 3,
+        fret5,
+        fret5 - 3,
+        fret5 - 1,
+        fret5,
+        null,
+      ];
+      // 負のフレットがある場合はスキップ
+      if (barreFrets.every((f) => f === null || f >= 0)) {
+        fingerings.push({
+          id: `${root}add9-C-barre`,
+          frets: barreFrets,
+          fingers: [null, 2, null, 1, 3, null],
+          barreAt: null,
+          barreStrings: null,
+          baseFret: Math.max(1, fret5 - 3),
+          muted: [false, false, false, false, false, true],
+          isDefault: fingerings.length === 0,
+          difficulty: calculateDifficulty(Math.max(1, fret5 - 3), false, barreFrets),
+        });
+      }
     }
   }
 
-  // Gadd9形（6弦ルート）: 3-0-0-0-0-3 -> Gルート
+  // Gadd9形（6弦ルート）: roots/G.tsと同じ [3, 0, 2, 0, 0, 3]
   if (fret6 !== undefined) {
     if (fret6 === 3) {
-      // Gadd9開放形（Gルート）
+      // Gadd9開放形（Gルート）- roots/G.tsと一致
       fingerings.push({
         id: `${root}add9-Gadd9-open`,
-        frets: [0, 3, 0, 0, 0, 3],
-        fingers: [null, 2, null, null, null, 3],
+        frets: [3, 0, 2, 0, 0, 3],
+        fingers: [3, null, 2, null, null, 4],
         barreAt: null,
         barreStrings: null,
         baseFret: 1,
         muted: [false, false, false, false, false, false],
         isDefault: fingerings.length === 0,
         difficulty: 'easy',
-      });
-    } else if (fret6 >= 1 && fret6 <= 9) {
-      // Gadd9フォームバレー
-      fingerings.push({
-        id: `${root}add9-G-barre`,
-        frets: [fret6, fret6 + 3, fret6, fret6, fret6, fret6 + 3],
-        fingers: [1, 3, 1, 1, 1, 4],
-        barreAt: fret6,
-        barreStrings: [0, 4],
-        baseFret: fret6,
-        muted: [false, false, false, false, false, false],
-        isDefault: false,
-        difficulty: 'hard',
       });
     }
   }
@@ -632,38 +668,44 @@ export function generateadd9Fingerings(root: string): ChordFingering[] {
         isDefault: fingerings.length === 0,
         difficulty: 'easy',
       });
-    } else if (fret4 <= 8) {
-      // Dadd9フォームバレー
-      fingerings.push({
-        id: `${root}add9-D-barre`,
-        frets: [fret4 + 2, fret4 + 3, fret4 + 2, fret4, null, null],
-        fingers: [1, 3, 2, 1, null, null],
-        barreAt: fret4,
-        barreStrings: [0, 3],
-        baseFret: fret4,
-        muted: [false, false, false, false, true, true],
-        isDefault: false,
-        difficulty: calculateDifficulty(fret4, true),
-      });
     }
   }
 
-  // Aadd9形（5弦ルート）: x-0-2-2-0-0
+  // Aadd9形（5弦ルート）: roots/A.tsと同様のパターン
   if (fret5 !== undefined) {
     if (fret5 === 0) {
-      // Aadd9開放形（Aルート）
+      // Aadd9開放形（Aルート）- roots/A.tsと同様
+      // [0, 0, 6, 2, 0, null] - 6フレットストレッチあり
+      const aOpenFrets: (number | null)[] = [0, 0, 6, 2, 0, null];
       fingerings.push({
         id: `${root}add9-Aadd9-open`,
-        frets: [0, 0, 2, 2, 0, null],
-        fingers: [null, null, 2, 3, null, null],
+        frets: aOpenFrets,
+        fingers: [null, null, 4, 1, null, null],
         barreAt: null,
         barreStrings: null,
         baseFret: 1,
         muted: [false, false, false, false, false, true],
         isDefault: true,
-        difficulty: 'easy',
+        difficulty: calculateDifficulty(1, false, aOpenFrets),
       });
     }
+  }
+
+  // 高位ポジションフォーム（4弦ルート系）- roots/と同様
+  if (fret4 !== undefined && fret4 >= 2 && fret4 <= 10) {
+    // 4弦ルートの高位ポジション: [X+2, X, X+1, X+2, null, null]
+    const highFrets: (number | null)[] = [fret4 + 2, fret4, fret4 + 1, fret4 + 2, null, null];
+    fingerings.push({
+      id: `${root}add9-high`,
+      frets: highFrets,
+      fingers: [4, 1, 2, 3, null, null],
+      barreAt: null,
+      barreStrings: null,
+      baseFret: fret4,
+      muted: [false, false, false, false, true, true],
+      isDefault: fingerings.length === 0,
+      difficulty: calculateDifficulty(fret4, false, highFrets),
+    });
   }
 
   return fingerings.filter(isFingeringDisplayable);
@@ -695,16 +737,17 @@ export function generateadd2Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret6 <= 9) {
       // Eadd2フォームバレー
+      const eadd2BarreFrets: (number | null)[] = [fret6, fret6, fret6 + 1, fret6 + 2, fret6 + 2, fret6];
       fingerings.push({
         id: `${root}add2-E-barre`,
-        frets: [fret6, fret6, fret6 + 1, fret6 + 2, fret6 + 2, fret6],
-        fingers: [1, 1, 2, 3, 4, 1],
+        frets: eadd2BarreFrets,
+        fingers: [1, 1, 2, 3, 3, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
         muted: [false, false, false, false, false, false],
         isDefault: true,
-        difficulty: calculateDifficulty(fret6, true),
+        difficulty: calculateDifficulty(fret6, true, eadd2BarreFrets),
       });
     }
   }
@@ -726,16 +769,17 @@ export function generateadd2Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // Aadd2フォームバレー
+      const aadd2BarreFrets: (number | null)[] = [fret5, fret5, fret5 + 2, fret5 + 2, fret5, null];
       fingerings.push({
         id: `${root}add2-A-barre`,
-        frets: [fret5, fret5, fret5 + 2, fret5 + 2, fret5, null],
-        fingers: [1, 1, 3, 4, 1, null],
+        frets: aadd2BarreFrets,
+        fingers: [1, 1, 3, 3, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, aadd2BarreFrets),
       });
     }
   }
@@ -769,16 +813,17 @@ export function generateadd4Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // Cadd4フォームバレー
+      const cadd4BarreFrets: (number | null)[] = [fret5, fret5 + 1, fret5, fret5 + 3, fret5, null];
       fingerings.push({
         id: `${root}add4-C-barre`,
-        frets: [fret5, fret5 + 1, fret5, fret5 + 3, fret5, null],
+        frets: cadd4BarreFrets,
         fingers: [1, 2, 1, 4, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, cadd4BarreFrets),
       });
     }
   }
@@ -844,16 +889,17 @@ export function generate9sus4Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 <= 9) {
       // A9sus4フォームバレー（5弦ルート）: x-n-n-n-n-n
+      const a9sus4BarreFrets: (number | null)[] = [fret5, fret5, fret5, fret5, fret5, null];
       fingerings.push({
         id: `${root}9sus4-A9sus4-barre`,
-        frets: [fret5, fret5, fret5, fret5, fret5, null],
+        frets: a9sus4BarreFrets,
         fingers: [1, 1, 1, 1, 1, null],
         barreAt: fret5,
         barreStrings: [0, 4],
         baseFret: fret5,
         muted: [false, false, false, false, false, true],
         isDefault: true,
-        difficulty: calculateDifficulty(fret5, true),
+        difficulty: calculateDifficulty(fret5, true, a9sus4BarreFrets),
       });
     }
   }
@@ -875,16 +921,17 @@ export function generate9sus4Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret6 >= 1 && fret6 <= 9) {
       // 6弦ルートバレー
+      const g9sus4BarreFrets: (number | null)[] = [fret6, fret6, fret6, fret6, fret6, fret6];
       fingerings.push({
         id: `${root}9sus4-6str-barre`,
-        frets: [fret6, fret6, fret6, fret6, fret6, fret6],
+        frets: g9sus4BarreFrets,
         fingers: [1, 1, 1, 1, 1, 1],
         barreAt: fret6,
         barreStrings: [0, 5],
         baseFret: fret6,
         muted: [false, false, false, false, false, false],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret6, true),
+        difficulty: calculateDifficulty(fret6, true, g9sus4BarreFrets),
       });
     }
   }
@@ -936,16 +983,17 @@ export function generateM7b5Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret5 >= 1 && fret5 <= 9) {
       // 5弦ルートフォーム
+      const m7b5Frets: (number | null)[] = [fret5 - 1, fret5 + 1, fret5, fret5 - 1, null, null];
       fingerings.push({
         id: `${root}M7b5-5str-form`,
-        frets: [fret5 - 1, fret5 + 1, fret5, fret5 - 1, null, null],
+        frets: m7b5Frets,
         fingers: [1, 4, 3, 2, null, null],
         barreAt: null,
         barreStrings: null,
         baseFret: Math.max(1, fret5 - 1),
         muted: [false, false, false, false, true, true],
         isDefault: true,
-        difficulty: calculateDifficulty(fret5, false),
+        difficulty: calculateDifficulty(fret5, false, m7b5Frets),
       });
     }
   }
@@ -967,32 +1015,34 @@ export function generateM7b5Fingerings(root: string): ChordFingering[] {
       });
     } else if (fret6 >= 1 && fret6 <= 9) {
       // 6弦ルートフォーム（ジャズボイシング）
+      const m7b56strFrets: (number | null)[] = [fret6, fret6 - 1, fret6 - 1, fret6, null, null];
       fingerings.push({
         id: `${root}M7b5-6str-jazz`,
-        frets: [fret6, fret6 - 1, fret6 - 1, fret6, null, null],
+        frets: m7b56strFrets,
         fingers: [2, 1, 1, 3, null, null],
         barreAt: fret6 - 1,
         barreStrings: [1, 2],
         baseFret: Math.max(1, fret6 - 1),
         muted: [false, false, false, false, true, true],
         isDefault: fingerings.length === 0,
-        difficulty: calculateDifficulty(fret6, true),
+        difficulty: calculateDifficulty(fret6, true, m7b56strFrets),
       });
     }
   }
 
   // コンパクト4弦フォーム（ジャズ系）
   if (fret5 !== undefined && fret5 >= 2 && fret5 <= 10) {
+    const compactFrets: (number | null)[] = [fret5 - 1, fret5, fret5 - 1, fret5 - 1, null, null];
     fingerings.push({
       id: `${root}M7b5-compact`,
-      frets: [fret5 - 1, fret5, fret5 - 1, fret5 - 1, null, null],
+      frets: compactFrets,
       fingers: [1, 4, 2, 3, null, null],
       barreAt: null,
       barreStrings: null,
       baseFret: Math.max(1, fret5 - 1),
       muted: [false, false, false, false, true, true],
       isDefault: false,
-      difficulty: 'medium',
+      difficulty: calculateDifficulty(Math.max(1, fret5 - 1), false, compactFrets),
     });
   }
 
