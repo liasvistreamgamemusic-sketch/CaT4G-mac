@@ -11,4 +11,20 @@
 | #66 | " | 🟣 | Implemented ChordWiki Parser with ChordPro Format Support | ~491 |
 | #65 | " | 🟣 | Implemented U-Fret Parser with Intelligent Chord Detection | ~546 |
 | #63 | 10:05 PM | 🟣 | Defined Structured Parser Data Types | ~428 |
+
+### Feb 8, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2840 | 10:49 AM | 🔵 | ChordWiki Parser Processes Span-Based Chord/Lyric Layout with Section Comments | ~838 |
+| #2839 | 10:48 AM | 🔵 | 楽器.me Parser Handles Character-Level Vertical Layout with State Accumulation | ~867 |
+| #2838 | " | 🔵 | J-Total Parser Implements Simpler Pre-Tag Text Extraction with Byte-to-Char Position Conversion | ~721 |
+| #2837 | " | 🔵 | U-Fret Parser Implements Multi-Strategy HTML Extraction with JavaScript Variable Scraping | ~854 |
+| #2836 | 10:47 AM | 🔵 | Parser Module Defines Structured Chord Sheet Data Model with Position Tracking | ~654 |
+
+### Feb 15, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #3928 | 2:10 PM | 🔵 | U-Fret chord sheet parser implementation | ~477 |
 </claude-mem-context>

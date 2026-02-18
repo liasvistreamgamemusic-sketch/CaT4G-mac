@@ -9,4 +9,11 @@
 |----|------|---|-------|------|
 | #64 | 10:05 PM | ✅ | Added Regex Dependency | ~193 |
 | #58 | 10:04 PM | 🔵 | Scraping Dependencies Already Installed | ~299 |
+
+### Feb 8, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2816 | 10:40 AM | 🔵 | Tauri Configuration Disables CSP, Preloads SQLite Database | ~555 |
+| #2814 | 10:39 AM | 🔵 | Rust Backend Uses Tauri 2 with SQL, HTTP, and Web Scraping Capabilities | ~617 |
 </claude-mem-context>

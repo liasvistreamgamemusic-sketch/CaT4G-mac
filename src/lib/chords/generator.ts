@@ -3,7 +3,9 @@
  * 任意のコード名から押さえ方を動的に生成
  *
  * 優先順位:
+ * 0. chords-db（chordsDb.ts） - tombatossals/chords-db由来の実用的フィンガリング（最優先）
  * 1. データベース（database.ts） - 分数コード等の定義済みフィンガリング
+ * 1.5. 構造化データ（data/） - 492コード × 671フィンガリング
  * 2. CAGEDシステム（cagedChords.ts） - バレーコードの動的生成
  * 2.5. 対称コード（symmetricChords.ts） - dim, dim7, aug, aug7
  * 2.6. パワーコード（powerChords.ts） - 5コード
@@ -26,6 +28,7 @@ import { isSus2Chord, getSus2ChordFingerings } from './sus2Chords';
 import { getChordFingerings as getStructuredDataFingerings } from './data';
 import type { Fingering as DataFingering } from './data/types';
 import { getIntervalsFromRegistry, normalizeQualityFromRegistry, generateFingeringFromSlashChordName } from './theory';
+import { getChordsDbFingerings } from './chordsDb';
 
 // 開放弦の音（標準チューニング）
 // [1弦(E4), 2弦(B3), 3弦(G3), 4弦(D3), 5弦(A2), 6弦(E2)]
@@ -290,6 +293,17 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
     return false;
   };
 
+  // 0. chords-db（最優先ソース - 実用的なフィンガリング）
+  // https://github.com/tombatossals/chords-db
+  const chordsDbFingerings = getChordsDbFingerings(chordName);
+  let primaryFingeringId: string | null = null;
+  for (const fingering of chordsDbFingerings) {
+    if (primaryFingeringId === null) {
+      primaryFingeringId = fingering.id; // chords-dbの最初を最優先デフォルト
+    }
+    addIfUnique(fingering);
+  }
+
   // 1. データベースから定義を取得（分数コード等）
   const chordDef = getChordDefinition(chordName);
   if (chordDef) {
@@ -299,13 +313,11 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
   }
 
   // 1.5 構造化データ（492コード × 671フィンガリング）
-  // roots/の最初のフィンガリングを優先デフォルトとして記録
   const structuredFingerings = getStructuredDataFingerings(chordName);
-  let primaryFingeringId: string | null = null;
   for (const fingering of structuredFingerings) {
     const converted = convertDataFingering(fingering);
     if (primaryFingeringId === null) {
-      primaryFingeringId = converted.id; // 最初のものを優先デフォルトとして記録
+      primaryFingeringId = converted.id; // chords-dbが無い場合のみ既存データを優先
     }
     addIfUnique(converted);
   }

@@ -194,8 +194,8 @@ export function PlayableChordLine({
       {/* コード行（lyrics-onlyモードでは非表示） */}
       {showChords && (
       <div
-        className={`relative font-mono bg-background-primary/30 rounded-t px-2 py-1 ${
-          chords.length > 0 ? (showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8') : 'min-h-[2rem]'
+        className={`relative font-mono px-1 py-0.5 ${
+          chords.length > 0 ? (showDiagram ? 'min-h-[5rem] pb-12' : 'min-h-[2rem] pb-4') : 'min-h-[1.5rem]'
         }`}
         style={{ fontSize: `${scaledFontSize}px`, minWidth: `${minChars}ch` }}
       >
@@ -219,10 +219,9 @@ export function PlayableChordLine({
             <div
               key={chordIndex}
               className={`absolute top-0 flex flex-col select-none
-                border border-[var(--glass-premium-border)] rounded bg-background-surface/50 p-1
-                hover:border-accent-primary/30 transition-colors
+                p-0.5 transition-colors
                 overflow-visible
-                ${onChordClick ? 'cursor-pointer hover:bg-accent-primary/10' : ''}`}
+                ${onChordClick ? 'cursor-pointer hover:bg-accent-primary/10 rounded' : ''}`}
               style={{
                 left: `${positionPx}px`,
                 width: displayWidth,
@@ -233,7 +232,7 @@ export function PlayableChordLine({
               title={`${chord.chord}${chord.annotation ? `\n${chord.annotation}` : ''}`}
             >
               {/* ヘッダー: コード名 + メソッドバッジ */}
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-center w-full gap-1">
                 <div
                   className="px-1 rounded transition-colors whitespace-nowrap font-semibold flex items-center text-accent-primary hover:bg-accent-primary/20"
                   style={{ fontSize: `${scaledFontSize}px` }}
@@ -298,7 +297,7 @@ export function PlayableChordLine({
                 style={{
                   left: '0px',
                   top: '100%',
-                  height: `${(showDiagram ? 24 : 12) * scale}px`,
+                  height: `${(showDiagram ? 16 : 8) * scale}px`,
                 }}
               />
               {/* 下端のアンカーポイント */}
@@ -308,7 +307,7 @@ export function PlayableChordLine({
                   width: `${8 * scale}px`,
                   height: `${8 * scale}px`,
                   left: `${-3 * scale}px`,
-                  top: `calc(100% + ${(showDiagram ? 22 : 10) * scale}px)`,
+                  top: `calc(100% + ${(showDiagram ? 14 : 6) * scale}px)`,
                 }}
               />
             </div>
@@ -331,7 +330,7 @@ export function PlayableChordLine({
           {/* アンダーラインマーカー（コード位置） - 歌詞のみモードでは非表示 */}
           {showChords && (
           <div
-            className="absolute inset-0 pointer-events-none px-3 py-1.5"
+            className="absolute inset-0 pointer-events-none px-1 py-0.5"
             style={{ fontFamily: 'monospace', fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em' }}
           >
             {chords.map((chord, chordIndex) => {
@@ -342,7 +341,7 @@ export function PlayableChordLine({
                   key={chordIndex}
                   className="absolute bottom-1 h-0.5 bg-accent-primary/60 rounded-full"
                   style={{
-                    left: `calc(12px + ${pos * CHAR_WIDTH}px)`,
+                    left: `calc(4px + ${pos * CHAR_WIDTH}px)`,
                     width: `${CHAR_WIDTH}px`,
                   }}
                 />
@@ -353,8 +352,8 @@ export function PlayableChordLine({
 
           {/* 歌詞テキスト */}
           <div
-            className={`w-full bg-[var(--input-bg)] border border-[var(--glass-premium-border)] px-3 py-1.5 font-mono font-semibold text-text-primary ${showChords ? 'rounded-b' : 'rounded'}`}
-            style={{ fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em', minHeight: `${32 * scale}px` }}
+            className="w-full px-1 py-0.5 font-mono font-semibold text-text-primary"
+            style={{ fontSize: `${scaledFontSize}px`, letterSpacing: '0.35em', minHeight: `${24 * scale}px` }}
           >
             {lyrics || <span className="text-text-muted/30">&nbsp;</span>}
           </div>

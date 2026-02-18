@@ -14,4 +14,12 @@
 | #60 | " | 🟣 | Created Centralized Error Module | ~350 |
 | #59 | 10:04 PM | 🔵 | Basic Scraper Implementation Already Complete | ~452 |
 | #57 | " | 🔵 | Existing Scraper Infrastructure in lib.rs | ~377 |
+
+### Feb 8, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2835 | 10:47 AM | 🔵 | HTTP Client Mimics Chrome Browser with Full Header Spoofing for Anti-Bot Evasion | ~702 |
+| #2834 | 10:46 AM | 🔵 | Rust Error Types Define Scraper Failure Modes with thiserror Integration | ~645 |
+| #2818 | 10:41 AM | 🔵 | Tauri Backend Implements Multi-Site Chord Sheet Scraper | ~634 |
 </claude-mem-context>

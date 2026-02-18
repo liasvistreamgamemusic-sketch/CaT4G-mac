@@ -905,7 +905,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
           }}
           className="flex-1 overflow-y-auto overflow-x-auto bg-background-primary select-none"
         >
-        <div className="space-y-6 p-4">
+        <div className="space-y-4 p-4">
           {mode === 'edit' && editSections ? (
             // 編集モード: SectionEditor を使用
             <>
@@ -1018,7 +1018,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
               {sections.map(({ section, lines }, sectionIndex) => (
                 <section
                   key={section.id}
-                  className="space-y-2"
+                  className="space-y-1"
                   data-section-id={section.id}
                 >
                   {/* セクションヘッダー（クリックでジャンプ） */}
@@ -1059,7 +1059,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                   </div>
 
                   {/* ライン表示（クリックでジャンプ） */}
-                  <div className="space-y-3 bg-background-surface rounded-lg p-3">
+                  <div className="space-y-1.5 bg-background-surface rounded-lg p-2">
                     {lines.map((line) => (
                       <div
                         key={line.id}
@@ -1070,7 +1070,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                             onLineClick?.(String(line.id));
                           }
                         }}
-                        className="cursor-pointer hover:bg-[var(--btn-glass-hover)] rounded transition-colors -mx-2 px-2 py-1"
+                        className="cursor-pointer hover:bg-[var(--btn-glass-hover)] rounded transition-colors -mx-2 px-2 py-0.5"
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
