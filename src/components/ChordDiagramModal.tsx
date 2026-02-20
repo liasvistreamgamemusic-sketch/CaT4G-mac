@@ -178,12 +178,9 @@ export function ChordDiagramModal({ chord, onClose }: ChordDiagramModalProps) {
       onClick={handleBackdropClick}
     >
       <div
-        className="border border-white/10 rounded-xl p-6 min-w-[280px] max-w-md shadow-2xl"
+        className="border border-white/10 rounded-xl p-6 w-[480px] max-h-[85vh] overflow-y-auto shadow-2xl"
         style={{
-          background: 'var(--glass-premium-bg)',
-          backgroundColor: 'var(--color-bg-surface)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          backgroundColor: 'var(--color-bg-elevated)',
         }}
       >
         {/* ヘッダー */}

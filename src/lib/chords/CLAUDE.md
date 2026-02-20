@@ -7,17 +7,14 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #314 | 5:31 PM | ✅ | Added Database Import to Chord Generator | ~322 |
 | #300 | 5:21 PM | ✅ | Standard Chord Library Integrated into Module Exports | ~328 |
 | #299 | " | 🔵 | Chord Module Index - Export Structure Identified | ~355 |
 | #298 | 5:20 PM | 🟣 | Comprehensive Standard Chord Library Created - 2900+ Lines | ~533 |
-| #297 | 5:18 PM | 🔵 | Chord Database Contains Limited Predefined Fingerings | ~432 |
-| #294 | " | 🔵 | Chord Generator Logic Examined - Complex Fingering Algorithm | ~461 |
+| #294 | 5:18 PM | 🔵 | Chord Generator Logic Examined - Complex Fingering Algorithm | ~461 |
 
 ### Feb 15, 2026
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
 | #3932 | 2:11 PM | 🔵 | Chord database structure with fingering definitions | ~461 |
-| #3931 | " | 🔵 | Comprehensive chord library module exports | ~498 |
 </claude-mem-context>

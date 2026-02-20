@@ -807,7 +807,7 @@ export function LineEditor({
                     <span
                       className={`px-1 py-0.5 rounded ${
                         chord.method === 'stroke'
-                          ? 'bg-purple-500/20 text-purple-300'
+                          ? 'bg-orange-500/20 text-orange-300'
                           : 'bg-green-500/20 text-green-300'
                       }`}
                       style={{ fontSize: `${8 * scale}px` }}
@@ -838,7 +838,7 @@ export function LineEditor({
                     style={{ fontSize: `${9 * scale}px` }}
                     title={patternDisplay}
                   >
-                    <span className={chord.method === 'stroke' ? 'text-purple-300' : 'text-green-300'}>
+                    <span className={chord.method === 'stroke' ? 'text-orange-300' : 'text-green-300'}>
                       {patternDisplay.length > 12 ? patternDisplay.slice(0, 12) + '...' : patternDisplay}
                     </span>
                   </div>

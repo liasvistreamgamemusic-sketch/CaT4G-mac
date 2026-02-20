@@ -219,7 +219,7 @@ export function ControlBar({
       {/* Right: Metronome */}
       <div className="flex items-center gap-4">
         <button
-          className={`btn-icon ${metronomeEnabled ? 'bg-accent-primary/20 text-purple-400' : 'text-gray-400'}`}
+          className={`btn-icon ${metronomeEnabled ? 'bg-accent-primary/20 text-orange-400' : 'text-gray-400'}`}
           onClick={onMetronomeToggle}
           title={metronomeEnabled ? 'メトロノーム停止 (M)' : 'メトロノーム開始 (M)'}
         >

@@ -130,7 +130,7 @@ export function ChordFingeringEditor({
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative w-full max-w-xl max-h-[85vh] bg-surface rounded-2xl shadow-2xl border border-border/50 flex flex-col overflow-hidden">
+      <div className="relative w-[560px] max-h-[90vh] rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border/30">
           <h2 className="text-lg font-semibold text-text-primary">

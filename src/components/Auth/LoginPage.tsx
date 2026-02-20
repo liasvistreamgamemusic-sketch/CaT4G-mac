@@ -82,9 +82,9 @@ export function LoginPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+      <div className="min-h-screen flex items-center justify-center bg-[#050507]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-400">読み込み中...</p>
         </div>
       </div>
@@ -92,12 +92,12 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#050507] relative overflow-hidden">
       {/* Background gradient effects */}
       <div
         className="absolute inset-0 opacity-30"
         style={{
-          background: 'radial-gradient(circle at 30% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 40%)',
+          background: 'radial-gradient(circle at 30% 20%, rgba(249, 115, 22, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(249, 115, 22, 0.1) 0%, transparent 40%)',
         }}
       />
 
@@ -106,18 +106,18 @@ export function LoginPage() {
         <div
           className="rounded-3xl p-8 backdrop-blur-xl border border-white/10"
           style={{
-            background: 'linear-gradient(145deg, rgba(26, 26, 37, 0.9) 0%, rgba(26, 26, 37, 0.7) 100%)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset',
+            background: 'rgba(18, 18, 30, 0.95)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           }}
         >
           {/* Logo / App title */}
           <div className="text-center mb-8">
-            {/* Music icon with purple glow */}
+            {/* Music icon with orange glow */}
             <div className="relative inline-block mb-6">
               <div
                 className="absolute inset-0 blur-xl opacity-50"
                 style={{
-                  background: 'radial-gradient(circle, rgba(168, 85, 247, 0.6) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, rgba(249, 115, 22, 0.6) 0%, transparent 70%)',
                   transform: 'scale(1.5)',
                 }}
               />
@@ -168,7 +168,7 @@ export function LoginPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
                 placeholder="you@example.com"
                 autoComplete="email"
                 disabled={isSubmitting}
@@ -185,7 +185,7 @@ export function LoginPage() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
                 placeholder="6文字以上"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 disabled={isSubmitting}
@@ -203,7 +203,7 @@ export function LoginPage() {
                   id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
                   placeholder="パスワードを再入力"
                   autoComplete="new-password"
                   disabled={isSubmitting}
@@ -215,9 +215,9 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-purple-600 hover:bg-purple-500 text-white mt-6"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-orange-600 hover:bg-orange-500 text-white mt-6"
               style={{
-                boxShadow: '0 4px 14px 0 rgba(168, 85, 247, 0.3)',
+                boxShadow: 'none',
               }}
             >
               {isSubmitting ? (
@@ -242,7 +242,7 @@ export function LoginPage() {
           <button
             onClick={toggleMode}
             disabled={isSubmitting}
-            className="w-full text-center text-sm text-purple-400 hover:text-purple-300 transition-colors disabled:opacity-50"
+            className="w-full text-center text-sm text-orange-400 hover:text-orange-300 transition-colors disabled:opacity-50"
           >
             {mode === 'login' ? '新規登録はこちら' : 'すでにアカウントをお持ちの方'}
           </button>

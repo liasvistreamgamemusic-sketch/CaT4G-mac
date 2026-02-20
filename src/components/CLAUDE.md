@@ -30,4 +30,11 @@
 | #3943 | 2:13 PM | 🔵 | Playable chord line component with scaling and layout engine | ~483 |
 | #3939 | " | 🔵 | Chord diagram modal with CAGED form navigation | ~438 |
 | #3930 | 2:11 PM | 🔵 | Horizontal chord diagram SVG component implementation | ~507 |
+
+### Feb 21, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #4993 | 4:14 AM | 🔵 | Comparing ChordDefaultsSettings background styling patterns | ~334 |
+| #4989 | 4:13 AM | 🔴 | ChordEditor transpose behavior and fingering priority fixed | ~518 |
 </claude-mem-context>

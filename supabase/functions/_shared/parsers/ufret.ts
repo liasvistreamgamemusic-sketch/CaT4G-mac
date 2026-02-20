@@ -517,11 +517,18 @@ export function parseSearchResults(
     if (children.length >= 2) {
       rawTitle = (children[0].textContent || "").trim();
       artist = (children[1].textContent || "").trim();
-    } else if (children.length === 1) {
-      rawTitle = (children[0].textContent || "").trim();
     } else {
-      // Fallback: use link text content
-      rawTitle = (link.textContent || "").trim();
+      // Fallback: U-Fret may use plain text with title and artist separated by newline
+      const fullText = (link.textContent || "").trim();
+      const lines = fullText.split("\n").map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+      if (lines.length >= 2) {
+        rawTitle = lines[0];
+        artist = lines[1];
+      } else if (lines.length === 1) {
+        rawTitle = lines[0];
+      } else {
+        rawTitle = fullText;
+      }
     }
 
     if (!rawTitle) continue;
@@ -595,7 +602,10 @@ export function parseArtistPage(
     if (children.length >= 1) {
       rawTitle = (children[0].textContent || "").trim();
     } else {
-      rawTitle = (link.textContent || "").trim();
+      // Fallback: extract first line from plain text
+      const fullText = (link.textContent || "").trim();
+      const lines = fullText.split("\n").map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+      rawTitle = lines[0] || fullText;
     }
 
     if (!rawTitle) continue;

@@ -58,3 +58,15 @@ backend = "postgres"
 enabled = true
 policy = "per_worker"
 inspector_port = 8083
+
+[functions.search-ufret]
+verify_jwt = false
+
+[functions.fetch-chord-sheet]
+verify_jwt = false
+
+[functions.fetch-artist-songs]
+verify_jwt = false
+
+[functions.get-supported-sites]
+verify_jwt = false

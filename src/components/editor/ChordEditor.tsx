@@ -86,12 +86,12 @@ export function ChordEditor({
   const popoverRef = useRef<HTMLDivElement>(null);
   const chordInputRef = useRef<HTMLInputElement>(null);
 
-  // 表示用コード名（移調適用済み）
-  // 押さえ方検索・表示に使用。保存時は元のコード名を維持
+  // 表示用コード名（editedChord.chord が表示用コード名そのもの）
+  // 保存時に逆移調して保存用コード名に変換する
   const displayChordName = useMemo(() => {
     if (!editedChord) return '';
-    return transpose !== 0 ? transposeChord(editedChord.chord, transpose) : editedChord.chord;
-  }, [editedChord, transpose]);
+    return editedChord.chord;
+  }, [editedChord]);
 
   // Filter chord suggestions based on search query
   const chordSuggestions = useMemo(() => {
@@ -105,27 +105,47 @@ export function ChordEditor({
   // コードが変わったらローカル状態をリセット
   useEffect(() => {
     if (chord) {
-      setEditedChord({ ...chord });
+      // 表示用コード名（移調適用済み）を editedChord.chord にセット
+      const displayName = transpose !== 0
+        ? transposeChord(chord.chord, transpose)
+        : chord.chord;
+      setEditedChord({ ...chord, chord: displayName });
       setShowChordSuggestions(false);
       setChordSearchQuery('');
       setActiveTab('voicing');
 
-      // フィンガリング情報を取得（移調後のコード名を使用）
-      const transposedName = transpose !== 0 ? transposeChord(chord.chord, transpose) : chord.chord;
-      const allFingerings = generateChordFingerings(transposedName);
+      // フィンガリング情報を取得（表示用コード名で直接検索）
+      const allFingerings = generateChordFingerings(displayName);
       if (allFingerings.length > 0) {
         setFingerings(allFingerings);
-        // voicingId が設定されていればそれを選択
+
+        // Priority 1: voicingId が設定されていればそれを選択
         if (chord.voicingId) {
           const voicingIndex = allFingerings.findIndex(f => f.id === chord.voicingId);
-          setSelectedFingeringIndex(voicingIndex >= 0 ? voicingIndex : 0);
-        } else {
-          const defaultIndex = allFingerings.findIndex(f => f.isDefault);
-          setSelectedFingeringIndex(defaultIndex >= 0 ? defaultIndex : 0);
+          if (voicingIndex >= 0) {
+            setSelectedFingeringIndex(voicingIndex);
+            return;
+          }
         }
+
+        // Priority 2: ユーザーのデフォルト設定
+        const userPref = chordPreferences.getPreferred(displayName);
+        if (userPref) {
+          const prefIndex = allFingerings.findIndex(
+            f => JSON.stringify(f.frets) === JSON.stringify(userPref.frets)
+          );
+          if (prefIndex >= 0) {
+            setSelectedFingeringIndex(prefIndex);
+            return;
+          }
+        }
+
+        // Priority 3: システムデフォルト
+        const defaultIndex = allFingerings.findIndex(f => f.isDefault);
+        setSelectedFingeringIndex(defaultIndex >= 0 ? defaultIndex : 0);
       } else {
         // フォールバック
-        const fallback = getDefaultFingering(transposedName);
+        const fallback = getDefaultFingering(displayName);
         setFingerings(fallback ? [fallback] : []);
         setSelectedFingeringIndex(0);
       }
@@ -134,13 +154,26 @@ export function ChordEditor({
       setFingerings([]);
       setChordSearchQuery('');
     }
-  }, [chord, transpose]);
+  }, [chord, transpose, chordPreferences]);
 
-  // Update fingerings when chord name changes
+  // Update fingerings when chord name changes (with user preference priority)
   const updateFingeringsForChord = useCallback((chordName: string) => {
     const allFingerings = generateChordFingerings(chordName);
     if (allFingerings.length > 0) {
       setFingerings(allFingerings);
+
+      // Priority: ユーザーのデフォルト設定 → システムデフォルト
+      const userPref = chordPreferences.getPreferred(chordName);
+      if (userPref) {
+        const prefIndex = allFingerings.findIndex(
+          f => JSON.stringify(f.frets) === JSON.stringify(userPref.frets)
+        );
+        if (prefIndex >= 0) {
+          setSelectedFingeringIndex(prefIndex);
+          return;
+        }
+      }
+
       const defaultIndex = allFingerings.findIndex(f => f.isDefault);
       setSelectedFingeringIndex(defaultIndex >= 0 ? defaultIndex : 0);
     } else {
@@ -148,7 +181,7 @@ export function ChordEditor({
       setFingerings(fallback ? [fallback] : []);
       setSelectedFingeringIndex(0);
     }
-  }, []);
+  }, [chordPreferences]);
 
   // ESCキーで閉じる
   useEffect(() => {
@@ -171,18 +204,22 @@ export function ChordEditor({
     [onClose]
   );
 
-  // 保存処理
+  // 保存処理（表示用コード名を保存用に逆移調して変換）
   const handleSave = useCallback(() => {
     if (editedChord) {
-      // voicingId を設定（選択されたフィンガリングのID）
       const updatedChord = { ...editedChord };
+      // 逆移調して保存用コード名に変換
+      if (transpose !== 0) {
+        updatedChord.chord = transposeChord(editedChord.chord, -transpose);
+      }
+      // voicingId を設定（選択されたフィンガリングのID）
       if (fingerings.length > 0 && fingerings[selectedFingeringIndex]) {
         updatedChord.voicingId = fingerings[selectedFingeringIndex].id;
       }
       onSave(updatedChord);
     }
     onClose();
-  }, [editedChord, fingerings, selectedFingeringIndex, onSave, onClose]);
+  }, [editedChord, fingerings, selectedFingeringIndex, onSave, onClose, transpose]);
 
   // 演奏方法の変更
   const handleMethodChange = useCallback((method: PlayingMethod | null) => {
@@ -230,13 +267,11 @@ export function ChordEditor({
     });
     setChordSearchQuery(name);
     setShowChordSuggestions(name.length > 0);
-    // Update fingerings after a short delay to avoid excessive recalculation
-    // 移調後のコード名でフィンガリングを生成
+    // 入力値がそのまま表示用コード名なので移調不要
     if (name.length >= 1) {
-      const transposedName = transpose !== 0 ? transposeChord(name, transpose) : name;
-      updateFingeringsForChord(transposedName);
+      updateFingeringsForChord(name);
     }
-  }, [updateFingeringsForChord, transpose]);
+  }, [updateFingeringsForChord]);
 
   // コードを選択（サジェストから）
   const handleChordSelect = useCallback((chordName: string) => {
@@ -246,10 +281,9 @@ export function ChordEditor({
     });
     setChordSearchQuery('');
     setShowChordSuggestions(false);
-    // 移調後のコード名でフィンガリングを生成
-    const transposedName = transpose !== 0 ? transposeChord(chordName, transpose) : chordName;
-    updateFingeringsForChord(transposedName);
-  }, [updateFingeringsForChord, transpose]);
+    // 入力値がそのまま表示用コード名なので移調不要
+    updateFingeringsForChord(chordName);
+  }, [updateFingeringsForChord]);
 
   // 位置の変更
   const handlePositionChange = useCallback((delta: number) => {
@@ -446,15 +480,15 @@ export function ChordEditor({
                           }}
                           className="w-full text-left px-3 py-2 text-sm transition-colors"
                           style={suggestion === editedChord.chord
-                            ? { backgroundColor: 'rgba(168, 85, 247, 0.1)', color: 'var(--color-accent-primary)' }
+                            ? { backgroundColor: 'rgba(249, 115, 22, 0.1)', color: 'var(--color-accent-primary)' }
                             : { color: 'var(--color-text-primary)' }
                           }
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(168, 85, 247, 0.2)';
+                            e.currentTarget.style.backgroundColor = 'rgba(249, 115, 22, 0.2)';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.backgroundColor = suggestion === editedChord.chord
-                              ? 'rgba(168, 85, 247, 0.1)'
+                              ? 'rgba(249, 115, 22, 0.1)'
                               : 'transparent';
                           }}
                         >
@@ -533,7 +567,7 @@ export function ChordEditor({
                 </label>
                 <div
                   className="p-3 rounded-lg border border-[var(--glass-premium-border)]"
-                  style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                  style={{ backgroundColor: 'var(--color-bg-elevated)' }}
                 >
                   {currentFingering ? (
                     <div className="flex flex-col items-center gap-2">
@@ -577,7 +611,7 @@ export function ChordEditor({
                 {fingerings.length > 1 && (
                   <div
                     className="mt-2 p-2 rounded-lg border border-[var(--glass-premium-border)]"
-                    style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                    style={{ backgroundColor: 'var(--color-bg-elevated)' }}
                   >
                     <div
                       className="text-xs mb-2"
@@ -654,7 +688,7 @@ export function ChordEditor({
               {editedChord.method === 'stroke' && (
                 <div
                   className="p-3 rounded-lg border border-[var(--glass-premium-border)]"
-                  style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                  style={{ backgroundColor: 'var(--color-bg-elevated)' }}
                 >
                   <StrokePatternInput
                     value={editedChord.strokePattern}
@@ -668,7 +702,7 @@ export function ChordEditor({
               {editedChord.method === 'arpeggio' && (
                 <div
                   className="p-3 rounded-lg border border-[var(--glass-premium-border)]"
-                  style={{ backgroundColor: 'rgba(10, 10, 15, 0.5)' }}
+                  style={{ backgroundColor: 'var(--color-bg-elevated)' }}
                 >
                   <ArpeggioOrderInput
                     value={editedChord.arpeggioOrder}
@@ -792,7 +826,7 @@ export function ChordEditor({
                         key={option.value}
                         className="flex items-center gap-2 px-2 py-1.5 rounded border cursor-pointer transition-colors"
                         style={isSelected
-                          ? { backgroundColor: 'rgba(168, 85, 247, 0.2)', borderColor: 'var(--color-accent-primary)', color: 'var(--color-accent-primary)' }
+                          ? { backgroundColor: 'rgba(249, 115, 22, 0.2)', borderColor: 'var(--color-accent-primary)', color: 'var(--color-accent-primary)' }
                           : { backgroundColor: 'var(--color-bg-primary)', borderColor: 'var(--glass-premium-border)', color: 'var(--color-text-secondary)' }
                         }
                       >

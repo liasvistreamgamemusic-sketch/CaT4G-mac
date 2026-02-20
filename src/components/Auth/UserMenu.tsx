@@ -76,7 +76,7 @@ export function UserMenu() {
         className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 hover:bg-white/5 border border-transparent hover:border-white/10"
       >
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full overflow-hidden bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-orange-500/20 flex items-center justify-center flex-shrink-0">
           {userAvatar ? (
             <img
               src={userAvatar}
@@ -85,7 +85,7 @@ export function UserMenu() {
               referrerPolicy="no-referrer"
             />
           ) : (
-            <User className="w-4 h-4 text-purple-400" />
+            <User className="w-4 h-4 text-orange-400" />
           )}
         </div>
 
@@ -105,16 +105,16 @@ export function UserMenu() {
         <div
           className="absolute right-0 top-full mt-2 w-64 rounded-xl overflow-hidden z-50 animate-fade-in"
           style={{
-            background: 'linear-gradient(145deg, rgba(26, 26, 37, 0.95) 0%, rgba(26, 26, 37, 0.85) 100%)',
+            background: 'rgba(18, 18, 30, 0.95)',
             backdropFilter: 'blur(20px)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
           }}
         >
           {/* User info header */}
           <div className="px-4 py-3 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-orange-500/20 flex items-center justify-center flex-shrink-0">
                 {userAvatar ? (
                   <img
                     src={userAvatar}
@@ -123,7 +123,7 @@ export function UserMenu() {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <User className="w-5 h-5 text-purple-400" />
+                  <User className="w-5 h-5 text-orange-400" />
                 )}
               </div>
               <div className="flex-1 min-w-0">

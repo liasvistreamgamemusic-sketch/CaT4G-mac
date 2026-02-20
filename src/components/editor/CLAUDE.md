@@ -8,4 +8,13 @@
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
 | #3960 | 2:17 PM | 🔵 | LineEditor implements sophisticated chord positioning system | ~503 |
+
+### Feb 21, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #4994 | 4:15 AM | 🔴 | Fixed fingering panel background colors using CSS variable | ~416 |
+| #4992 | 4:14 AM | 🔵 | Located fingering panel styling code in ChordEditor | ~378 |
+| #4991 | " | 🔵 | Investigating fingering panel styling in ChordEditor | ~304 |
+| #4989 | 4:13 AM | 🔴 | ChordEditor transpose behavior and fingering priority fixed | ~518 |
 </claude-mem-context>

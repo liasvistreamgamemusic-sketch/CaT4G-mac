@@ -272,8 +272,8 @@ export function FloatingControlBar({
       className={`
         relative rounded-xl
         transition-all duration-200 ease-out
-        hover:scale-105 active:scale-95
-        disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100
+        hover:-translate-y-px active:translate-y-0
+        disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0
         ${className}
       `}
       style={{
@@ -283,7 +283,7 @@ export function FloatingControlBar({
               background: 'var(--btn-glass-active)',
               borderColor: 'var(--btn-glass-active-border)',
               color: 'var(--color-accent-primary-light)',
-              boxShadow: '0 4px 12px rgba(168, 85, 247, 0.2)',
+              boxShadow: 'none',
             }
           : {
               color: 'var(--color-text-secondary)',
@@ -338,7 +338,7 @@ export function FloatingControlBar({
       <div
         className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(168, 85, 247, 0.15), transparent 70%)',
+          background: 'radial-gradient(ellipse at center, rgba(249, 115, 22, 0.15), transparent 70%)',
           filter: 'blur(20px)',
           transform: 'scale(1.2)',
           opacity: isPlaying ? 0.8 : 0,
@@ -355,11 +355,7 @@ export function FloatingControlBar({
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           // Layered borders for depth
           border: '1px solid var(--glass-premium-border)',
-          boxShadow: `
-            var(--glass-premium-shadow),
-            inset 0 1px 0 var(--glass-premium-highlight),
-            inset 0 -1px 0 var(--glass-premium-inner-border)
-          `,
+          boxShadow: 'var(--glass-premium-shadow)',
           borderRadius: `${24 * scale}px`,
           padding: `${spacing.md}px ${spacing.lg}px`,
           gap: shouldWrap ? `${spacing.sm}px ${spacing.md}px` : `${spacing.md}px`,
@@ -605,9 +601,9 @@ export function FloatingControlBar({
               className="volume-slider rounded-full appearance-none cursor-pointer
                          [&::-webkit-slider-thumb]:appearance-none
                          [&::-webkit-slider-thumb]:rounded-full
-                         [&::-webkit-slider-thumb]:bg-purple-400
+                         [&::-webkit-slider-thumb]:bg-orange-400
                          [&::-webkit-slider-thumb]:shadow-lg
-                         [&::-webkit-slider-thumb]:shadow-purple-500/30
+                         [&::-webkit-slider-thumb]:shadow-orange-500/30
                          [&::-webkit-slider-thumb]:transition-transform
                          [&::-webkit-slider-thumb]:hover:scale-125"
               style={{
@@ -672,9 +668,9 @@ export function FloatingControlBar({
               className="volume-slider rounded-full appearance-none cursor-pointer
                          [&::-webkit-slider-thumb]:appearance-none
                          [&::-webkit-slider-thumb]:rounded-full
-                         [&::-webkit-slider-thumb]:bg-purple-400
+                         [&::-webkit-slider-thumb]:bg-orange-400
                          [&::-webkit-slider-thumb]:shadow-lg
-                         [&::-webkit-slider-thumb]:shadow-purple-500/30
+                         [&::-webkit-slider-thumb]:shadow-orange-500/30
                          [&::-webkit-slider-thumb]:transition-transform
                          [&::-webkit-slider-thumb]:hover:scale-125"
               style={{

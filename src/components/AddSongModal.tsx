@@ -311,7 +311,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl max-h-[90vh] glass-premium-elevated rounded-[24px] overflow-hidden highlight-line animate-modal-in">
+      <div className="relative w-[800px] h-[calc(100vh-80px)] glass-premium-elevated rounded-[24px] overflow-hidden highlight-line animate-modal-in flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="text-xl font-semibold">曲を追加</h2>
@@ -354,7 +354,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">
           {activeTab === 'search' ? (
             <div className="space-y-4">
               {/* 検索入力 */}
@@ -401,7 +401,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
 
               {/* Error */}
               {error && (
-                <div className="bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+                <div className="bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
                   {error}
                 </div>
               )}
@@ -418,8 +418,8 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
                         key={artist.name}
                         onClick={() => handleSelectArtist(artist)}
                         disabled={isLoading}
-                        className="px-3 py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/30
-                                   hover:bg-purple-500/30 text-sm transition-colors disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-lg bg-orange-500/20 border border-orange-500/30
+                                   hover:bg-orange-500/30 text-sm transition-colors disabled:opacity-50"
                       >
                         {artist.name}
                       </button>
@@ -438,7 +438,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
                     <div className="flex items-center gap-3">
                       <button
                         onClick={toggleSelectAll}
-                        className="text-xs text-purple-400 hover:text-purple-300"
+                        className="text-xs text-orange-400 hover:text-orange-300"
                       >
                         {selectedSongs.size === searchResults.length ? '選択解除' : '全選択'}
                       </button>
@@ -446,8 +446,8 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
                         <button
                           onClick={handleBulkSave}
                           disabled={isBulkSaving}
-                          className="px-3 py-1 rounded-lg bg-purple-500 text-white text-sm
-                                     hover:bg-purple-600 disabled:opacity-50"
+                          className="px-3 py-1 rounded-lg bg-orange-500 text-white text-sm
+                                     hover:bg-orange-600 disabled:opacity-50"
                         >
                           {isBulkSaving
                             ? `保存中... (${bulkSaveProgress.current}/${bulkSaveProgress.total})`
@@ -469,7 +469,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
                           checked={selectedSongs.has(result.song_id)}
                           onChange={() => toggleSongSelection(result.song_id)}
                           className="w-4 h-4 rounded border-white/20 bg-white/5
-                                     accent-purple-500"
+                                     accent-orange-500"
                         />
                         <button
                           onClick={() => handleSelectSearchResult(result)}
@@ -480,7 +480,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
                           <div className="text-sm text-text-secondary">
                             {result.artist}
                             {result.version && (
-                              <span className="ml-2 text-xs text-purple-400">
+                              <span className="ml-2 text-xs text-orange-400">
                                 {result.version}
                               </span>
                             )}
@@ -510,7 +510,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
 
               {/* Preview */}
               {preview && (
-                <div className="rounded-2xl p-4 space-y-3 bg-white/[0.03] border border-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-1px_0_rgba(0,0,0,0.1)]">
+                <div className="rounded-2xl p-4 space-y-3 bg-white/[0.03] border border-white/[0.06]">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-lg">{preview.title || '無題'}</h3>
@@ -526,7 +526,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
                     <span>{preview.sections.length} セクション</span>
                   </div>
                   {/* Preview content */}
-                  <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] max-h-40 overflow-y-auto">
+                  <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] max-h-40 overflow-y-auto">
                     <pre className="text-xs text-text-muted font-mono">
                       {preview.sections.slice(0, 2).map((s, i) => (
                         <div key={i}>
@@ -579,14 +579,14 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
 
               {/* Error */}
               {error && (
-                <div className="bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+                <div className="bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
                   {error}
                 </div>
               )}
 
               {/* Preview */}
               {preview && (
-                <div className="rounded-2xl p-4 space-y-3 bg-white/[0.03] border border-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-1px_0_rgba(0,0,0,0.1)]">
+                <div className="rounded-2xl p-4 space-y-3 bg-white/[0.03] border border-white/[0.06]">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-lg">{preview.title || '無題'}</h3>
@@ -602,7 +602,7 @@ export function AddSongModal({ isOpen, onClose, onSave, onSaveAndEdit }: AddSong
                     <span>{preview.sections.length} セクション</span>
                   </div>
                   {/* Preview content */}
-                  <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] max-h-40 overflow-y-auto">
+                  <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] max-h-40 overflow-y-auto">
                     <pre className="text-xs text-text-muted font-mono">
                       {preview.sections.slice(0, 2).map((s, i) => (
                         <div key={i}>

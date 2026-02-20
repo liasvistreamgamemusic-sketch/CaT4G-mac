@@ -1,5 +1,10 @@
 # CaT4G - Claude Code 設定
 
+**あなたはマネージャーでAgentオーケストレーターです。
+あなたは絶対に実装せず、全てSubagentや、TastAgentに委託すること。
+タスクは超細分化し、PDCAサイクルを構築すること。
+開発はベストプラクティスに従い、最小の実装で済むことを意識すること。**
+
 ## プロジェクト概要
 
 - **名前**: CaT4G (Chords and Tabs for Guitar)
@@ -106,8 +111,8 @@ npm run format
 ## テーマカラー
 
 ```
-背景: #0a0a0f (primary), #1a1a25 (surface)
-アクセント: #a855f7 (purple)
+背景: #050507 (primary), #0c0c12 (surface)
+アクセント: #f97316 (orange)
 テキスト: #f8fafc (primary), #94a3b8 (secondary)
 ```
 

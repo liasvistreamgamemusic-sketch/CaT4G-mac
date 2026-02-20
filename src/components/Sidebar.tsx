@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
   ChevronLeft,
@@ -79,6 +80,8 @@ export function Sidebar({
   scale = 1.0,
   onOpenChordSettings,
 }: SidebarProps) {
+  const navigate = useNavigate();
+
   // スケーリング値の計算
   const iconSizeLg = Math.round(20 * scale);
   const iconSizeMd = Math.round(16 * scale);
@@ -154,11 +157,11 @@ export function Sidebar({
         relative h-full glass-premium highlight-line flex flex-col
         border-r border-[var(--glass-premium-border)]
         rounded-r-[24px]
-        transition-all duration-[350ms] cubic-bezier(0.34, 1.56, 0.64, 1)
+        transition-all duration-[350ms] ease-out
         overflow-visible z-10
       "
       style={{
-        transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        transitionTimingFunction: 'cubic-bezier(0.33, 1, 0.68, 1)',
         width: `${isCollapsed ? sidebarWidth.collapsed : sidebarWidth.expanded}px`,
       }}
     >
@@ -186,13 +189,14 @@ export function Sidebar({
 
       {/* Header */}
       <div
-        className={`border-b border-[var(--glass-premium-border)] flex items-center ${isCollapsed ? 'justify-center' : ''}`}
+        className={`border-b border-[var(--glass-premium-border)] flex items-center ${isCollapsed ? 'justify-center' : ''} cursor-pointer`}
         style={{ padding: `${spacing.lg}px`, gap: isCollapsed ? 0 : `${spacing.md}px` }}
+        onClick={() => navigate('/home')}
       >
         <img
           src="/cat4g-icon-rounded.png"
           alt="CaT4G"
-          className="object-contain flex-shrink-0"
+          className="object-contain flex-shrink-0 hover:opacity-80 transition-opacity"
           style={{ height: `${logoSize}px`, width: `${logoSize}px` }}
         />
       </div>

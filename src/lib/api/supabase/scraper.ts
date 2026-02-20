@@ -33,7 +33,16 @@ export async function fetchChordSheet(url: string): Promise<FetchedChordSheet> {
   });
 
   if (error) {
-    throw new Error(`Failed to fetch chord sheet: ${error.message}`);
+    let detail = error.message;
+    try {
+      const errorBody = await error.context?.json?.();
+      if (errorBody?.error) {
+        detail = errorBody.error;
+      }
+    } catch {
+      // Fallback to generic message
+    }
+    throw new Error(`コードシート取得エラー: ${detail}`);
   }
 
   if (!data) {
@@ -73,7 +82,16 @@ export async function parseChordSheetHtml(
   });
 
   if (error) {
-    throw new Error(`Failed to parse chord sheet: ${error.message}`);
+    let detail = error.message;
+    try {
+      const errorBody = await error.context?.json?.();
+      if (errorBody?.error) {
+        detail = errorBody.error;
+      }
+    } catch {
+      // Fallback to generic message
+    }
+    throw new Error(`コードシート解析エラー: ${detail}`);
   }
 
   if (!data) {
@@ -140,7 +158,16 @@ export async function searchUfret(
   });
 
   if (error) {
-    throw new Error(`検索エラー: ${error.message}`);
+    let detail = error.message;
+    try {
+      const errorBody = await error.context?.json?.();
+      if (errorBody?.error) {
+        detail = errorBody.error;
+      }
+    } catch {
+      // Fallback to generic message
+    }
+    throw new Error(`検索エラー: ${detail}`);
   }
 
   if (!data?.success || !data.data) {
@@ -168,7 +195,16 @@ export async function fetchArtistSongs(
   });
 
   if (error) {
-    throw new Error(`アーティスト曲一覧取得エラー: ${error.message}`);
+    let detail = error.message;
+    try {
+      const errorBody = await error.context?.json?.();
+      if (errorBody?.error) {
+        detail = errorBody.error;
+      }
+    } catch {
+      // Fallback to generic message
+    }
+    throw new Error(`アーティスト曲一覧取得エラー: ${detail}`);
   }
 
   if (!data?.success || !data.data) {

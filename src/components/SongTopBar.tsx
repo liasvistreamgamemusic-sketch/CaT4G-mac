@@ -81,7 +81,7 @@ interface SongTopBarProps {
 interface MetadataBadgeProps {
   label: string;
   value: string | number;
-  color?: 'default' | 'orange' | 'blue' | 'green' | 'purple';
+  color?: 'default' | 'orange' | 'blue' | 'green';
   scale?: number;
 }
 
@@ -91,12 +91,11 @@ function MetadataBadge({ label, value, color = 'default', scale = 1.0 }: Metadat
     orange: 'badge-glass bg-orange-500/15 border-orange-500/30 text-orange-400',
     blue: 'badge-glass bg-blue-500/15 border-blue-500/30 text-blue-400',
     green: 'badge-glass bg-green-500/15 border-green-500/30 text-green-400',
-    purple: 'badge-glass bg-purple-500/15 border-purple-500/30 text-purple-400',
   };
 
   return (
     <div
-      className={`flex items-center gap-1.5 rounded-full font-medium shadow-[inset_0_1px_0_var(--glass-premium-highlight)] ${colorClasses[color]}`}
+      className={`flex items-center gap-1.5 rounded-full font-medium ${colorClasses[color]}`}
       style={{
         fontSize: `${12 * scale}px`,
         padding: `${4 * scale}px ${12 * scale}px`,
@@ -332,7 +331,7 @@ export function SongTopBar({
             <MetadataBadge
               label="速度"
               value={`${playbackSpeed.toFixed(1)}x`}
-              color="purple"
+              color="orange"
               scale={scale}
             />
           )}
@@ -549,7 +548,7 @@ export function SongTopBar({
         ) : (
           <button
             onClick={handleDoneClick}
-            className="btn-glass bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 shadow-[0_2px_8px_rgba(34,197,94,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] flex items-center"
+            className="btn-glass bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 flex items-center"
             style={{
               height: `${btnHeight}px`,
               padding: `${6 * scale}px ${12 * scale}px`,

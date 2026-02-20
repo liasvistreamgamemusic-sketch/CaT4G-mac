@@ -199,7 +199,7 @@ export function ChordDefaultsSettings({
         />
 
         {/* Modal */}
-        <div className="relative w-full max-w-4xl max-h-[85vh] bg-surface rounded-2xl shadow-2xl border border-border/50 flex flex-col overflow-hidden">
+        <div className="relative w-full max-w-[1200px] max-h-[85vh] bg-background-surface rounded-2xl shadow-2xl border border-border/50 flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border/30">
             <h2 className="text-lg font-semibold text-text-primary">
@@ -223,9 +223,10 @@ export function ChordDefaultsSettings({
                   onClick={() => setSelectedRoot(root)}
                   className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                     selectedRoot === root
-                      ? 'bg-accent-purple text-white'
-                      : 'bg-surface-secondary text-text-secondary hover:bg-surface-tertiary hover:text-text-primary'
+                      ? 'text-white'
+                      : 'bg-background-hover text-text-secondary hover:bg-background-elevated hover:text-text-primary'
                   }`}
+                  style={selectedRoot === root ? { backgroundColor: 'var(--color-accent-primary)' } : undefined}
                 >
                   {root}
                 </button>
@@ -271,7 +272,7 @@ export function ChordDefaultsSettings({
                   <h3 className="text-sm font-semibold text-text-secondary mb-3 pb-2 border-b border-border/30">
                     メジャー系 ({majorChords.length})
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                     {majorChords.map((chordName) => {
                       const fingering = getFingeringForChord(chordName);
                       const isCustom = hasCustomSetting(chordName);
@@ -315,7 +316,7 @@ export function ChordDefaultsSettings({
                   <h3 className="text-sm font-semibold text-text-secondary mb-3 pb-2 border-b border-border/30">
                     マイナー系 ({minorChords.length})
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                     {minorChords.map((chordName) => {
                       const fingering = getFingeringForChord(chordName);
                       const isCustom = hasCustomSetting(chordName);

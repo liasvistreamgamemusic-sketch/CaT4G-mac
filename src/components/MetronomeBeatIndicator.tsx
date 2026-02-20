@@ -28,7 +28,7 @@ export function MetronomeBeatIndicator({
             colorClass = 'bg-amber-500';
             scaleClass = 'scale-125';
           } else {
-            colorClass = 'bg-purple-500';
+            colorClass = 'bg-orange-500';
             scaleClass = 'scale-110';
           }
         }
