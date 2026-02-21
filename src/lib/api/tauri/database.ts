@@ -20,7 +20,7 @@ import type {
   PlaylistWithSongs,
   CreateSongInput,
   CreatePlaylistInput,
-  ChordPosition,
+  ExtendedChordPosition,
   ArtistRow,
   SongRow,
   SectionRow,
@@ -236,7 +236,7 @@ function toLine(row: LineRow): Line {
     id: row.id,
     sectionId: row.section_id,
     lyrics: row.lyrics,
-    chords: JSON.parse(row.chords_json) as ChordPosition[],
+    chords: JSON.parse(row.chords_json) as ExtendedChordPosition[],
     orderIndex: row.order_index,
     measures: row.measures ?? 4,
   };

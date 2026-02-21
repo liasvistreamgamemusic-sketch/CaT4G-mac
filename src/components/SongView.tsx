@@ -161,7 +161,7 @@ function initializeEditState(song: SongWithDetails): {
     lines: lines.map((line) => ({
       id: line.id,
       lyrics: line.lyrics,
-      chords: line.chords as ExtendedChordPosition[],
+      chords: line.chords,
       memo: undefined,
       measures: line.measures ?? 4,
     })),
@@ -938,8 +938,10 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                     handleMoveChordBetweenLines(sectionIndex, fromLineIndex, toLineIndex, chord)
                   }
                   onSplitSection={(atLineIndex) => handleSplitSection(sectionIndex, atLineIndex)}
-                  showDiagram={viewMode !== 'compact'}
-                  showPlayingMethod={viewMode !== 'compact'}
+                  showDiagram={viewMode !== 'compact' && viewMode !== 'lyrics-only'}
+                  showPlayingMethod={viewMode !== 'compact' && viewMode !== 'lyrics-only'}
+                  showPattern={viewMode === 'detailed'}
+                  showDetailedInfo={viewMode === 'detailed'}
                   showMemo={viewMode === 'detailed'}
                   transpose={(editMetadata?.transpose ?? 0) - (editMetadata?.capo ?? 0)}
                   scale={scale}
@@ -1085,7 +1087,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
                       >
                         <PlayableChordLine
                           lyrics={line.lyrics}
-                          chords={line.chords as ExtendedChordPosition[]}
+                          chords={line.chords}
                           transpose={effectiveTranspose}
                           viewMode={viewMode}
                           onChordClick={onChordClick}

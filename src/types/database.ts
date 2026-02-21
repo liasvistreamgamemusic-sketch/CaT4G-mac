@@ -85,7 +85,7 @@ export interface Line {
   id: UUID;
   sectionId: UUID;
   lyrics: string;
-  chords: ChordPosition[];
+  chords: ExtendedChordPosition[];
   orderIndex: number;
   measures: number;  // 小節数（デフォルト: 4）
 }

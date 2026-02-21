@@ -21,7 +21,7 @@ import type {
   Line,
   Playlist,
   Song,
-  ChordPosition,
+  ExtendedChordPosition,
   TimeSignature,
   Difficulty,
   Tuning,
@@ -126,7 +126,7 @@ export async function getSongById(id: UUID): Promise<SongWithDetails | null> {
       id: lineRow.id,
       sectionId: lineRow.section_id,
       lyrics: lineRow.lyrics,
-      chords: lineRow.chords_json as ChordPosition[],
+      chords: lineRow.chords_json as ExtendedChordPosition[],
       orderIndex: lineRow.order_index,
       measures: lineRow.measures,
     }));

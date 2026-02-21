@@ -67,8 +67,10 @@ export function PlayableChordLine({
   // 表示設定
   const isLyricsOnly = viewMode === 'lyrics-only';
   const showChords = !isLyricsOnly;
-  const showDiagram = viewMode !== 'compact' && !isLyricsOnly;
-  const showPlayingMethod = viewMode !== 'compact' && !isLyricsOnly;
+  const showDiagram = (viewMode === 'standard' || viewMode === 'detailed') && !isLyricsOnly;
+  const showMethodBadge = (viewMode === 'standard' || viewMode === 'detailed') && !isLyricsOnly;
+  const showPattern = viewMode === 'detailed';  // パターンは詳細モードのみ
+  const showDetailedInfo = viewMode === 'detailed';  // 拍数・テクニック・ダイナミクス・タイ
   const showMemo = viewMode === 'detailed' && !isLyricsOnly;
 
   // スケーリングされた値を計算
@@ -78,11 +80,20 @@ export function PlayableChordLine({
   const CHORD_COMPONENT_WIDTH_COMPACT = scaledValues.chordWidthCompact;
   const scaledFontSize = scaledValues.fontSize;
 
+  // 詳細モード用の幅
+  const CHORD_COMPONENT_WIDTH_DETAILED = scaledValues.chordWidthDetailed;  // 128 * scale
+
   // コードコンポーネントの幅
-  const componentWidth = showDiagram ? CHORD_COMPONENT_WIDTH_DIAGRAM : CHORD_COMPONENT_WIDTH_COMPACT;
+  const componentWidth = showDetailedInfo
+    ? CHORD_COMPONENT_WIDTH_DETAILED
+    : showDiagram
+      ? CHORD_COMPONENT_WIDTH_DIAGRAM
+      : CHORD_COMPONENT_WIDTH_COMPACT;
 
   // 最小コード間隔（文字位置単位）
-  const MIN_CHORD_SPACING = scaledValues.minChordSpacing;
+  const MIN_CHORD_SPACING = showDetailedInfo
+    ? scaledValues.minChordSpacingDetailed
+    : scaledValues.minChordSpacing;
 
   // 移調済みコード名を計算し、重なりを防止
   const transposedChords = useMemo(() => {
@@ -182,6 +193,13 @@ export function PlayableChordLine({
     return '';
   };
 
+  // テクニックの短縮ラベルマップ
+  const TECHNIQUE_SHORT_LABELS: Record<string, string> = {
+    'hammer-on': 'H', 'pull-off': 'P', 'slide-up': '/', 'slide-down': '\\',
+    'bend': 'B', 'vibrato': '~', 'palm-mute': 'PM', 'harmonic': '<>',
+    'let-ring': 'LR', 'accent': '>',
+  };
+
   // 最大位置を計算（幅の決定）
   const maxPosition = Math.max(
     lyrics.length,
@@ -195,22 +213,32 @@ export function PlayableChordLine({
       {showChords && (
       <div
         className={`relative font-mono px-1 py-0.5 ${
-          chords.length > 0 ? (showDiagram ? 'min-h-[5rem] pb-12' : 'min-h-[2rem] pb-4') : 'min-h-[1.5rem]'
+          chords.length > 0
+            ? (showDetailedInfo
+                ? 'min-h-[10rem] pb-16'   // detailed: tall for all info
+                : showDiagram
+                  ? 'min-h-[5rem] pb-12'  // standard: diagram height
+                  : 'min-h-[2rem] pb-4')  // compact: minimal
+            : 'min-h-[1.5rem]'
         }`}
         style={{ fontSize: `${scaledFontSize}px`, minWidth: `${minChars}ch` }}
       >
         {/* コード表示 */}
         {transposedChords.map((chord, chordIndex) => {
           const fingering = chordFingerings[chordIndex];
-          const methodIndicator = showPlayingMethod ? getMethodIndicator(chord) : '';
-          const patternDisplay = showPlayingMethod ? getPatternDisplay(chord) : '';
-          const hasPattern = showPlayingMethod && patternDisplay.length > 0;
-          const hasAnnotation = showMemo && chord.annotation && chord.annotation.trim().length > 0;
+          const methodIndicator = showMethodBadge ? getMethodIndicator(chord) : '';
+          const patternDisplay = showPattern ? getPatternDisplay(chord) : '';
+          const hasPattern = showPattern && patternDisplay.length > 0;
+          const hasAnnotation = showDetailedInfo && chord.annotation && chord.annotation.trim().length > 0;
 
           // コンパクトモードかどうか
-          const isMinimalMode = !showDiagram && !showPlayingMethod && !showMemo;
+          const isMinimalMode = !showDiagram && !showMethodBadge && !showDetailedInfo;
           const displayWidth = isMinimalMode ? 'auto' : `${componentWidth}px`;
-          const displayHeight = isMinimalMode ? '28px' : (showDiagram ? '72px' : '36px');
+          const displayHeight = isMinimalMode
+            ? '28px'
+            : showDetailedInfo
+              ? 'auto'  // Let it grow naturally in detailed mode
+              : (showDiagram ? '72px' : '36px');
 
           // 位置をピクセルに変換
           const positionPx = chord.position * CHAR_WIDTH;
@@ -239,7 +267,7 @@ export function PlayableChordLine({
                 >
                   {chord.chord}
                 </div>
-                {methodIndicator && showPlayingMethod && (
+                {methodIndicator && showMethodBadge && (
                   <span
                     className={`px-1 py-0.5 rounded ${
                       chord.method === 'stroke'
@@ -277,6 +305,57 @@ export function PlayableChordLine({
                   <span className={chord.method === 'stroke' ? 'text-orange-300' : 'text-green-300'}>
                     {patternDisplay.length > 12 ? patternDisplay.slice(0, 12) + '...' : patternDisplay}
                   </span>
+                </div>
+              )}
+
+              {/* 拍数表示 - detailed mode only */}
+              {showDetailedInfo && chord.duration != null && (
+                <div
+                  className="text-center leading-tight w-full px-0.5 mt-0.5"
+                  style={{ fontSize: `${8 * scale}px` }}
+                >
+                  <span className="inline-block px-1.5 py-0.5 rounded-full bg-accent-primary/20 text-accent-primary font-medium">
+                    {chord.duration}拍
+                  </span>
+                </div>
+              )}
+
+              {/* テクニックバッジ - detailed mode only */}
+              {showDetailedInfo && chord.techniques && chord.techniques.length > 0 && (
+                <div
+                  className="flex flex-wrap justify-center gap-0.5 w-full px-0.5 mt-0.5"
+                  style={{ fontSize: `${7 * scale}px` }}
+                >
+                  {chord.techniques.map((tech: string, i: number) => (
+                    <span
+                      key={i}
+                      className="inline-block px-1 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono"
+                    >
+                      {TECHNIQUE_SHORT_LABELS[tech] || tech}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* ダイナミクス表示 - detailed mode only */}
+              {showDetailedInfo && chord.dynamics && (
+                <div
+                  className="text-center leading-tight w-full px-0.5 mt-0.5"
+                  style={{ fontSize: `${9 * scale}px` }}
+                >
+                  <span className="italic font-bold text-blue-300">
+                    {chord.dynamics}
+                  </span>
+                </div>
+              )}
+
+              {/* タイ接続表示 - detailed mode only */}
+              {showDetailedInfo && chord.tieToNext && (
+                <div
+                  className="text-center leading-tight w-full px-0.5 mt-0.5"
+                  style={{ fontSize: `${8 * scale}px` }}
+                >
+                  <span className="text-cyan-400">⌒ tie</span>
                 </div>
               )}
 
