@@ -18,6 +18,7 @@ export const MAX_SCALE = 1.0;
 export const BASE_CHAR_WIDTH = 22;
 export const BASE_CHORD_WIDTH_DIAGRAM = 76;
 export const BASE_CHORD_WIDTH_COMPACT = 52;
+export const BASE_CHORD_WIDTH_DETAILED = 128; // 詳細モード用(広め)
 export const BASE_FONT_SIZE = 14; // px (text-sm = 0.875rem)
 
 /**
@@ -39,8 +40,10 @@ export interface ScaledValues {
   charWidth: number;
   chordWidthDiagram: number;
   chordWidthCompact: number;
+  chordWidthDetailed: number;
   fontSize: number;
   minChordSpacing: number;
+  minChordSpacingDetailed: number;
 }
 
 /**
@@ -52,17 +55,21 @@ export function getScaledValues(scale: number): ScaledValues {
   const charWidth = BASE_CHAR_WIDTH * scale;
   const chordWidthDiagram = BASE_CHORD_WIDTH_DIAGRAM * scale;
   const chordWidthCompact = BASE_CHORD_WIDTH_COMPACT * scale;
+  const chordWidthDetailed = BASE_CHORD_WIDTH_DETAILED * scale;
   const fontSize = BASE_FONT_SIZE * scale;
   // 最小コード間隔 = コード図幅 / 文字幅
   const minChordSpacing = chordWidthDiagram / charWidth;
+  const minChordSpacingDetailed = chordWidthDetailed / charWidth;
 
   return {
     scale,
     charWidth,
     chordWidthDiagram,
     chordWidthCompact,
+    chordWidthDetailed,
     fontSize,
     minChordSpacing,
+    minChordSpacingDetailed,
   };
 }
 

@@ -9,6 +9,7 @@ import type { ExtendedChordPosition, PlayingMethod, StrokeDirection, TimeSignatu
 import { PlayingMethodSelector } from './PlayingMethodSelector';
 import { StrokePatternInput } from './StrokePatternInput';
 import { ArpeggioOrderInput } from './ArpeggioOrderInput';
+import { ChordDetailSettings } from './ChordDetailSettings';
 import { ChordDiagramHorizontal } from '@/components/ChordDiagramHorizontal';
 import { generateChordFingerings, getDefaultFingering, getAllCommonChordNames } from '@/lib/chords';
 import type { ChordFingering } from '@/lib/chords/types';
@@ -20,26 +21,6 @@ const COMMON_CHORD_NAMES = getAllCommonChordNames();
 
 // タブの種類
 type EditorTab = 'voicing' | 'playing' | 'advanced';
-
-// テクニック一覧
-const TECHNIQUE_OPTIONS: { value: PlayingTechnique; label: string }[] = [
-  { value: 'hammer-on', label: 'ハンマリング' },
-  { value: 'pull-off', label: 'プリングオフ' },
-  { value: 'slide-up', label: 'スライドアップ' },
-  { value: 'slide-down', label: 'スライドダウン' },
-  { value: 'bend', label: 'ベンド' },
-  { value: 'vibrato', label: 'ビブラート' },
-  { value: 'palm-mute', label: 'パームミュート' },
-  { value: 'harmonic', label: 'ハーモニクス' },
-  { value: 'let-ring', label: '余韻' },
-  { value: 'accent', label: 'アクセント' },
-];
-
-// ダイナミクス一覧
-const DYNAMICS_OPTIONS: Dynamics[] = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'];
-
-// 拍数プリセット
-const DURATION_PRESETS = [1, 2, 4];
 
 interface ChordEditorProps {
   /** 編集対象のコード（null の場合は非表示） */
@@ -299,40 +280,16 @@ export function ChordEditor({
     setSelectedFingeringIndex(index);
   }, []);
 
-  // 拍数の変更
-  const handleDurationChange = useCallback((duration: number | null) => {
+  // 詳細設定の変更ハンドラー（ChordDetailSettings用）
+  const handleDetailSettingsChange = useCallback((updates: Partial<{
+    duration: number;
+    techniques: PlayingTechnique[];
+    dynamics: Dynamics;
+    tieToNext: boolean;
+  }>) => {
     setEditedChord(prev => {
       if (!prev) return prev;
-      return { ...prev, duration: duration ?? undefined };
-    });
-  }, []);
-
-  // テクニックのトグル
-  const handleTechniqueToggle = useCallback((technique: PlayingTechnique) => {
-    setEditedChord(prev => {
-      if (!prev) return prev;
-      const currentTechniques = prev.techniques ?? [];
-      const isSelected = currentTechniques.includes(technique);
-      const newTechniques = isSelected
-        ? currentTechniques.filter(t => t !== technique)
-        : [...currentTechniques, technique];
-      return { ...prev, techniques: newTechniques.length > 0 ? newTechniques : undefined };
-    });
-  }, []);
-
-  // ダイナミクスの変更
-  const handleDynamicsChange = useCallback((dynamics: Dynamics | null) => {
-    setEditedChord(prev => {
-      if (!prev) return prev;
-      return { ...prev, dynamics: dynamics ?? undefined };
-    });
-  }, []);
-
-  // タイの切り替え
-  const handleTieToggle = useCallback(() => {
-    setEditedChord(prev => {
-      if (!prev) return prev;
-      return { ...prev, tieToNext: !prev.tieToNext };
+      return { ...prev, ...updates };
     });
   }, []);
 
@@ -726,159 +683,14 @@ export function ChordEditor({
 
           {/* 詳細設定タブ */}
           {activeTab === 'advanced' && (
-            <div className="grid grid-cols-2 gap-4">
-              {/* 拍数入力 */}
-              <div className="space-y-2">
-                <label
-                  className="block text-xs"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  拍数
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    value={editedChord.duration ?? ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === '') {
-                        handleDurationChange(null);
-                      } else {
-                        const num = parseFloat(val);
-                        if (!isNaN(num) && num >= 0.25 && num <= 16) {
-                          handleDurationChange(num);
-                        }
-                      }
-                    }}
-                    step={0.25}
-                    min={0.25}
-                    max={16}
-                    className="w-20 border border-[var(--glass-premium-border)] rounded px-2 py-1.5 text-sm focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
-                    style={{
-                      backgroundColor: 'var(--color-bg-primary)',
-                      color: 'var(--color-text-primary)',
-                    }}
-                    placeholder="-"
-                  />
-                  <div className="flex gap-1">
-                    {DURATION_PRESETS.map((preset) => (
-                      <button
-                        key={preset}
-                        type="button"
-                        onClick={() => handleDurationChange(preset)}
-                        className="px-2 py-1 text-xs rounded border transition-colors"
-                        style={editedChord.duration === preset
-                          ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff', borderColor: 'var(--color-accent-primary)' }
-                          : { backgroundColor: 'var(--color-bg-primary)', borderColor: 'var(--glass-premium-border)', color: 'var(--color-text-secondary)' }
-                        }
-                      >
-                        {preset}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <p
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
-                  0.25 ~ 16 (0.25刻み)
-                </p>
-              </div>
-
-              {/* タイ（繋ぎ） */}
-              <div className="space-y-2">
-                <label
-                  className="block text-xs"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  タイ
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editedChord.tieToNext ?? false}
-                    onChange={handleTieToggle}
-                    className="w-4 h-4 rounded border-[var(--glass-premium-border)] text-[var(--color-accent-primary)] focus:ring-[var(--color-accent-primary)] focus:ring-offset-0 cursor-pointer"
-                    style={{ backgroundColor: 'var(--color-bg-primary)' }}
-                  />
-                  <span
-                    className="text-sm"
-                    style={{ color: 'var(--color-text-primary)' }}
-                  >
-                    次のコードとタイで繋ぐ
-                  </span>
-                </label>
-              </div>
-
-              {/* テクニック選択 */}
-              <div className="col-span-2 space-y-2">
-                <label
-                  className="block text-xs"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  テクニック
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {TECHNIQUE_OPTIONS.map((option) => {
-                    const isSelected = (editedChord.techniques ?? []).includes(option.value);
-                    return (
-                      <label
-                        key={option.value}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded border cursor-pointer transition-colors"
-                        style={isSelected
-                          ? { backgroundColor: 'rgba(249, 115, 22, 0.2)', borderColor: 'var(--color-accent-primary)', color: 'var(--color-accent-primary)' }
-                          : { backgroundColor: 'var(--color-bg-primary)', borderColor: 'var(--glass-premium-border)', color: 'var(--color-text-secondary)' }
-                        }
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleTechniqueToggle(option.value)}
-                          className="w-3 h-3 rounded border-[var(--glass-premium-border)] text-[var(--color-accent-primary)] focus:ring-[var(--color-accent-primary)] focus:ring-offset-0 cursor-pointer"
-                          style={{ backgroundColor: 'var(--color-bg-primary)' }}
-                        />
-                        <span className="text-xs">{option.label}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* ダイナミクス選択 */}
-              <div className="col-span-2 space-y-2">
-                <label
-                  className="block text-xs"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  強弱
-                </label>
-                <div
-                  className="flex items-center rounded-lg p-1 border border-[var(--glass-premium-border)]"
-                  style={{ backgroundColor: 'var(--color-bg-primary)' }}
-                >
-                  {DYNAMICS_OPTIONS.map((dyn) => (
-                    <button
-                      key={dyn}
-                      type="button"
-                      onClick={() => handleDynamicsChange(editedChord.dynamics === dyn ? null : dyn)}
-                      className="flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors hover:bg-[var(--btn-glass-hover)]"
-                      style={editedChord.dynamics === dyn
-                        ? { backgroundColor: 'var(--color-accent-primary)', color: '#ffffff' }
-                        : { color: 'var(--color-text-secondary)' }
-                      }
-                    >
-                      {dyn}
-                    </button>
-                  ))}
-                </div>
-                <p
-                  className="text-xs text-center"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
-                  ppp (最弱) → fff (最強)
-                </p>
-              </div>
-            </div>
+            <ChordDetailSettings
+              duration={editedChord.duration}
+              techniques={editedChord.techniques}
+              dynamics={editedChord.dynamics}
+              tieToNext={editedChord.tieToNext}
+              timeSignature={timeSignature}
+              onChange={handleDetailSettingsChange}
+            />
           )}
         </div>
 

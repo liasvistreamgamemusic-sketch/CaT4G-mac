@@ -113,7 +113,7 @@ function DurationInput({ value, onChange }: DurationInputProps) {
       onChange(undefined);
     } else {
       const num = parseFloat(inputValue);
-      if (!isNaN(num) && num >= 0.25 && num <= 8) {
+      if (!isNaN(num) && num >= 0.25 && num <= 16) {
         onChange(num);
       }
     }
@@ -138,7 +138,7 @@ function DurationInput({ value, onChange }: DurationInputProps) {
             onClick={() => onChange(preset.value)}
             className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
               value === preset.value
-                ? 'bg-accent-primary text-white border-accent-primary shadow-md shadow-accent-primary/25'
+                ? 'bg-accent-primary text-[#1a1a2e] border-accent-primary font-bold shadow-md shadow-accent-primary/25'
                 : 'bg-background-primary border-[var(--glass-premium-border)] text-text-secondary hover:border-accent-primary/50 hover:text-text-primary'
             }`}
           >
@@ -157,12 +157,12 @@ function DurationInput({ value, onChange }: DurationInputProps) {
             onChange={handleInputChange}
             step={0.25}
             min={0.25}
-            max={8}
+            max={16}
             className="w-24 pl-8 pr-3 py-2 bg-background-primary border border-[var(--glass-premium-border)] rounded-lg text-sm text-text-primary focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/25 transition-all"
             placeholder="カスタム"
           />
         </div>
-        <span className="text-xs text-text-muted">0.25〜8拍</span>
+        <span className="text-xs text-text-muted">0.25〜16拍</span>
       </div>
 
       {/* 視覚的フィードバック: 拍数バー */}
@@ -236,7 +236,7 @@ function TechniqueSelector({ value = [], onChange }: TechniqueSelectorProps) {
               }`}
             >
               <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-                isSelected ? 'bg-accent-primary text-white' : 'bg-[var(--btn-glass-hover)]'
+                isSelected ? 'bg-accent-primary text-[#1a1a2e]' : 'bg-[var(--btn-glass-hover)]'
               }`}>
                 <Icon className="w-3 h-3" />
               </div>
@@ -278,7 +278,7 @@ function DynamicsSelector({ value, onChange }: DynamicsSelectorProps) {
               onClick={() => onChange(value === option.value ? undefined : option.value)}
               className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-lg transition-all duration-200 ${
                 isSelected
-                  ? 'bg-accent-primary text-white shadow-md shadow-accent-primary/25'
+                  ? 'bg-accent-primary text-[#1a1a2e] font-bold shadow-md shadow-accent-primary/25'
                   : 'text-text-secondary hover:bg-[var(--btn-glass-hover)] hover:text-text-primary'
               }`}
               title={`${option.label} - ${option.intensity <= 3 ? '弱' : option.intensity <= 5 ? '中' : '強'}`}
@@ -286,7 +286,7 @@ function DynamicsSelector({ value, onChange }: DynamicsSelectorProps) {
               {/* 視覚的な強弱バー */}
               <div
                 className={`w-1.5 rounded-full transition-all duration-200 ${
-                  isSelected ? 'bg-white' : 'bg-current'
+                  isSelected ? 'bg-[#1a1a2e]' : 'bg-current'
                 }`}
                 style={{
                   height: `${8 + option.intensity * 3}px`,
@@ -294,7 +294,7 @@ function DynamicsSelector({ value, onChange }: DynamicsSelectorProps) {
                 }}
               />
               <span className={`text-xs font-bold italic ${
-                isSelected ? 'text-white' : ''
+                isSelected ? 'text-[#1a1a2e]' : ''
               }`}>
                 {option.label}
               </span>

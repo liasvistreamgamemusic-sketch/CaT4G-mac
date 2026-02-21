@@ -45,7 +45,9 @@ interface LineEditorProps {
   canMoveDown?: boolean;
   // Display toggle settings for chord components
   showDiagram?: boolean;        // 押さえ方の図
-  showPlayingMethod?: boolean;  // 引き方 (ストローク/アルペジオパターン)
+  showPlayingMethod?: boolean;  // 引き方 (ストローク/アルペジオのメソッドバッジ)
+  showPattern?: boolean;        // パターン表示 (ストローク矢印/アルペジオ順序) - detailed mode
+  showDetailedInfo?: boolean;   // 拍数・テクニック・ダイナミクス・タイ表示 - detailed mode
   showMemo?: boolean;           // メモ
   // 移調量（表示用）
   transpose?: number;
@@ -74,6 +76,8 @@ export function LineEditor({
   canMoveDown = false,
   showDiagram = true,
   showPlayingMethod = true,
+  showPattern = false,
+  showDetailedInfo = false,
   showMemo = true,
   transpose = 0,
   scale = MAX_SCALE,
@@ -98,7 +102,9 @@ export function LineEditor({
 
   // Chord component width in pixels (varies by display mode)
   // xs diagram is 72x48, with small padding = 76px for diagram mode
-  const CHORD_COMPONENT_WIDTH = showDiagram ? scaledValues.chordWidthDiagram : scaledValues.chordWidthCompact;
+  const CHORD_COMPONENT_WIDTH = showDetailedInfo
+    ? scaledValues.chordWidthDetailed
+    : showDiagram ? scaledValues.chordWidthDiagram : scaledValues.chordWidthCompact;
 
   // Scaled font size
   const scaledFontSize = scaledValues.fontSize;
@@ -106,7 +112,9 @@ export function LineEditor({
   // Minimum chord spacing (in character positions) to prevent diagram overlap
   // Use exact ratio to allow adjacent placement (touching) with half-position snapping
   // 76px / 22px = 3.45 positions - allows chords at positions like 0 and 3.5 to touch
-  const MIN_CHORD_SPACING = scaledValues.minChordSpacing;
+  const MIN_CHORD_SPACING = showDetailedInfo
+    ? scaledValues.minChordSpacingDetailed
+    : scaledValues.minChordSpacing;
 
   // Find the nearest snap position for a given continuous position within lyrics
   // Snap positions: 0, 0.5, 1, 1.5, ... (before/center of each character)
@@ -731,7 +739,11 @@ export function LineEditor({
           ref={chordAreaRef}
           className={`relative font-mono cursor-crosshair bg-background-primary/30 rounded-t px-2 py-1 ${
             dragState?.isDragging ? 'bg-accent-primary/10' : ''
-          } ${line.chords.length > 0 ? (showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8') : 'min-h-[2rem]'}`}
+          } ${line.chords.length > 0
+              ? (showDetailedInfo
+                  ? 'min-h-[10rem] pb-16'
+                  : showDiagram ? 'min-h-[6rem] pb-16' : 'min-h-[3rem] pb-8')
+              : 'min-h-[2rem]'}`}
           onClick={handleChordAreaClick}
           onDoubleClick={handleChordAreaDoubleClick}
           style={{ fontSize: `${scaledFontSize}px`, minWidth: `${minChars}ch` }}
@@ -749,19 +761,23 @@ export function LineEditor({
                (dragState?.verticalDirection === 'down' && canMoveDown));
             const fingering = chordFingerings[chordIndex];
             const methodIndicator = showPlayingMethod ? getMethodIndicator(chord) : '';
-            const patternDisplay = showPlayingMethod ? getPatternDisplay(chord) : '';
+            const patternDisplay = showPattern ? getPatternDisplay(chord) : '';
             const isSelected = selectedChordIndex === chordIndex;
             // Check if there's additional content to show based on toggle settings
-            const hasPattern = showPlayingMethod && patternDisplay.length > 0;
+            const hasPattern = showPattern && patternDisplay.length > 0;
             const hasAnnotation = showMemo && chord.annotation && chord.annotation.trim().length > 0;
 
             // Calculate minimal mode: all toggles off = chord name only
-            const isMinimalMode = !showDiagram && !showPlayingMethod && !showMemo;
+            const isMinimalMode = !showDiagram && !showPlayingMethod && !showMemo && !showDetailedInfo;
 
             // Calculate component dimensions based on what's shown
             // Use fixed pixel width for consistent spacing calculations
             const componentWidth = isMinimalMode ? 'auto' : `${CHORD_COMPONENT_WIDTH}px`;
-            const componentMinHeight = isMinimalMode ? '28px' : (showDiagram ? '72px' : '36px');
+            const componentMinHeight = isMinimalMode
+              ? '28px'
+              : showDetailedInfo
+                ? 'auto'  // Let it grow naturally in detailed mode
+                : (showDiagram ? '72px' : '36px');
 
             // Calculate position in pixels (for precise alignment with lyrics)
             const positionPx = chord.position * CHAR_WIDTH;
@@ -855,6 +871,59 @@ export function LineEditor({
                   </div>
                 )}
 
+                {/* 拍数表示 - detailed mode only */}
+                {showDetailedInfo && chord.duration != null && (
+                  <div
+                    className="text-center leading-tight w-full px-0.5 mt-0.5"
+                    style={{ fontSize: `${8 * scale}px` }}
+                  >
+                    <span className="inline-block px-1.5 py-0.5 rounded-full bg-accent-primary/20 text-accent-primary font-medium">
+                      {chord.duration}拍
+                    </span>
+                  </div>
+                )}
+
+                {/* テクニックバッジ - detailed mode only */}
+                {showDetailedInfo && chord.techniques && chord.techniques.length > 0 && (
+                  <div
+                    className="flex flex-wrap justify-center gap-0.5 w-full px-0.5 mt-0.5"
+                    style={{ fontSize: `${7 * scale}px` }}
+                  >
+                    {chord.techniques.map((tech: string, i: number) => {
+                      const LABELS: Record<string, string> = {
+                        'hammer-on': 'H', 'pull-off': 'P', 'slide-up': '/', 'slide-down': '\\',
+                        'bend': 'B', 'vibrato': '~', 'palm-mute': 'PM', 'harmonic': '<>',
+                        'let-ring': 'LR', 'accent': '>',
+                      };
+                      return (
+                        <span key={i} className="inline-block px-1 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">
+                          {LABELS[tech] || tech}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* ダイナミクス表示 - detailed mode only */}
+                {showDetailedInfo && chord.dynamics && (
+                  <div
+                    className="text-center leading-tight w-full px-0.5 mt-0.5"
+                    style={{ fontSize: `${9 * scale}px` }}
+                  >
+                    <span className="italic font-bold text-blue-300">{chord.dynamics}</span>
+                  </div>
+                )}
+
+                {/* タイ接続表示 - detailed mode only */}
+                {showDetailedInfo && chord.tieToNext && (
+                  <div
+                    className="text-center leading-tight w-full px-0.5 mt-0.5"
+                    style={{ fontSize: `${8 * scale}px` }}
+                  >
+                    <span className="text-cyan-400">⌒ tie</span>
+                  </div>
+                )}
+
                 {/* Cross-line drag indicator arrow */}
                 {canMoveToDirection && (
                   <div className={`absolute ${dragState?.verticalDirection === 'up' ? '-top-4' : '-bottom-4'} left-1/2 -translate-x-1/2 text-green-400 text-lg animate-bounce`}>
@@ -868,7 +937,7 @@ export function LineEditor({
                   style={{
                     left: '0px',
                     top: '100%',
-                    height: showDiagram ? '24px' : '12px',
+                    height: showDetailedInfo ? '24px' : showDiagram ? '24px' : '12px',
                   }}
                 />
                 {/* Bottom anchor point indicator */}
@@ -876,7 +945,7 @@ export function LineEditor({
                   className="absolute w-2 h-2 bg-accent-primary/60 rounded-full pointer-events-none"
                   style={{
                     left: '-3px',
-                    top: `calc(100% + ${showDiagram ? '22px' : '10px'})`,
+                    top: `calc(100% + ${showDetailedInfo ? '22px' : showDiagram ? '22px' : '10px'})`,
                   }}
                 />
               </div>

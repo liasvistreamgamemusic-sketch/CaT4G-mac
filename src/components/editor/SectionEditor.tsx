@@ -66,7 +66,9 @@ interface SectionEditorProps {
   onSplitSection?: (atLineIndex: number) => void;
   // Display toggle settings for chord components
   showDiagram?: boolean;        // 押さえ方の図
-  showPlayingMethod?: boolean;  // 引き方 (ストローク/アルペジオパターン)
+  showPlayingMethod?: boolean;  // 引き方 (ストローク/アルペジオのメソッドバッジ)
+  showPattern?: boolean;        // パターン表示 (ストローク矢印/アルペジオ順序) - detailed mode
+  showDetailedInfo?: boolean;   // 拍数・テクニック・ダイナミクス・タイ表示 - detailed mode
   showMemo?: boolean;           // メモ
   // 移調量（表示用）
   transpose?: number;
@@ -152,6 +154,8 @@ export function SectionEditor({
   onSplitSection,
   showDiagram = true,
   showPlayingMethod = true,
+  showPattern = false,
+  showDetailedInfo = false,
   showMemo = true,
   transpose = 0,
   scale = 1.0,
@@ -437,6 +441,8 @@ export function SectionEditor({
                   }}
                   showDiagram={showDiagram}
                   showPlayingMethod={showPlayingMethod}
+                  showPattern={showPattern}
+                  showDetailedInfo={showDetailedInfo}
                   showMemo={showMemo}
                   transpose={transpose}
                   scale={scale}
