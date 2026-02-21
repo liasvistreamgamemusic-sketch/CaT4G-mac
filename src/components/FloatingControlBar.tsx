@@ -119,10 +119,11 @@ export function FloatingControlBar({
   };
 
   // Drag handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     // Don't start drag if clicking on interactive elements
     if ((e.target as HTMLElement).closest('button, input, select')) return;
 
+    e.currentTarget.setPointerCapture(e.pointerId);
     setIsDragging(true);
     dragRef.current = {
       startX: e.clientX,
@@ -132,8 +133,8 @@ export function FloatingControlBar({
     };
   };
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
+  const handlePointerMove = useCallback(
+    (e: PointerEvent) => {
       if (!isDragging || !dragRef.current) return;
 
       const deltaX = e.clientX - dragRef.current.startX;
@@ -161,23 +162,23 @@ export function FloatingControlBar({
     [isDragging, containerRef]
   );
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     setIsDragging(false);
     dragRef.current = null;
   }, []);
 
-  // Add/remove mouse event listeners
+  // Add/remove pointer event listeners
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handlePointerMove, handlePointerUp]);
 
   // リサイズ時にバーの位置を制約内に収める
   useEffect(() => {
@@ -331,8 +332,9 @@ export function FloatingControlBar({
         transform: `translateX(calc(-50% + ${position.x}px))`,
         cursor: isDragging ? 'grabbing' : 'grab',
         zIndex: 50,
+        touchAction: isDragging ? 'none' : 'auto',
       }}
-      onMouseDown={handleMouseDown}
+      onPointerDown={handlePointerDown}
     >
       {/* Outer glow effect */}
       <div

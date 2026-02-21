@@ -255,8 +255,10 @@ export function PlayableChordLine({
                 width: displayWidth,
                 minHeight: displayHeight,
               }}
-              onClick={(e) => e.stopPropagation()}
-              onDoubleClick={() => onChordClick?.(chord.chord)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChordClick?.(chord.chord);
+              }}
               title={`${chord.chord}${chord.annotation ? `\n${chord.annotation}` : ''}`}
             >
               {/* ヘッダー: コード名 + メソッドバッジ */}

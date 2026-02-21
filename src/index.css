@@ -209,6 +209,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s ease, color 0.3s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Custom scrollbar */
@@ -763,5 +765,32 @@
 .volume-slider::-moz-range-thumb {
   width: var(--thumb-w, 12px);
   height: var(--thumb-h, 12px);
+}
+
+/* ============================================
+ * Touch Device Support
+ * ============================================ */
+@media (hover: none) {
+  /* Show hover-hidden controls on touch devices (subdued) */
+  .group-hover\:opacity-100 {
+    opacity: 0.6 !important;
+  }
+  .group-hover\:opacity-100:active {
+    opacity: 1 !important;
+  }
+  .hover\:opacity-100 {
+    opacity: 0.6 !important;
+  }
+  .hover\:opacity-100:active {
+    opacity: 1 !important;
+  }
+
+  /* Disable hover translateY effect on touch */
+  .btn-glass:hover:not(:disabled),
+  .btn-glass-primary:hover:not(:disabled),
+  .btn-glass-ghost:hover:not(:disabled),
+  .btn-glass-danger:hover:not(:disabled) {
+    transform: none;
+  }
 }
 
