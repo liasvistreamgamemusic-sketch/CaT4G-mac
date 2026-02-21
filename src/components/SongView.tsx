@@ -68,7 +68,7 @@ interface SongViewProps {
   /** コードクリック時のコールバック */
   onChordClick?: (chord: string) => void;
   /** 曲更新時のコールバック */
-  onSongUpdated?: () => void;
+  onSongUpdated?: (updatedSong?: SongWithDetails | null) => void;
   /** 移調変更コールバック */
   onTransposeChange?: (value: number) => void;
   /** Capo変更コールバック */
@@ -501,7 +501,7 @@ export const SongView = forwardRef<HTMLElement, SongViewProps>(function SongView
         });
       }
 
-      onSongUpdated?.();
+      onSongUpdated?.(updatedSong);
     } catch (error) {
       console.error('Failed to save song:', error);
     } finally {

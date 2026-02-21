@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -137,14 +137,14 @@ export function Sidebar({
   }, [onWidthChange]);
 
   // Filter songs
-  const filteredSongs = songs.filter((song) => {
+  const filteredSongs = useMemo(() => songs.filter((song) => {
     const matchesSearch =
       !searchQuery ||
       song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       song.artistName?.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesSearch;
-  });
+  }), [songs, searchQuery]);
 
   const handleToggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -505,7 +505,7 @@ interface SongItemProps {
   scale?: number;
 }
 
-function SongItem({
+const SongItem = React.memo(function SongItem({
   song,
   isSelected,
   onSelect,
@@ -697,4 +697,4 @@ function SongItem({
       )}
     </li>
   );
-}
+});

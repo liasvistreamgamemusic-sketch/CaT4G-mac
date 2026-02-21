@@ -49,8 +49,9 @@ export async function getSupportedSites(): Promise<SupportedSite[]> {
  * @param page - Page number (optional, defaults to 1)
  * @returns Search results with pagination info
  */
-export async function searchUfret(query: string, page?: number): Promise<UfretSearchResponse> {
-  return await invoke<UfretSearchResponse>('search_ufret', { query, page: page ?? 1 });
+export async function searchUfret(_query: string, _page?: number): Promise<UfretSearchResponse> {
+  // TODO: Rust バックエンドに search_ufret コマンドを実装
+  throw new Error('searchUfret is not yet implemented in Tauri backend');
 }
 
 /**
@@ -60,10 +61,11 @@ export async function searchUfret(query: string, page?: number): Promise<UfretSe
  * @returns Array of search results for the artist's songs
  */
 export async function fetchArtistSongs(
-  artistUrl: string,
-  artistName: string
+  _artistUrl: string,
+  _artistName: string
 ): Promise<UfretSearchResult[]> {
-  return await invoke<UfretSearchResult[]>('fetch_artist_songs', { artistUrl, artistName });
+  // TODO: Rust バックエンドに fetch_artist_songs コマンドを実装
+  throw new Error('fetchArtistSongs is not yet implemented in Tauri backend');
 }
 
 // ============================================

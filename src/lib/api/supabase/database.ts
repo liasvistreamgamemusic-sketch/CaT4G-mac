@@ -38,6 +38,10 @@ function generateUUID(): UUID {
   return crypto.randomUUID();
 }
 
+function escapeIlike(str: string): string {
+  return str.replace(/[%_\\]/g, (c) => `\\${c}`);
+}
+
 async function requireUserId(): Promise<string> {
   const userId = await getCurrentUserId();
   if (!userId) {
@@ -91,26 +95,16 @@ export async function getSongById(id: UUID): Promise<SongWithDetails | null> {
 
   if (!songData) return null;
 
-  // Get sections
+  // Get sections with lines in a single nested query
   const { data: sectionsData, error: sectionsError } = await supabase
     .from('sections')
-    .select('*')
+    .select('*, lines(*)')
     .eq('song_id', id)
     .order('order_index');
 
   if (sectionsError) throw new Error(sectionsError.message);
 
-  // Get lines for each section
-  const sections: SectionWithLines[] = [];
-  for (const sectionRow of sectionsData ?? []) {
-    const { data: linesData, error: linesError } = await supabase
-      .from('lines')
-      .select('*')
-      .eq('section_id', sectionRow.id)
-      .order('order_index');
-
-    if (linesError) throw new Error(linesError.message);
-
+  const sections: SectionWithLines[] = (sectionsData ?? []).map((sectionRow: any) => {
     const section: Section = {
       id: sectionRow.id,
       songId: sectionRow.song_id,
@@ -122,17 +116,19 @@ export async function getSongById(id: UUID): Promise<SongWithDetails | null> {
       playbackSpeedOverride: sectionRow.playback_speed_override,
     };
 
-    const lines: Line[] = (linesData ?? []).map((lineRow) => ({
-      id: lineRow.id,
-      sectionId: lineRow.section_id,
-      lyrics: lineRow.lyrics,
-      chords: lineRow.chords_json as ExtendedChordPosition[],
-      orderIndex: lineRow.order_index,
-      measures: lineRow.measures,
-    }));
+    const lines: Line[] = ((sectionRow.lines ?? []) as any[])
+      .sort((a, b) => a.order_index - b.order_index)
+      .map((lineRow) => ({
+        id: lineRow.id,
+        sectionId: lineRow.section_id,
+        lyrics: lineRow.lyrics,
+        chords: lineRow.chords_json as ExtendedChordPosition[],
+        orderIndex: lineRow.order_index,
+        measures: lineRow.measures,
+      }));
 
-    sections.push({ section, lines });
-  }
+    return { section, lines };
+  });
 
   // Get tags
   const { data: tagsData, error: tagsError } = await supabase
@@ -195,7 +191,7 @@ export async function searchSongs(query: string): Promise<SongListItem[]> {
       title,
       artists!songs_artist_id_fkey ( name )
     `)
-    .or(`title.ilike.%${query}%,artists.name.ilike.%${query}%`)
+    .or(`title.ilike.%${escapeIlike(query)}%,artists.name.ilike.%${escapeIlike(query)}%`)
     .order('updated_at', { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -260,53 +256,55 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
   });
   if (songError) throw new Error(songError.message);
 
-  // Insert sections and lines
-  for (let sIdx = 0; sIdx < input.sections.length; sIdx++) {
-    const sectionInput = input.sections[sIdx];
-    const sectionId = generateUUID();
+  // Batch insert sections
+  const sectionRows = input.sections.map((sectionInput, sIdx) => ({
+    id: generateUUID(),
+    user_id: userId,
+    song_id: songId,
+    name: sectionInput.name,
+    order_index: sIdx,
+    repeat_count: sectionInput.repeatCount ?? 1,
+  }));
 
-    const { error: sectionError } = await supabase.from('sections').insert({
-      id: sectionId,
-      user_id: userId,
-      song_id: songId,
-      name: sectionInput.name,
-      order_index: sIdx,
-      repeat_count: sectionInput.repeatCount ?? 1,
-    });
+  if (sectionRows.length > 0) {
+    const { error: sectionError } = await supabase.from('sections').insert(sectionRows);
     if (sectionError) throw new Error(sectionError.message);
-
-    for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
-      const lineInput = sectionInput.lines[lIdx];
-      const lineId = generateUUID();
-
-      const { error: lineError } = await supabase.from('lines').insert({
-        id: lineId,
-        user_id: userId,
-        section_id: sectionId,
-        lyrics: lineInput.lyrics,
-        chords_json: lineInput.chords,
-        order_index: lIdx,
-        measures: 4,
-      });
-      if (lineError) throw new Error(lineError.message);
-    }
   }
 
-  // Add tags
+  // Batch insert lines
+  const lineRows = input.sections.flatMap((sectionInput, sIdx) =>
+    sectionInput.lines.map((lineInput, lIdx) => ({
+      id: generateUUID(),
+      user_id: userId,
+      section_id: sectionRows[sIdx].id,
+      lyrics: lineInput.lyrics,
+      chords_json: lineInput.chords,
+      order_index: lIdx,
+      measures: 4,
+    }))
+  );
+
+  if (lineRows.length > 0) {
+    const { error: lineError } = await supabase.from('lines').insert(lineRows);
+    if (lineError) throw new Error(lineError.message);
+  }
+
+  // Batch insert tags
   if (input.tagIds && input.tagIds.length > 0) {
-    for (const tagId of input.tagIds) {
-      const { error } = await supabase.from('song_tags').insert({
-        song_id: songId,
-        tag_id: tagId,
-        user_id: userId,
-      });
-      if (error && !error.message.includes('duplicate')) throw new Error(error.message);
-    }
+    const tagRows = input.tagIds.map((tagId) => ({
+      song_id: songId,
+      tag_id: tagId,
+      user_id: userId,
+    }));
+
+    const { error } = await supabase.from('song_tags').insert(tagRows);
+    if (error && !error.message.includes('duplicate')) throw new Error(error.message);
   }
 
   return songId;
 }
 
+// TODO: Supabase RPC でアトミック INCREMENT に変更する
 export async function incrementPlayCount(id: UUID): Promise<void> {
   const supabase = getSupabaseClient();
 
@@ -406,39 +404,40 @@ export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void
 
     if (deleteError) throw new Error(deleteError.message);
 
-    // Insert new sections and lines
-    for (let sIdx = 0; sIdx < input.sections.length; sIdx++) {
-      const sectionInput = input.sections[sIdx];
-      const sectionId = sectionInput.id ?? generateUUID();
+    // Batch insert new sections
+    const sectionRows = input.sections.map((sectionInput, sIdx) => ({
+      id: sectionInput.id ?? generateUUID(),
+      user_id: userId,
+      song_id: id,
+      name: sectionInput.name,
+      order_index: sIdx,
+      repeat_count: sectionInput.repeatCount ?? 1,
+      transpose_override: sectionInput.transposeOverride ?? null,
+      bpm_override: sectionInput.bpmOverride ?? null,
+      playback_speed_override: sectionInput.playbackSpeedOverride ?? null,
+    }));
 
-      const { error: sectionError } = await supabase.from('sections').insert({
-        id: sectionId,
-        user_id: userId,
-        song_id: id,
-        name: sectionInput.name,
-        order_index: sIdx,
-        repeat_count: sectionInput.repeatCount ?? 1,
-        transpose_override: sectionInput.transposeOverride ?? null,
-        bpm_override: sectionInput.bpmOverride ?? null,
-        playback_speed_override: sectionInput.playbackSpeedOverride ?? null,
-      });
+    if (sectionRows.length > 0) {
+      const { error: sectionError } = await supabase.from('sections').insert(sectionRows);
       if (sectionError) throw new Error(sectionError.message);
+    }
 
-      for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
-        const lineInput = sectionInput.lines[lIdx];
-        const lineId = lineInput.id ?? generateUUID();
+    // Batch insert new lines
+    const lineRows = input.sections.flatMap((sectionInput, sIdx) =>
+      sectionInput.lines.map((lineInput, lIdx) => ({
+        id: lineInput.id ?? generateUUID(),
+        user_id: userId,
+        section_id: sectionRows[sIdx].id,
+        lyrics: lineInput.lyrics,
+        chords_json: lineInput.chords,
+        order_index: lIdx,
+        measures: lineInput.measures ?? 4,
+      }))
+    );
 
-        const { error: lineError } = await supabase.from('lines').insert({
-          id: lineId,
-          user_id: userId,
-          section_id: sectionId,
-          lyrics: lineInput.lyrics,
-          chords_json: lineInput.chords,
-          order_index: lIdx,
-          measures: lineInput.measures ?? 4,
-        });
-        if (lineError) throw new Error(lineError.message);
-      }
+    if (lineRows.length > 0) {
+      const { error: lineError } = await supabase.from('lines').insert(lineRows);
+      if (lineError) throw new Error(lineError.message);
     }
   }
 }

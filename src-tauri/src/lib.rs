@@ -1,4 +1,5 @@
 use tauri::Manager;
+use url::Url;
 
 mod error;
 mod http;
@@ -9,14 +10,16 @@ use parsers::{chordwiki, gakkime, jtotal, ufret, FetchedChordSheet};
 
 /// Determine which parser to use based on URL domain
 fn get_parser(url: &str) -> Result<fn(&str) -> Result<FetchedChordSheet, FetchError>, FetchError> {
-    if url.contains("ufret.jp") {
+    let parsed = Url::parse(url).map_err(|_| FetchError::UnsupportedSite(url.to_string()))?;
+    let host = parsed.host_str().unwrap_or("");
+
+    if host == "ufret.jp" || host.ends_with(".ufret.jp") {
         Ok(ufret::parse)
-    } else if url.contains("j-total.net") {
+    } else if host == "j-total.net" || host.ends_with(".j-total.net") {
         Ok(jtotal::parse)
-    } else if url.contains("gakufu.gakki.me") || url.contains("gakki.me") {
+    } else if host == "gakki.me" || host.ends_with(".gakki.me") {
         Ok(gakkime::parse)
-    } else if url.contains("chordwiki.org") {
-        // ChordWiki requires manual HTML input due to Cloudflare protection
+    } else if host == "chordwiki.org" || host.ends_with(".chordwiki.org") {
         Ok(chordwiki::parse)
     } else {
         Err(FetchError::UnsupportedSite(url.to_string()))

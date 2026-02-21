@@ -98,11 +98,21 @@ export function useAutoScroll({
     }
   }, []);
 
-  // Store scrollSpeed in ref for real-time updates during scroll
+  // Store values in refs for real-time updates during scroll (avoid stale closures)
   const scrollSpeedRef = useRef(scrollSpeed);
   useEffect(() => {
     scrollSpeedRef.current = scrollSpeed;
   }, [scrollSpeed]);
+
+  const bpmRef = useRef(bpm);
+  useEffect(() => {
+    bpmRef.current = bpm;
+  }, [bpm]);
+
+  const bpmSyncRef = useRef(bpmSync);
+  useEffect(() => {
+    bpmSyncRef.current = bpmSync;
+  }, [bpmSync]);
 
   // Main scroll effect
   useEffect(() => {
@@ -131,11 +141,13 @@ export function useAutoScroll({
           return;
         }
 
-        // Calculate speed in real-time (use ref for latest value)
+        // Calculate speed in real-time (use refs for latest values)
         const currentScrollSpeed = scrollSpeedRef.current;
+        const currentBpm = bpmRef.current;
+        const currentBpmSync = bpmSyncRef.current;
         let speed = currentScrollSpeed;
-        if (bpmSync && bpm && bpm > 0) {
-          speed = (bpm / 120) * currentScrollSpeed;
+        if (currentBpmSync && currentBpm && currentBpm > 0) {
+          speed = (currentBpm / 120) * currentScrollSpeed;
         }
 
         // Accumulate sub-pixel scroll amounts
@@ -166,7 +178,7 @@ export function useAutoScroll({
     return () => {
       clearScrollInterval();
     };
-  }, [isPlaying, bpm, bpmSync, containerRef, onReachEnd, clearScrollInterval, isAtBottom]);
+  }, [isPlaying, containerRef, onReachEnd, clearScrollInterval, isAtBottom]);
 
   /**
    * Scroll to the top of the container

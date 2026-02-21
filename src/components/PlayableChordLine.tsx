@@ -23,6 +23,13 @@ import { useChordPreferencesContextSafe } from '@/contexts/ChordPreferencesConte
 // 定数はスケーリングモジュール（src/lib/scaling.ts）で管理
 // ============================================
 
+// テクニックの短縮ラベルマップ
+const TECHNIQUE_SHORT_LABELS: Record<string, string> = {
+  'hammer-on': 'H', 'pull-off': 'P', 'slide-up': '/', 'slide-down': '\\',
+  'bend': 'B', 'vibrato': '~', 'palm-mute': 'PM', 'harmonic': '<>',
+  'let-ring': 'LR', 'accent': '>',
+};
+
 // ============================================
 // 型定義
 // ============================================
@@ -191,13 +198,6 @@ export function PlayableChordLine({
         .join('-');
     }
     return '';
-  };
-
-  // テクニックの短縮ラベルマップ
-  const TECHNIQUE_SHORT_LABELS: Record<string, string> = {
-    'hammer-on': 'H', 'pull-off': 'P', 'slide-up': '/', 'slide-down': '\\',
-    'bend': 'B', 'vibrato': '~', 'palm-mute': 'PM', 'harmonic': '<>',
-    'let-ring': 'LR', 'accent': '>',
   };
 
   // 最大位置を計算（幅の決定）

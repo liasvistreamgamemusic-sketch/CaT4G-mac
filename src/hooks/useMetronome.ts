@@ -117,6 +117,11 @@ export function useMetronome({
 
     osc.start(time);
     osc.stop(time + CLICK_DURATION);
+
+    osc.onended = () => {
+      osc.disconnect();
+      gain.disconnect();
+    };
   }, []);
 
   /**

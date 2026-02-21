@@ -1,7 +1,12 @@
 use crate::error::FetchError;
 use tauri_plugin_http::reqwest::Client;
 use tauri_plugin_http::reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, ACCEPT_ENCODING, CACHE_CONTROL, PRAGMA, UPGRADE_INSECURE_REQUESTS};
+use std::sync::LazyLock;
 use std::time::Duration;
+
+static HTTP_CLIENT: LazyLock<Client> = LazyLock::new(|| {
+    create_client().expect("Failed to create HTTP client")
+});
 
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const TIMEOUT_SECS: u64 = 30;
@@ -45,7 +50,7 @@ pub fn create_client() -> Result<Client, FetchError> {
 }
 
 pub async fn fetch_page(url: &str) -> Result<String, FetchError> {
-    let client = create_client()?;
+    let client = &*HTTP_CLIENT;
     let response = client.get(url).send().await?;
 
     if !response.status().is_success() {
