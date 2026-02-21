@@ -30,6 +30,9 @@ import type { Fingering as DataFingering } from './data/types';
 import { getIntervalsFromRegistry, normalizeQualityFromRegistry, generateFingeringFromSlashChordName } from './theory';
 import { getChordsDbFingerings } from './chordsDb';
 
+// コードフィンガリングのキャッシュ（同一セッション内で同じコード名の再計算を防止）
+const fingeringsCache = new Map<string, ChordFingering[]>();
+
 // 開放弦の音（標準チューニング）
 // [1弦(E4), 2弦(B3), 3弦(G3), 4弦(D3), 5弦(A2), 6弦(E2)]
 const OPEN_STRINGS: number[] = [4, 11, 7, 2, 9, 4]; // MIDIノート番号 mod 12
@@ -276,6 +279,10 @@ export function generateChordFingering(chordName: string): ChordFingering | null
  * 4. 動的生成でフォールバック（ライブラリにない場合）
  */
 export function generateChordFingerings(chordName: string): ChordFingering[] {
+  // キャッシュにヒットした場合は即座に返す
+  const cached = fingeringsCache.get(chordName);
+  if (cached) return cached;
+
   const allFingerings: ChordFingering[] = [];
   const seen = new Set<string>();
 
@@ -446,10 +453,14 @@ export function generateChordFingerings(chordName: string): ChordFingering[] {
   });
 
   // isDefault フラグを更新（最初のものだけがデフォルト）
-  return sortedFingerings.map((fingering, index) => ({
+  const result = sortedFingerings.map((fingering, index) => ({
     ...fingering,
     isDefault: index === 0,
   }));
+
+  // キャッシュに保存
+  fingeringsCache.set(chordName, result);
+  return result;
 }
 
 /**

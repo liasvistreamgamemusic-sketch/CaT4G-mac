@@ -2,6 +2,39 @@ use crate::error::FetchError;
 use crate::parsers::{FetchedChord, FetchedChordSheet, FetchedLine, FetchedSection};
 use regex::Regex;
 use scraper::{Html, Selector, ElementRef};
+use std::sync::LazyLock;
+
+/// Matches U-Fret's JavaScript variable: var ufret_chord_datas = [...]
+static UFRET_CHORD_DATAS_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r#"var\s+ufret_chord_datas\s*=\s*\[([^\]]*(?:\][^\];]*)*)\]"#).unwrap()
+});
+
+/// Matches quoted string items within a JavaScript array
+static JS_QUOTED_STRING_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r#""((?:[^"\\]|\\.)*)""#).unwrap()
+});
+
+/// Matches chord markers like [Am], [G7], [B/D#], etc.
+static CHORD_MARKER_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\[([A-G][#♯b♭]?[^\]]*)\]").unwrap()
+});
+
+/// Matches capo indicators like "Capo 4", "カポ4"
+static CAPO_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"[Cc]apo\s*(\d+)|カポ\s*(\d+)").unwrap()
+});
+
+/// Matches any digit sequence (fallback for capo extraction)
+static DIGITS_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\d+").unwrap()
+});
+
+/// Validates chord names like C, Am, G7, F#m, Bb, Dm/F, Cmaj7
+static CHORD_PATTERN_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"^[A-G][#♯b♭]?(m|M|maj|min|dim|aug|sus[24]?|add\d+|\d+|7|9|11|13)?(/[A-G][#♯b♭]?)?$"
+    ).unwrap()
+});
 
 pub fn parse(html: &str) -> Result<FetchedChordSheet, FetchError> {
     let document = Html::parse_document(html);
@@ -98,11 +131,7 @@ pub fn parse(html: &str) -> Result<FetchedChordSheet, FetchError> {
 /// Extract chord data from U-Fret's JavaScript variable
 /// Format: var ufret_chord_datas = ["[E]\u3000[B\/D#]...", "歌詞行...", ...]
 fn extract_ufret_chord_datas(html: &str) -> Result<Option<Vec<FetchedSection>>, FetchError> {
-    // Match: var ufret_chord_datas = [...] (greedy to get full array)
-    let re = Regex::new(r#"var\s+ufret_chord_datas\s*=\s*\[([^\]]*(?:\][^\];]*)*)\]"#)
-        .map_err(|e| FetchError::ParseError(format!("Invalid regex: {}", e)))?;
-
-    let captures = match re.captures(html) {
+    let captures = match UFRET_CHORD_DATAS_RE.captures(html) {
         Some(c) => c,
         None => return Ok(None),
     };
@@ -111,12 +140,8 @@ fn extract_ufret_chord_datas(html: &str) -> Result<Option<Vec<FetchedSection>>, 
         .ok_or_else(|| FetchError::ParseError("Failed to extract array content".to_string()))?
         .as_str();
 
-    // Parse the array items (they are quoted strings)
-    let item_re = Regex::new(r#""((?:[^"\\]|\\.)*)""#)
-        .map_err(|e| FetchError::ParseError(format!("Invalid item regex: {}", e)))?;
-
     let mut lines: Vec<String> = Vec::new();
-    for cap in item_re.captures_iter(array_content) {
+    for cap in JS_QUOTED_STRING_RE.captures_iter(array_content) {
         if let Some(m) = cap.get(1) {
             // Unescape the string
             let unescaped = unescape_js_string(m.as_str());
@@ -181,10 +206,7 @@ fn unescape_js_string(s: &str) -> String {
 fn parse_ufret_lines(lines: &[String]) -> Result<Vec<FetchedSection>, FetchError> {
     let mut sections = Vec::new();
     let mut current_section = FetchedSection::new("Main");
-
-    // Regex to match chord markers like [Am], [G7], [B/D#], etc.
-    let chord_re = Regex::new(r"\[([A-G][#♯b♭]?[^\]]*)\]")
-        .map_err(|e| FetchError::ParseError(format!("Invalid chord regex: {}", e)))?;
+    let chord_re = &*CHORD_MARKER_RE;
 
     for line in lines {
         let line = line.trim();
@@ -423,15 +445,12 @@ fn parse_ufret_chord_content(element: ElementRef) -> Result<Vec<FetchedSection>,
 }
 
 fn extract_capo_from_text(text: &str) -> Option<i32> {
-    // Match patterns like "Capo 4", "カポ4", "(Capo 4)"
-    let re = Regex::new(r"[Cc]apo\s*(\d+)|カポ\s*(\d+)").ok()?;
-    if let Some(cap) = re.captures(text) {
+    if let Some(cap) = CAPO_RE.captures(text) {
         return cap.get(1).or(cap.get(2))
             .and_then(|m| m.as_str().parse().ok());
     }
     // Fallback: just extract any number
-    let num_re = Regex::new(r"\d+").ok()?;
-    num_re.find(text).and_then(|m| m.as_str().parse().ok())
+    DIGITS_RE.find(text).and_then(|m| m.as_str().parse().ok())
 }
 
 fn parse_chord_text(text: &str) -> Result<Vec<FetchedSection>, FetchError> {
@@ -516,10 +535,7 @@ fn is_chord_line(line: &str) -> bool {
 }
 
 fn is_valid_chord(token: &str) -> bool {
-    let chord_pattern = Regex::new(
-        r"^[A-G][#♯b♭]?(m|M|maj|min|dim|aug|sus[24]?|add\d+|\d+|7|9|11|13)?(/[A-G][#♯b♭]?)?$"
-    ).unwrap();
-    chord_pattern.is_match(token)
+    CHORD_PATTERN_RE.is_match(token)
 }
 
 fn parse_chord_line(line: &str) -> Vec<FetchedChord> {

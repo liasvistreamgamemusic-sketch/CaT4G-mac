@@ -16,7 +16,8 @@
       "allow": [
         { "url": "https://*.chordwiki.org/*" },
         { "url": "https://*.ufret.jp/*" },
-        { "url": "https://*.j-total.net/*" }
+        { "url": "https://*.j-total.net/*" },
+        { "url": "https://*.gakki.me/*" }
       ]
     }
   ]

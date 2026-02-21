@@ -319,23 +319,31 @@ export async function getSongById(id: UUID): Promise<SongWithDetails | null> {
     }
   }
 
-  // Get sections with lines
+  // Get sections with lines (single query to avoid N+1)
   const sectionRows = await database.select<SectionRow[]>(
     'SELECT * FROM sections WHERE song_id = ? ORDER BY order_index',
     [id]
   );
 
-  const sections: SectionWithLines[] = [];
-  for (const sectionRow of sectionRows) {
-    const lineRows = await database.select<LineRow[]>(
-      'SELECT * FROM lines WHERE section_id = ? ORDER BY order_index',
-      [sectionRow.id]
-    );
-    sections.push({
-      section: toSection(sectionRow),
-      lines: lineRows.map(toLine),
-    });
+  const allLines = await database.select<LineRow[]>(
+    `SELECT l.* FROM lines l
+     INNER JOIN sections s ON l.section_id = s.id
+     WHERE s.song_id = ?
+     ORDER BY s.order_index, l.order_index`,
+    [id]
+  );
+
+  const linesBySection = new Map<string, LineRow[]>();
+  for (const line of allLines) {
+    const existing = linesBySection.get(line.section_id) || [];
+    existing.push(line);
+    linesBySection.set(line.section_id, existing);
   }
+
+  const sections: SectionWithLines[] = sectionRows.map((sectionRow) => ({
+    section: toSection(sectionRow),
+    lines: (linesBySection.get(sectionRow.id) || []).map(toLine),
+  }));
 
   // Get tags
   const tagRows = await database.select<TagRow[]>(
@@ -388,74 +396,82 @@ export async function saveSong(input: CreateSongInput): Promise<UUID> {
   const songId = generateUUID();
   const now = new Date().toISOString();
 
-  // Create or find artist
-  let artistId: UUID | null = null;
-  if (input.artistName) {
-    const existingArtist = await database.select<ArtistRow[]>(
-      'SELECT id FROM artists WHERE name = ?',
-      [input.artistName]
-    );
-
-    if (existingArtist.length > 0) {
-      artistId = existingArtist[0].id;
-    } else {
-      artistId = generateUUID();
-      await database.execute(
-        'INSERT INTO artists (id, name, created_at) VALUES (?, ?, ?)',
-        [artistId, input.artistName, now]
+  await database.execute('BEGIN TRANSACTION');
+  try {
+    // Create or find artist
+    let artistId: UUID | null = null;
+    if (input.artistName) {
+      const existingArtist = await database.select<ArtistRow[]>(
+        'SELECT id FROM artists WHERE name = ?',
+        [input.artistName]
       );
+
+      if (existingArtist.length > 0) {
+        artistId = existingArtist[0].id;
+      } else {
+        artistId = generateUUID();
+        await database.execute(
+          'INSERT INTO artists (id, name, created_at) VALUES (?, ?, ?)',
+          [artistId, input.artistName, now]
+        );
+      }
     }
-  }
 
-  // Insert song
-  await database.execute(
-    `INSERT INTO songs (id, title, artist_id, original_key, bpm, time_signature, capo, difficulty, source_url, notes, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      songId,
-      input.title,
-      artistId,
-      input.originalKey ?? null,
-      input.bpm ?? null,
-      input.timeSignature ?? '4/4',
-      input.capo ?? 0,
-      input.difficulty ?? null,
-      input.sourceUrl ?? null,
-      input.notes ?? null,
-      now,
-      now,
-    ]
-  );
-
-  // Insert sections and lines
-  for (let sIdx = 0; sIdx < input.sections.length; sIdx++) {
-    const sectionInput = input.sections[sIdx];
-    const sectionId = generateUUID();
-
+    // Insert song
     await database.execute(
-      'INSERT INTO sections (id, song_id, name, order_index, repeat_count, transpose_override, bpm_override, playback_speed_override) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [sectionId, songId, sectionInput.name, sIdx, sectionInput.repeatCount ?? 1, null, null, null]
+      `INSERT INTO songs (id, title, artist_id, original_key, bpm, time_signature, capo, difficulty, source_url, notes, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        songId,
+        input.title,
+        artistId,
+        input.originalKey ?? null,
+        input.bpm ?? null,
+        input.timeSignature ?? '4/4',
+        input.capo ?? 0,
+        input.difficulty ?? null,
+        input.sourceUrl ?? null,
+        input.notes ?? null,
+        now,
+        now,
+      ]
     );
 
-    for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
-      const lineInput = sectionInput.lines[lIdx];
-      const lineId = generateUUID();
+    // Insert sections and lines
+    for (let sIdx = 0; sIdx < input.sections.length; sIdx++) {
+      const sectionInput = input.sections[sIdx];
+      const sectionId = generateUUID();
 
       await database.execute(
-        'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index, measures) VALUES (?, ?, ?, ?, ?, ?)',
-        [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx, 4]
+        'INSERT INTO sections (id, song_id, name, order_index, repeat_count, transpose_override, bpm_override, playback_speed_override) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [sectionId, songId, sectionInput.name, sIdx, sectionInput.repeatCount ?? 1, null, null, null]
       );
-    }
-  }
 
-  // Add tags
-  if (input.tagIds && input.tagIds.length > 0) {
-    for (const tagId of input.tagIds) {
-      await database.execute(
-        'INSERT OR IGNORE INTO song_tags (song_id, tag_id) VALUES (?, ?)',
-        [songId, tagId]
-      );
+      for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
+        const lineInput = sectionInput.lines[lIdx];
+        const lineId = generateUUID();
+
+        await database.execute(
+          'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index, measures) VALUES (?, ?, ?, ?, ?, ?)',
+          [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx, 4]
+        );
+      }
     }
+
+    // Add tags
+    if (input.tagIds && input.tagIds.length > 0) {
+      for (const tagId of input.tagIds) {
+        await database.execute(
+          'INSERT OR IGNORE INTO song_tags (song_id, tag_id) VALUES (?, ?)',
+          [songId, tagId]
+        );
+      }
+    }
+
+    await database.execute('COMMIT');
+  } catch (e) {
+    await database.execute('ROLLBACK');
+    throw e;
   }
 
   return songId;
@@ -478,132 +494,140 @@ export async function updateSong(id: UUID, input: UpdateSongInput): Promise<void
   const database = await getDatabase();
   const now = new Date().toISOString();
 
-  // 1. Handle artist update if artistName is provided
-  let artistId: UUID | null = null;
-  let artistIdUpdated = false;
+  await database.execute('BEGIN TRANSACTION');
+  try {
+    // 1. Handle artist update if artistName is provided
+    let artistId: UUID | null = null;
+    let artistIdUpdated = false;
 
-  if (input.artistName !== undefined) {
-    if (input.artistName === null || input.artistName === '') {
-      // Remove artist association
-      artistId = null;
-      artistIdUpdated = true;
-    } else {
-      // Find existing artist or create new one
-      const existingArtist = await database.select<ArtistRow[]>(
-        'SELECT id FROM artists WHERE name = ?',
-        [input.artistName]
-      );
-
-      if (existingArtist.length > 0) {
-        artistId = existingArtist[0].id;
+    if (input.artistName !== undefined) {
+      if (input.artistName === null || input.artistName === '') {
+        // Remove artist association
+        artistId = null;
+        artistIdUpdated = true;
       } else {
-        artistId = generateUUID();
-        await database.execute(
-          'INSERT INTO artists (id, name, created_at) VALUES (?, ?, ?)',
-          [artistId, input.artistName, now]
+        // Find existing artist or create new one
+        const existingArtist = await database.select<ArtistRow[]>(
+          'SELECT id FROM artists WHERE name = ?',
+          [input.artistName]
         );
+
+        if (existingArtist.length > 0) {
+          artistId = existingArtist[0].id;
+        } else {
+          artistId = generateUUID();
+          await database.execute(
+            'INSERT INTO artists (id, name, created_at) VALUES (?, ?, ?)',
+            [artistId, input.artistName, now]
+          );
+        }
+        artistIdUpdated = true;
       }
-      artistIdUpdated = true;
     }
-  }
 
-  // 2. Build update query for songs table
-  const fields: string[] = [];
-  const values: unknown[] = [];
+    // 2. Build update query for songs table
+    const fields: string[] = [];
+    const values: unknown[] = [];
 
-  if (input.title !== undefined) {
-    fields.push('title = ?');
-    values.push(input.title);
-  }
-  if (artistIdUpdated) {
-    fields.push('artist_id = ?');
-    values.push(artistId);
-  }
-  if (input.originalKey !== undefined) {
-    fields.push('original_key = ?');
-    values.push(input.originalKey);
-  }
-  if (input.bpm !== undefined) {
-    fields.push('bpm = ?');
-    values.push(input.bpm);
-  }
-  if (input.timeSignature !== undefined) {
-    fields.push('time_signature = ?');
-    values.push(input.timeSignature);
-  }
-  if (input.capo !== undefined) {
-    fields.push('capo = ?');
-    values.push(input.capo);
-  }
-  if (input.transpose !== undefined) {
-    fields.push('transpose = ?');
-    values.push(input.transpose);
-  }
-  if (input.playbackSpeed !== undefined) {
-    fields.push('playback_speed = ?');
-    values.push(input.playbackSpeed);
-  }
-  if (input.tuning !== undefined) {
-    fields.push('tuning = ?');
-    values.push(input.tuning);
-  }
-  if (input.difficulty !== undefined) {
-    fields.push('difficulty = ?');
-    values.push(input.difficulty);
-  }
-  if (input.notes !== undefined) {
-    fields.push('notes = ?');
-    values.push(input.notes);
-  }
-
-  // Always update updated_at when something changes
-  if (fields.length > 0 || input.sections !== undefined) {
-    fields.push('updated_at = ?');
-    values.push(now);
-    values.push(id);
-
-    if (fields.length > 1) { // More than just updated_at
-      await database.execute(
-        `UPDATE songs SET ${fields.join(', ')} WHERE id = ?`,
-        values
-      );
+    if (input.title !== undefined) {
+      fields.push('title = ?');
+      values.push(input.title);
     }
-  }
+    if (artistIdUpdated) {
+      fields.push('artist_id = ?');
+      values.push(artistId);
+    }
+    if (input.originalKey !== undefined) {
+      fields.push('original_key = ?');
+      values.push(input.originalKey);
+    }
+    if (input.bpm !== undefined) {
+      fields.push('bpm = ?');
+      values.push(input.bpm);
+    }
+    if (input.timeSignature !== undefined) {
+      fields.push('time_signature = ?');
+      values.push(input.timeSignature);
+    }
+    if (input.capo !== undefined) {
+      fields.push('capo = ?');
+      values.push(input.capo);
+    }
+    if (input.transpose !== undefined) {
+      fields.push('transpose = ?');
+      values.push(input.transpose);
+    }
+    if (input.playbackSpeed !== undefined) {
+      fields.push('playback_speed = ?');
+      values.push(input.playbackSpeed);
+    }
+    if (input.tuning !== undefined) {
+      fields.push('tuning = ?');
+      values.push(input.tuning);
+    }
+    if (input.difficulty !== undefined) {
+      fields.push('difficulty = ?');
+      values.push(input.difficulty);
+    }
+    if (input.notes !== undefined) {
+      fields.push('notes = ?');
+      values.push(input.notes);
+    }
 
-  // 3. Update sections and lines if provided
-  if (input.sections !== undefined) {
-    // Delete existing sections (cascades to lines)
-    await database.execute('DELETE FROM sections WHERE song_id = ?', [id]);
+    // Always update updated_at when something changes
+    if (fields.length > 0 || input.sections !== undefined) {
+      fields.push('updated_at = ?');
+      values.push(now);
+      values.push(id);
 
-    // Insert new sections and lines
-    for (let sIdx = 0; sIdx < input.sections.length; sIdx++) {
-      const sectionInput = input.sections[sIdx];
-      const sectionId = sectionInput.id ?? generateUUID();
-
-      await database.execute(
-        'INSERT INTO sections (id, song_id, name, order_index, repeat_count, transpose_override, bpm_override, playback_speed_override) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [
-          sectionId,
-          id,
-          sectionInput.name,
-          sIdx,
-          sectionInput.repeatCount ?? 1,
-          sectionInput.transposeOverride ?? null,
-          sectionInput.bpmOverride ?? null,
-          sectionInput.playbackSpeedOverride ?? null,
-        ]
-      );
-
-      for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
-        const lineInput = sectionInput.lines[lIdx];
-        const lineId = lineInput.id ?? generateUUID();
-
+      if (fields.length > 1) { // More than just updated_at
         await database.execute(
-          'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index, measures) VALUES (?, ?, ?, ?, ?, ?)',
-          [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx, lineInput.measures ?? 4]
+          `UPDATE songs SET ${fields.join(', ')} WHERE id = ?`,
+          values
         );
       }
     }
+
+    // 3. Update sections and lines if provided
+    if (input.sections !== undefined) {
+      // Delete existing sections (cascades to lines)
+      await database.execute('DELETE FROM sections WHERE song_id = ?', [id]);
+
+      // Insert new sections and lines
+      for (let sIdx = 0; sIdx < input.sections.length; sIdx++) {
+        const sectionInput = input.sections[sIdx];
+        const sectionId = sectionInput.id ?? generateUUID();
+
+        await database.execute(
+          'INSERT INTO sections (id, song_id, name, order_index, repeat_count, transpose_override, bpm_override, playback_speed_override) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            sectionId,
+            id,
+            sectionInput.name,
+            sIdx,
+            sectionInput.repeatCount ?? 1,
+            sectionInput.transposeOverride ?? null,
+            sectionInput.bpmOverride ?? null,
+            sectionInput.playbackSpeedOverride ?? null,
+          ]
+        );
+
+        for (let lIdx = 0; lIdx < sectionInput.lines.length; lIdx++) {
+          const lineInput = sectionInput.lines[lIdx];
+          const lineId = lineInput.id ?? generateUUID();
+
+          await database.execute(
+            'INSERT INTO lines (id, section_id, lyrics, chords_json, order_index, measures) VALUES (?, ?, ?, ?, ?, ?)',
+            [lineId, sectionId, lineInput.lyrics, JSON.stringify(lineInput.chords), lIdx, lineInput.measures ?? 4]
+          );
+        }
+      }
+    }
+
+    await database.execute('COMMIT');
+  } catch (e) {
+    await database.execute('ROLLBACK');
+    throw e;
   }
 }
 

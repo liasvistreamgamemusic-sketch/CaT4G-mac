@@ -283,13 +283,9 @@ export function SongPage() {
   }, [navigate]);
 
   // Song updated callback (wraps context + syncs local state)
-  const handleSongUpdated = useCallback(async () => {
-    await contextHandleSongUpdated();
-    // Re-sync local playback settings from updated song
-    if (selectedSongId) {
-      // The context will update selectedSong, and the useEffect above will sync settings
-    }
-  }, [contextHandleSongUpdated, selectedSongId]);
+  const handleSongUpdated = useCallback(async (updatedSong?: Parameters<typeof contextHandleSongUpdated>[0]) => {
+    await contextHandleSongUpdated(updatedSong);
+  }, [contextHandleSongUpdated]);
 
   // Control handlers
   const handleTransposeChange = useCallback((value: number) => {

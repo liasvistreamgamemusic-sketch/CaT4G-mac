@@ -22,6 +22,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   type ReactNode,
 } from 'react';
 import { initAPI, db } from '@/lib/api';
@@ -58,7 +59,7 @@ interface AppDataContextValue {
   // Song handlers
   handleSaveSong: (input: CreateSongInput) => Promise<string>;
   handleDeleteSong: (id: string) => Promise<void>;
-  handleSongUpdated: () => Promise<void>;
+  handleSongUpdated: (updatedSong?: SongWithDetails | null) => Promise<void>;
 
   // Modal state
   isAddModalOpen: boolean;
@@ -191,11 +192,11 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
   }, [selectedSongId]);
 
   // Load artists (including "その他" for songs without artist)
-  const loadArtists = useCallback(async () => {
+  const loadArtists = useCallback(async (currentSongs: SongListItem[]) => {
     const dbArtists = await db.getArtists();
 
     // Check if there are songs without an artist
-    const songsWithoutArtist = songs.filter(s => !s.artistName);
+    const songsWithoutArtist = currentSongs.filter(s => !s.artistName);
 
     // Add "その他" virtual artist if there are songs without artist
     const allArtists: Artist[] = [...dbArtists];
@@ -208,14 +209,17 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
     }
 
     setArtists(allArtists);
-  }, [songs]);
+  }, []);
 
-  // Load artists when songs change
+  // Load artists when songs count changes (add/delete)
+  const prevSongsLengthRef = useRef(0);
+
   useEffect(() => {
-    if (isDbReady && songs.length >= 0) {
-      loadArtists();
+    if (isDbReady && (songs.length !== prevSongsLengthRef.current || prevSongsLengthRef.current === 0)) {
+      prevSongsLengthRef.current = songs.length;
+      loadArtists(songs);
     }
-  }, [isDbReady, songs, loadArtists]);
+  }, [isDbReady, songs.length, loadArtists]);
 
   // Refetch functions for realtime sync
   const refetchSongs = useCallback(async () => {
@@ -254,11 +258,11 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
 
   const refetchArtists = useCallback(async () => {
     try {
-      await loadArtists();
+      await loadArtists(songs);
     } catch (error) {
       console.error('Failed to refetch artists:', error);
     }
-  }, [loadArtists]);
+  }, [loadArtists, songs]);
 
   // Supabase Realtime sync - refetch data when changes occur on other devices
   useRealtimeSync({
@@ -298,12 +302,14 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
   );
 
   // Song updated callback
-  const handleSongUpdated = useCallback(async () => {
+  const handleSongUpdated = useCallback(async (updatedSong?: SongWithDetails | null) => {
     const updatedSongs = await db.getSongs();
     setSongs(updatedSongs);
-    if (selectedSongId) {
-      const updatedSong = await db.getSongById(selectedSongId);
+    if (updatedSong) {
       setSelectedSong(updatedSong);
+    } else if (selectedSongId) {
+      const song = await db.getSongById(selectedSongId);
+      setSelectedSong(song);
     }
   }, [selectedSongId]);
 

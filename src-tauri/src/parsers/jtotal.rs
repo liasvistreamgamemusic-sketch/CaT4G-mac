@@ -2,6 +2,14 @@ use crate::error::FetchError;
 use crate::parsers::{FetchedChord, FetchedChordSheet, FetchedLine, FetchedSection};
 use regex::Regex;
 use scraper::{Html, Selector};
+use std::sync::LazyLock;
+
+/// Validates chord names like C, Am, G7, F#m, Bb, Dm/F, Cmaj7
+static CHORD_PATTERN_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"^[A-G][#♯b♭]?(m|M|maj|min|dim|aug|sus[24]?|add\d+|\d+|7|9|11|13)?(/[A-G][#♯b♭]?)?$"
+    ).unwrap()
+});
 
 pub fn parse(html: &str) -> Result<FetchedChordSheet, FetchError> {
     let document = Html::parse_document(html);
@@ -125,10 +133,7 @@ fn is_chord_line(line: &str) -> bool {
 }
 
 fn is_valid_chord(token: &str) -> bool {
-    let chord_pattern = Regex::new(
-        r"^[A-G][#♯b♭]?(m|M|maj|min|dim|aug|sus[24]?|add\d+|\d+|7|9|11|13)?(/[A-G][#♯b♭]?)?$"
-    ).unwrap();
-    chord_pattern.is_match(token)
+    CHORD_PATTERN_RE.is_match(token)
 }
 
 fn parse_chord_positions(line: &str) -> Vec<FetchedChord> {
